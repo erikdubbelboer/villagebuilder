@@ -1,0 +1,63 @@
+Village Builder (c) by
+Erik Dubbelboer - erik@dubbelboer.com
+Rens Gehling - mercedesrenz@gmail.com
+
+Village Builder is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+
+You should have received a copy of the license along with this work. If not, see https://creativecommons.org/licenses/by-nc-sa/4.0
+Source available on: https://playcanvas.com/project/879310/overview/village-builder
+
+
+Assets:
+
+https://www.kenney.nl/assets/hexagon-kit
+https://www.fesliyanstudios.com/sound-effects-policy
+
+
+Music:
+
+Now We Ride by Alexander Nakarada | https://www.serpentsoundstudios.com
+Music promoted by https://www.chosic.com/free-music/all/
+Creative Commons CC BY 4.0
+https://creativecommons.org/licenses/by/4.0/
+
+Tavern Brawl by Alexander Nakarada ft. Kevin MacLeod |https://www.serpentsoundstudios.com
+Music promoted by https://www.chosic.com/free-music/all/
+Creative Commons CC BY 4.0
+https://creativecommons.org/licenses/by/4.0/
+
+Medieval: The Old Tower Inn by RandomMind
+Music: https://www.chosic.com/free-music/all/
+
+Medieval and Celtic Music | LANDS by Alex-Productions | https://www.youtube.com/channel/UCx0_M61F81Nfb-BRXE-SeVA
+Music promoted by https://www.chosic.com/free-music/all/
+Creative Commons CC BY 3.0
+https://creativecommons.org/licenses/by/3.0/
+
+Ale and Anecdotes by Darren Curtis | https://www.darrencurtismusic.com/
+Music promoted on https://www.chosic.com/free-music/all/
+Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+https://creativecommons.org/licenses/by/3.0/
+
+
+Engine:
+
+Copyright (c) 2011-2021 PlayCanvas Ltd.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

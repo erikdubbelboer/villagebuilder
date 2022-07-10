@@ -1,0 +1,3 @@
+[submodule "playcanvas-sync"]
+	path = playcanvas-sync
+	url = git@github.com:playcanvas/playcanvas-sync.git
