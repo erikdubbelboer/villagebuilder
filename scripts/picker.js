@@ -572,6 +572,8 @@ PickerFramebuffer.prototype.onSelect = function (event) {
             }
         }
 
+        console.log(this.app.globals.firstpoints, this.app.globals.firstpoints[this.app.placingTileName]);
+
         this.app.undoState = {
             lastTile,
             pointsTier: this.app.pointsTier,
@@ -579,6 +581,7 @@ PickerFramebuffer.prototype.onSelect = function (event) {
             minPoints: this.app.minPoints,
             maxPoints: this.app.maxPoints,
             plusCount: this.app.buttons[0].count,
+            firstpoints: this.app.globals.firstpoints[this.app.placingTileName],
         };
         this.app.root.findByName('UndoGroup').enabled = true;
 

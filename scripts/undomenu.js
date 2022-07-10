@@ -42,8 +42,10 @@ UndoMenu.prototype.initialize = function () {
             giveReward();
         } else {
             PokiSDK.rewardedBreak(() => {
+                this.app.fire('game:disablecamera');
                 this.app.fire('game:pausemusic');
             }).then(reward => {
+                this.app.fire('game:enablecamera');
                 this.app.fire('game:unpausemusic');
 
                 if (reward) {

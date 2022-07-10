@@ -15,6 +15,7 @@ CardButton.attributes.add('index', {
 
 CardButton.prototype.initialize = function () {
     this.tileName = '';
+    this.isDisabled = false;
 
     if (this.app.touch) {
         this.entity.button.on(pc.EVENT_TOUCHSTART, this.onTouchStart, this);
@@ -27,6 +28,13 @@ CardButton.prototype.initialize = function () {
         this.entity.button.on('mouseenter', this.onHoverStart, this);
         this.entity.button.on('mouseleave', this.onHoverEnd, this);
     }
+
+    this.app.on('game:disablecamera', () => {
+        this.isDisabled = true;
+    });
+    this.app.on('game:enablecamera', () => {
+        this.isDisabled = false;
+    });
 
     this.app.on('game:updatebuttons', this.updateButtons, this);
 
@@ -228,6 +236,10 @@ CardButton.prototype.onTouchEnd = function () {
 };
 
 CardButton.prototype.onHoverStart = function () {
+    if (this.isDisabled) {
+        return;
+    }
+
     if (this.app.draggingButtons) {
         return;
     }
@@ -249,6 +261,10 @@ CardButton.prototype.onHoverStart = function () {
 };
 
 CardButton.prototype.onHoverEnd = function () {
+    if (this.isDisabled) {
+        return;
+    }
+
     this.entity.parent.setLocalScale(1, 1, 1);
 
     // Uncomment to re-animate after hover.
@@ -267,6 +283,10 @@ CardButton.prototype.onHoverEnd = function () {
 };
 
 CardButton.prototype.onMouseDown = function (event) {
+    if (this.isDisabled) {
+        return;
+    }
+
     this.wasPlacingTileName = this.app.placingTileName;
     this.app.fire('game:deselect');
     this.entity.parent.setLocalScale(1.05, 1.05, 1.05);

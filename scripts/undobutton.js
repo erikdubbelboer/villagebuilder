@@ -38,7 +38,21 @@ UndoButton.prototype.onSelect = function () {
     if (!this.app.undoMenuSeen) {
         this.app.root.findByName('UndoMenu').enabled = true;
     } else {
-        this.app.undo();
+        if (this.app.isWithEditor || !window.PokiSDK) {
+            this.app.undo();
+        } else {
+            PokiSDK.rewardedBreak(() => {
+                this.app.fire('game:disablecamera');
+                this.app.fire('game:pausemusic');
+            }).then(reward => {
+                this.app.fire('game:enablecamera');
+                this.app.fire('game:unpausemusic');
+
+                if (reward) {
+                    this.app.undo();
+                }
+            });
+        }
     }
 };
 

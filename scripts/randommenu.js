@@ -9,13 +9,23 @@
 const RandomMenu = pc.createScript('randommenu');
 
 RandomMenu.prototype.initialize = function () {
+    this.isDisabled = false;
+
     this.app.root.findByName('RandomMenuBlur').button.on('click', () => {
+        if (this.isDisabled) {
+            return;
+        }
+
         this.entity.enabled = false;
 
         this.app.playSound('menu');
     }, this);
 
     this.app.keyboard.on(pc.EVENT_KEYUP, event => {
+        if (this.isDisabled) {
+            return;
+        }
+
         if (event.key === pc.KEY_ESCAPE) {
             this.app.playSound('menu');
 
@@ -24,6 +34,10 @@ RandomMenu.prototype.initialize = function () {
     });
 
     this.app.root.findByName('RandomContinueButton').button.on('click', () => {
+        if (this.isDisabled) {
+            return;
+        }
+
         this.entity.enabled = false;
 
         this.app.playSound('menu');
@@ -62,8 +76,14 @@ RandomMenu.prototype.initialize = function () {
             giveReward();
         } else {
             PokiSDK.rewardedBreak(() => {
+                this.isDisabled = true;
+
+                this.app.fire('game:disablecamera');
                 this.app.fire('game:pausemusic');
             }).then(reward => {
+                this.isDisabled = false;
+
+                this.app.fire('game:enablecamera');
                 this.app.fire('game:unpausemusic');
 
                 if (reward) {
@@ -88,6 +108,10 @@ RandomMenu.prototype.initialize = function () {
 };
 
 RandomMenu.prototype.onEnable = function () {
+    if (this.isDisabled) {
+        return;
+    }
+
     this.app.menuOpen++;
 
     this.app.fire('game:disablecamera');

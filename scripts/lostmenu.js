@@ -20,10 +20,12 @@ Lostmenu.prototype.initialize = function () {
     const lostRewardButton = this.app.root.findByName('LostRewardButton');
     lostRewardButton.button.on('click', () => {
         PokiSDK.rewardedBreak(() => {
+            this.app.fire('game:disablecamera');
             this.app.fire('game:pausemusic');
         }).then(reward => {
             this.entity.enabled = false;
 
+            this.app.fire('game:enablecamera');
             this.app.fire('game:unpausemusic');
 
             if (reward) {

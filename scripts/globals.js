@@ -213,7 +213,7 @@ Globals.prototype.initialize = function () {
             }
         }
     };
-    document.addEventListener('visibilitychange', () => {
+    /*document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             this.app.gameplayStart();
         } else {
@@ -225,7 +225,7 @@ Globals.prototype.initialize = function () {
     });
     window.addEventListener('focus', () => {
         this.app.gameplayStart();
-    });
+    });*/
 
     this.app.commercialBreak = () => {
         if (window.PokiSDK) {
@@ -293,7 +293,6 @@ Globals.prototype.initialize = function () {
             this.app.buttons[0].count = this.app.undoState.tileCount;
 
             const lastTile = this.app.undoState.lastTile;
-            this.app.undoState = false;
 
             if (lastTile.buildingTile === 'Hunting Cabin') {
                 this.app.levelStoneHillsLeft++;
@@ -306,6 +305,7 @@ Globals.prototype.initialize = function () {
             }
 
             this.app.addTile(lastTile.buildingTile, 1);
+            this.app.globals.firstpoints[lastTile.buildingTile] = this.app.undoState.firstpoints;
 
             lastTile.buildingTile = '';
 
@@ -323,6 +323,8 @@ Globals.prototype.initialize = function () {
             this.app.fire('game:points');
 
             this.app.root.findByName('sun').light.updateShadow();
+
+            this.app.undoState = false;
         }
     };
 
