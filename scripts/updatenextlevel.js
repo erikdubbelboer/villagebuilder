@@ -16,7 +16,7 @@ UpdateNextLevel.prototype.initialize = function () {
 
 UpdateNextLevel.prototype.setScore = function () {
     if (this.app.pointsTier >= 20) {
-        this.entity.element.text = this.app.pointsTier;
+        this.entity.element.text = this.app.pointsTier + '/20';
     } else {
         this.entity.element.text = this.app.pointsTier + '/20';
     }

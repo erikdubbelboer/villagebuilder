@@ -182,12 +182,17 @@ Plusbutton.prototype.fixDeck = function (deck) {
     for (let i = 0; i < 100 && toAdd > 0; i++) {
         const tile = this.weightedRandom(random);
 
-        if (add(tile, 1)) {
+        let cnt = 1;
+        if (tile === 'Forest') {
+            cnt = 3;
+        }
+
+        if (add(tile, cnt)) {
             toAdd--;
         }
 
         // Only give these random once per pack.
-        if (['Tower', 'Church', 'Horses', 'Statue', 'Campfire'].includes(tile)) {
+        if (['Tower', 'Church', 'Horses', 'Statue', 'Campfire', 'Ship', 'Townhall'].includes(tile)) {
             delete random[tile];
         }
     }

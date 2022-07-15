@@ -204,7 +204,9 @@ Scores.prototype.lockscore = function () {
         this.app.placingEntity.score.enabled = false;
     }
 
-    this.app.globals.firstpoints[this.app.placingTileName] = 0;
+    if (this.app.placingTileName !== 'Ship' && this.app.placingTileName !== 'Statue') {
+        this.app.globals.firstpoints[this.app.placingTileName] = 0;
+    }
 };
 
 Scores.prototype.clearscore = function () {

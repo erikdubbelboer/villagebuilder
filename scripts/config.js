@@ -33,15 +33,20 @@ Config.prototype.initialize = function () {
     'Road': 1,
     'Statue': 1,
     'Campfire': 5,
+    'Ship': 3,
+    'Townhall': 3,
+    'Forest': 0,
   };
   this.app.globals.firstpoints = {
+    // Should be empty.
   };
   this.app.globals.basepoints = {
     'House': 2,
     'Mill': 2,
     'Stable': 4,
     'Fishing Hut': 10,
-    'Statue': 20,
+    'Statue': 15,
+    'Ship': 15,
   };
   this.app.globals.needs = {
     'House': {
@@ -204,7 +209,7 @@ Config.prototype.initialize = function () {
         'Road',
       ],
       'and': [
-        'Market',
+        'Church',
         'House',
       ],
       'on': []
@@ -216,6 +221,26 @@ Config.prototype.initialize = function () {
         'Hunting Cabin',
         'Carpenter',
       ],
+      'and': [],
+      'on': []
+    },
+    'Ship': {
+      'or': [],
+      'and': [],
+      'on': [
+        'Water',
+      ]
+    },
+    'Townhall': {
+      'or': [
+        'Road',
+        'Market',
+      ],
+      'and': [],
+      'on': []
+    },
+    'Forest': {
+      'or': [],
       'and': [],
       'on': []
     },
@@ -641,7 +666,7 @@ Config.prototype.initialize = function () {
       'Carpenter': 6
     },
     'Carpenter': {
-      'Carpenter': -40,
+      'Carpenter': -30,
       'Castle': 10,
       'Lumberjack': 10
     },
@@ -744,5 +769,12 @@ Config.prototype.initialize = function () {
     'Campfire': {
       'Forest': 1,
     },
+    'Ship': {
+      'House': 1,
+    },
+    'Townhall': {
+      'House': 3,
+    },
+    'Forest': {},
   };
 };

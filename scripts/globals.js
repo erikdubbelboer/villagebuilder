@@ -8,7 +8,7 @@
 
 const Globals = pc.createScript('globals');
 
-const saveName = 'save4';
+const saveName = 'save5';
 
 Globals.prototype.initialize = function () {
     this.app.isWithEditor = window.location.href.indexOf('launch.playcanvas.com') !== -1;
@@ -63,6 +63,8 @@ Globals.prototype.initialize = function () {
             'Church': 1.2,
             'Hunting Cabin': 1.2,
             'Castle': 1.3,
+            'Townhall': 1.1,
+            'Ship': 1.1,
         },
         scoreHeight: 0.5,
 
@@ -95,6 +97,8 @@ Globals.prototype.initialize = function () {
             'Grass',
             'River',
             'Water Rocks',
+            'Ship',
+            'Townhall',
         ],
 
         namePrefixes: {
@@ -126,6 +130,8 @@ Globals.prototype.initialize = function () {
             'Grass': '',
             'River': 'a',
             'Water Rocks': '',
+            'Ship': 'a',
+            'Townhall': 'a',
         },
 
         cantRotate: [
@@ -491,7 +497,9 @@ Globals.prototype.initialize = function () {
                     this.app.levelFishingHutLeft--;
                 }
 
-                this.app.globals.firstpoints[tile.buildingTile] = 0;
+                if (tile.buildingTile !== 'Ship' && tile.buildingTile !== 'Statue') {
+                    this.app.globals.firstpoints[tile.buildingTile] = 0;
+                }
             });
 
             state.buttons.forEach(b => {
@@ -566,7 +574,10 @@ Globals.prototype.initialize = function () {
 
     this.app.switchToLevel = (level, restart) => {
         if (window.PokiSDK) {
-            PokiSDK.customEvent('game', 'segment', { segment: 'level-' + level });
+            PokiSDK.customEvent('game', 'segment', {
+                segment: 'level-' + level,
+                tilesleft: this.app.buttons.map(t => t.count).reduce((a, b) => a + b, 0),
+            });
         }
         if (restart) {
             if (window.PokiSDK) {

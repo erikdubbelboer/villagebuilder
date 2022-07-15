@@ -62,13 +62,13 @@ PickerFramebuffer.prototype.makeTransparent = function (thing) {
     if (thing.render && thing.render.meshInstances) {
         thing.render.castShadows = false;
 
-        for (let i = 0; i < thing.render.meshInstances.length; i++) {
+        /*for (let i = 0; i < thing.render.meshInstances.length; i++) {
             const material = thing.render.meshInstances[i].material.clone();
             material.opacity = 0.9;
             material.blendType = pc.BLEND_NORMAL;
             material.update();
             thing.render.meshInstances[i].material = material;
-        }
+        }*/
     }
 
     if (thing.children) {
@@ -146,7 +146,7 @@ PickerFramebuffer.prototype.newSelect = function (xy) {
     if (this.app.touch) {
         this.makeTransparentFading(this.app.placingEntity);
     } else {
-        //this.makeTransparent(this.app.placingEntity);
+        this.makeTransparent(this.app.placingEntity);
     }
 };
 
@@ -413,6 +413,9 @@ PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
     if (!this.app.placingValid && tile && tile.buildingTile === this.app.placingTileName) {
         const angles = [-120, -60, 60, 120];
         this.app.placingAngle = tile.angle + angles[Math.floor(Math.random() * angles.length)];
+        if (this.app.placingTileName === 'Ship') {
+            this.app.placingAngle += 30;
+        }
         this.app.placingEntity.setRotation(new pc.Quat().setFromEulerAngles(0, this.app.placingAngle, 0));
     }
 
@@ -572,8 +575,6 @@ PickerFramebuffer.prototype.onSelect = function (event) {
             }
         }
 
-        console.log(this.app.globals.firstpoints, this.app.globals.firstpoints[this.app.placingTileName]);
-
         this.app.undoState = {
             lastTile,
             pointsTier: this.app.pointsTier,
@@ -593,6 +594,9 @@ PickerFramebuffer.prototype.onSelect = function (event) {
             this.deselect();
         } else {
             this.app.placingAngle = Math.floor(pc.math.random(0, 6)) * 60;
+            if (this.app.placingTileName === 'Ship') {
+                this.app.placingAngle += 30;
+            }
             this.app.placingEntity.setRotation(new pc.Quat().setFromEulerAngles(0, this.app.placingAngle, 0));
 
             this.app.placingValid = false;
@@ -796,7 +800,11 @@ PickerFramebuffer.prototype.canPlace = function (tile, placingTileName, modify) 
                 placingValid = false;
             }
         } else if (tile.baseTile === 'Water') {
-            placingValid = false;
+            if (placingTileName === 'Ship' && !tile.buildingTile) {
+                placingValid = true;
+            } else {
+                placingValid = false;
+            }
         } else if (placingValid) {
             const needs = this.app.globals.needs[placingTileName];
             if (needs) {

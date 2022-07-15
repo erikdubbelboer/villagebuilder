@@ -72,10 +72,10 @@ LevelMenu.prototype.onEnable = function () {
 
     const rewards = [
         'Statue',
+        'Ship',
         'Campfire',
-        '',
-        '',
-        '',
+        'Townhall',
+        'Forest',
     ];
 
     for (let i = 0; i < 5; i++) {

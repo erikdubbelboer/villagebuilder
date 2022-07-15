@@ -87,6 +87,9 @@ CardButton.prototype.onSelect = function (xy) {
     const entity = this.app.assets.find(this.app.tileNameToModel(this.tileName), "template").resource.instantiate();
 
     this.app.placingAngle = Math.floor(pc.math.random(0, 6)) * 60;
+    if (this.app.placingTileName === 'Ship') {
+        this.app.placingAngle += 30;
+    }
     entity.setRotation(new pc.Quat().setFromEulerAngles(0, this.app.placingAngle, 0));
 
     const size = this.app.globals.auras[this.app.placingTileName];

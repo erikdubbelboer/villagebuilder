@@ -113,6 +113,11 @@ RenderCameraToElement.prototype.next = function () {
         distance = 1.05;
     } else if (tile === 'Campfire') {
         angle = 180;
+    } else if (tile === 'Ship') {
+        base = 'Water';
+        angle = 60;
+    } else if (tile == 'Townhall') {
+        angle = -60;
     }
 
     const p = new pc.Vec3(-0.9, 1.2, 0.9);
