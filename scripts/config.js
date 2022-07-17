@@ -35,6 +35,7 @@ Config.prototype.initialize = function () {
     'Campfire': 5,
     'Ship': 3,
     'Townhall': 3,
+    'Jousting': 3,
     'Forest': 0,
   };
   this.app.globals.firstpoints = {
@@ -241,6 +242,15 @@ Config.prototype.initialize = function () {
     },
     'Forest': {
       'or': [],
+      'and': [],
+      'on': []
+    },
+    'Jousting': {
+      'or': [
+        'Castle',
+        'Tavern',
+        'Tower',
+      ],
       'and': [],
       'on': []
     },
@@ -776,5 +786,10 @@ Config.prototype.initialize = function () {
       'House': 3,
     },
     'Forest': {},
+    'Jousting': {
+      'Castle': 5,
+      'Horses': 4,
+      'Tavern': 2,
+    },
   };
 };

@@ -118,6 +118,8 @@ RenderCameraToElement.prototype.next = function () {
         angle = 60;
     } else if (tile == 'Townhall') {
         angle = -60;
+    } else if (tile == 'Jousting') {
+        angle = 60;
     }
 
     const p = new pc.Vec3(-0.9, 1.2, 0.9);

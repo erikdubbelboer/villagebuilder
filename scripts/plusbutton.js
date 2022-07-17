@@ -9,7 +9,12 @@
 const Plusbutton = pc.createScript('plusbutton');
 
 Plusbutton.prototype.initialize = function () {
-    this.entity.button.on('click', this.onSelect, this);
+    this.entity.button.on('click', () => {
+        if (this.app.touch && this.touchStarted + 500 < performance.now()) {
+            return;
+        }
+        this.onSelect();
+    });
     if (this.app.touch) {
         this.entity.button.on('touchstart', this.onTouchStart, this);
         this.entity.button.on('touchend', this.onTouchEnd, this);
@@ -192,7 +197,7 @@ Plusbutton.prototype.fixDeck = function (deck) {
         }
 
         // Only give these random once per pack.
-        if (['Tower', 'Church', 'Horses', 'Statue', 'Campfire', 'Ship', 'Townhall'].includes(tile)) {
+        if (['Tower', 'Church', 'Horses', 'Statue', 'Campfire', 'Ship', 'Townhall', 'Jousting'].includes(tile)) {
             delete random[tile];
         }
     }
@@ -300,10 +305,6 @@ Plusbutton.prototype.randomPack = function (ignore) {
 };
 
 Plusbutton.prototype.onSelect = function () {
-    if (this.app.touch && this.touchStarted + 500 < performance.now()) {
-        return;
-    }
-
     this.entity.parent.setLocalScale(1, 1, 1);
 
     this.app.playSound('pick');

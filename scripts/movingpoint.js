@@ -63,7 +63,7 @@ Movingpoint.prototype.update = function (dt) {
     r.mulScalar(dt * speed);
 
     // Are we going to overshoot the target?
-    if (r.length() > currentDist || currentDist < 0.01) {
+    if (r.length() > currentDist || currentDist < 0.1) {
         if (this.entity.bouncePosition) {
             if (!this.entity.isPoint) {
                 this.entity.destroy();

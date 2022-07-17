@@ -99,6 +99,7 @@ Globals.prototype.initialize = function () {
             'Water Rocks',
             'Ship',
             'Townhall',
+            'Jousting',
         ],
 
         namePrefixes: {
@@ -132,6 +133,7 @@ Globals.prototype.initialize = function () {
             'Water Rocks': '',
             'Ship': 'a',
             'Townhall': 'a',
+            'Jousting': '',
         },
 
         cantRotate: [
@@ -719,6 +721,12 @@ Globals.prototype.initialize = function () {
 Globals.prototype.postInitialize = function () {
     // Skip when not in our main scene.
     if (!this.app.root.findByName('Decks')) {
+        return;
+    }
+
+    if (!this.app.graphicsDevice.extInstancing) {
+        this.app.root.findByName('NotSupportedMenu').enabled = true;
+        this.app.root.findByName('ScoreBar').enabled = false;
         return;
     }
 
