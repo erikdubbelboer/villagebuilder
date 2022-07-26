@@ -76,16 +76,16 @@ Lostmenu.prototype.initialize = function () {
         this.app.fire('game:disablecamera');
 
         if (this.app.pointsTier < 20) {
-            lostNextLevelButton.parent.children[2] = lostRestartButton;
-            lostNextLevelButton.parent.children[3] = lostNextLevelButton;
+            lostNextLevelButton.parent.children[3] = lostRestartButton;
+            lostNextLevelButton.parent.children[4] = lostNextLevelButton;
 
             lostNextLevelButton.element.color = new pc.Color(0.624, 0.255, 0.255, 1);
             lostRestartButton.element.color = new pc.Color(0.624, 0.255, 0.255, 1);
 
             lostMenuText.element.text = 'YOU HAVE LOST';
         } else {
-            lostNextLevelButton.parent.children[2] = lostNextLevelButton;
-            lostNextLevelButton.parent.children[3] = lostRestartButton;
+            lostNextLevelButton.parent.children[3] = lostNextLevelButton;
+            lostNextLevelButton.parent.children[4] = lostRestartButton;
 
             lostNextLevelButton.element.color = new pc.Color(0.255, 0.255, 0.624, 1);
             lostRestartButton.element.color = new pc.Color(0.255, 0.255, 0.624, 1);
