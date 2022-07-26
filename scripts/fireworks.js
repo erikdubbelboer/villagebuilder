@@ -17,6 +17,7 @@ Fireworks.prototype.initialize = function () {
 Fireworks.prototype.spawnFireworks = function () {
     const ignore = [
         'Road',
+        'Forest',
     ];
     const include = Object.keys(this.app.globals.extrapoints);
 

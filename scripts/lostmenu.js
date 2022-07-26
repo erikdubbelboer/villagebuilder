@@ -52,11 +52,14 @@ Lostmenu.prototype.initialize = function () {
         this.app.playSound('menu');
     }, this);
 
-    this.app.root.findByName('LostContinueButton').button.on('click', () => {
+    const lostContinueButton = this.app.root.findByName('LostContinueButton');
+    lostContinueButton.button.on('click', () => {
         this.entity.enabled = false;
 
         this.app.playSound('menu');
     }, this);
+
+    const lostMenuText = this.app.root.findByName('LostMenuText');
 
     const onEnable = () => {
         this.app.menuOpen++;
@@ -75,9 +78,19 @@ Lostmenu.prototype.initialize = function () {
         if (this.app.pointsTier < 20) {
             lostNextLevelButton.parent.children[2] = lostRestartButton;
             lostNextLevelButton.parent.children[3] = lostNextLevelButton;
+
+            lostNextLevelButton.element.color = new pc.Color(0.624, 0.255, 0.255, 1);
+            lostRestartButton.element.color = new pc.Color(0.624, 0.255, 0.255, 1);
+
+            lostMenuText.element.text = 'YOU HAVE LOST';
         } else {
             lostNextLevelButton.parent.children[2] = lostNextLevelButton;
             lostNextLevelButton.parent.children[3] = lostRestartButton;
+
+            lostNextLevelButton.element.color = new pc.Color(0.255, 0.255, 0.624, 1);
+            lostRestartButton.element.color = new pc.Color(0.255, 0.255, 0.624, 1);
+
+            lostMenuText.element.text = 'YOU ARE FINISHED';
         }
     };
 

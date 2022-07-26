@@ -96,6 +96,9 @@ Movingpoint.prototype.update = function (dt) {
                 if (window.PokiSDK) {
                     PokiSDK.customEvent('game', 'segment', { segment: 'pointstier-' + this.app.state.current + '-' + this.app.pointsTier });
                 }
+                if (window.GameAnalytics) {
+                    GameAnalytics("addProgressionEvent", "Start", "world" + ('000' + this.app.state.current).substr(-3), "stage001", "level" + ('000' + this.app.pointsTier).substr(-3));
+                }
 
                 if (this.app.state.current === 0) {
                     this.app.maxPoints = 4 + (this.app.pointsTier * 6);
