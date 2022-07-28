@@ -10,34 +10,36 @@ pc.script.createLoadingScreen(function (app) {
     const showSplash = function () {
         // splash wrapper
         const wrapper = document.createElement('div');
-        wrapper.id = 'application-splash-wrapper';
+        wrapper.setAttribute('id', 'application-splash-wrapper');
         document.body.appendChild(wrapper);
 
         // splash
         const splash = document.createElement('div');
-        splash.id = 'application-splash';
+        splash.setAttribute('id', 'application-splash');
         wrapper.appendChild(splash);
         splash.style.display = 'block';
 
         const container = document.createElement('div');
-        container.id = 'progress-bar-container';
+        container.setAttribute('id', 'progress-bar-container');
         splash.appendChild(container);
 
         const bar = document.createElement('div');
-        bar.id = 'progress-bar';
+        bar.setAttribute('id', 'progress-bar');
         container.appendChild(bar);
 
         // Wait for all assets to be added before we can get the URL
         app.once('preload:start', function () {
             const logo = document.createElement('img');
-            logo.src = app.assets.find('logo.png', 'texture').getFileUrl();
+            logo.setAttribute('src', app.assets.find('logo.png', 'texture').getFileUrl());
             splash.insertBefore(logo, container);
         });
     };
 
     const hideSplash = function () {
         const splash = document.getElementById('application-splash-wrapper');
-        splash.parentElement.removeChild(splash);
+        if (splash) {
+            splash.remove();
+        }
     };
 
     const setProgress = function (value) {

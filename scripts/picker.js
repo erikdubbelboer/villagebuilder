@@ -592,7 +592,7 @@ PickerFramebuffer.prototype.onSelect = function (event) {
 
         if (this.app.buttons[button].count === 0) {
             this.deselect();
-        } else {
+        } else if (this.app.placingEntity) {
             this.app.placingAngle = Math.floor(pc.math.random(0, 6)) * 60;
             if (this.app.placingTileName === 'Ship') {
                 this.app.placingAngle += 30;
@@ -733,8 +733,10 @@ PickerFramebuffer.prototype.placeFishingHut = function (i, j) {
         r = (bitmap + bitmap).indexOf('11');
     }
 
-    this.app.placingAngle = (r + 1) * 60;
-    this.app.placingEntity.setRotation(new pc.Quat().setFromEulerAngles(0, this.app.placingAngle, 0));
+    if (this.app.placingEntity) {
+        this.app.placingAngle = (r + 1) * 60;
+        this.app.placingEntity.setRotation(new pc.Quat().setFromEulerAngles(0, this.app.placingAngle, 0));
+    }
 
     return valid;
 };
@@ -767,7 +769,7 @@ PickerFramebuffer.prototype.canPlace = function (tile, placingTileName, modify) 
             } else {
                 placingValid = true;
 
-                if (modify) {
+                if (modify && this.app.placingEntity) {
                     if (this.app.placingEntity.waterMillBase !== tile.isStraightRiver) {
                         this.app.placingEntity.waterMillBase = tile.isStraightRiver;
 

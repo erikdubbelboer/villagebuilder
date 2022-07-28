@@ -26,6 +26,9 @@ Globals.prototype.initialize = function () {
         }
     });
 
+    // dummy function to use until sound system is loaded.
+    this.app.playSound = () => { };
+
     this.app.previousPacks = [];
 
     this.app.menuOpen = 0;
