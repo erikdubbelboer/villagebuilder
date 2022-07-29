@@ -581,7 +581,6 @@ Globals.prototype.initialize = function () {
         if (window.PokiSDK) {
             PokiSDK.customEvent('game', 'segment', {
                 segment: 'level-' + level,
-                tilesleft: this.app.buttons.map(t => t.count).reduce((a, b) => a + b, 0),
             });
         }
         if (restart) {
@@ -716,6 +715,13 @@ Globals.prototype.initialize = function () {
                         controlsTooltip.enabled = true;
                     }
                 }
+            }
+
+            if (window.PokiSDK) {
+                PokiSDK.customEvent('game', 'segment', {
+                    segment: 'pointstier-' + this.app.state.current + '-' + this.app.pointsTier,
+                    tilesleft: this.app.buttons.map(t => t.count).reduce((a, b) => a + b, 0),
+                });
             }
         });
     };

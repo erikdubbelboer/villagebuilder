@@ -94,7 +94,10 @@ Movingpoint.prototype.update = function (dt) {
                 this.app.pointsTier++;
 
                 if (window.PokiSDK) {
-                    PokiSDK.customEvent('game', 'segment', { segment: 'pointstier-' + this.app.state.current + '-' + this.app.pointsTier });
+                    PokiSDK.customEvent('game', 'segment', {
+                        segment: 'pointstier-' + this.app.state.current + '-' + this.app.pointsTier,
+                        tilesleft: this.app.buttons.map(t => t.count).reduce((a, b) => a + b, 0),
+                    });
                 }
                 if (window.GameAnalytics) {
                     GameAnalytics("addProgressionEvent", "Start", "world" + ('000' + this.app.state.current).substr(-3), "stage001", "level" + ('000' + this.app.pointsTier).substr(-3));
