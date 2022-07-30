@@ -123,10 +123,10 @@ Movingpoint.prototype.update = function (dt) {
 
                 if (this.app.pointsTier === 20) {
                     const rewards = [
-                        'Statue',
+                        'Townhall',
                         'Ship',
                         'Campfire',
-                        'Townhall',
+                        'Statue',
                         'Forest',
                     ];
                     const reward = rewards[this.app.state.current];

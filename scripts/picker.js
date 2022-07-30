@@ -741,6 +741,28 @@ PickerFramebuffer.prototype.placeFishingHut = function (i, j) {
     return valid;
 };
 
+PickerFramebuffer.prototype.rotateShipyard = function (i, j) {
+    if (!this.app.placingEntity) {
+        return;
+    }
+
+    const bitmap = [
+        this.isTile(i - 1, j, 'Water', false, -1),
+        this.isTile((i - 1) + (1 - j % 2), j + 1, 'Water', false, -1),
+        this.isTile((i + 0) + (1 - j % 2), j + 1, 'Water', false, -1),
+        this.isTile(i + 1, j, 'Water', false, -1),
+        this.isTile((i + 0) + (1 - j % 2), j - 1, 'Water', false, -1),
+        this.isTile((i - 1) + (1 - j % 2), j - 1, 'Water', false, -1),
+    ].map(function (x) { return x ? '1' : '0'; }).join('');
+
+    let r = (bitmap + bitmap).indexOf('11');
+    if (r === -1) {
+        r = (bitmap + bitmap).indexOf('1');
+    }
+    this.app.placingAngle = (r + 4) * 60;
+    this.app.placingEntity.setRotation(new pc.Quat().setFromEulerAngles(0, this.app.placingAngle, 0));
+};
+
 PickerFramebuffer.prototype.canPlace = function (tile, placingTileName, modify) {
     placingValid = false;
 
@@ -836,6 +858,10 @@ PickerFramebuffer.prototype.canPlace = function (tile, placingTileName, modify) 
                 if (!valid) {
                     placingValid = false;
                 }
+            }
+
+            if (placingTileName === 'Shipyard') {
+                this.rotateShipyard(tile.i, tile.j);
             }
         }
     }

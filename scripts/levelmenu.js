@@ -38,7 +38,7 @@ LevelMenu.prototype.initialize = function () {
         button.button.on('click', () => {
             this.app.playSound('pick');
 
-            this.app.switchToLevel(i);
+            this.app.switchToLevel(i, false, false);
         }, this);
 
         button.button.on('mouseenter', () => {
@@ -71,10 +71,10 @@ LevelMenu.prototype.onEnable = function () {
     this.app.fire('game:disablecamera');
 
     const rewards = [
-        'Statue',
+        'Townhall',
         'Ship',
         'Campfire',
-        'Townhall',
+        'Statue',
         'Forest',
     ];
 

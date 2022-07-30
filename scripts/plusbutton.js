@@ -142,7 +142,7 @@ Plusbutton.prototype.weightedRandom = function (a) {
 };
 
 Plusbutton.prototype.fixDeck = function (deck) {
-    const copy = structuredClone(deck);
+    const copy = JSON.parse(JSON.stringify(deck));
     const tiles = copy.tiles;
 
     const add = (tile, count) => {

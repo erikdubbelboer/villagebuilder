@@ -280,13 +280,18 @@ MouseInput.prototype.onMouseWheel = function (event) {
         return;
     }
 
-    this.orbitCamera.distance -= event.wheel * this.distanceSensitivity * (this.orbitCamera.distance * 0.1);
-    event.event.preventDefault();
+    const fromBottom = document.body.clientHeight - event.y;
+    if (fromBottom <= 100) {
+        // Ignore, handled in card button.js
+    } else {
+        this.orbitCamera.distance -= event.wheel * this.distanceSensitivity * (this.orbitCamera.distance * 0.1);
+        event.event.preventDefault();
 
-    if (window.PokiSDK) {
-        if (!this.segmentZoomed) {
-            PokiSDK.customEvent('game', 'segment', { segment: 'zoomed' });
-            this.segmentZoomed = true;
+        if (window.PokiSDK) {
+            if (!this.segmentZoomed) {
+                PokiSDK.customEvent('game', 'segment', { segment: 'zoomed' });
+                this.segmentZoomed = true;
+            }
         }
     }
 };

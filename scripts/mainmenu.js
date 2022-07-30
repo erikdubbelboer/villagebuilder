@@ -67,7 +67,7 @@ MainMenu.prototype.initialize = function () {
 
         if (this.app.isWithEditor) {
             if (event.key === pc.KEY_K) {
-                this.app.switchToLevel(this.app.state.current, true);
+                this.app.switchToLevel(this.app.state.current, true, true);
             } else if (event.key === pc.KEY_J) {
                 this.app.root.findByName('LostMenu').enabled = true;
             }
@@ -137,7 +137,7 @@ MainMenu.prototype.initialize = function () {
 
     restartButton.button.on('click', () => {
         setMenuEnabled(false);
-        this.app.switchToLevel(this.app.state.current, true);
+        this.app.switchToLevel(this.app.state.current, true, false);
 
         this.app.playSound('menu');
     }, this);

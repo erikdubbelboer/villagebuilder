@@ -26,7 +26,7 @@ RenderCameraToElement.prototype.initialize = function () {
     this.app.tileTextures = {
         Empty: this.createNewRenderTexture(),
     };
-    this.models = structuredClone(this.app.globals.renderTiles);
+    this.models = JSON.parse(JSON.stringify(this.app.globals.renderTiles));
     this.next();
 };
 
@@ -120,6 +120,18 @@ RenderCameraToElement.prototype.next = function () {
         angle = -60;
     } else if (tile == 'Jousting') {
         angle = 60;
+    } else if (tile == 'Storehouse') {
+        angle = -120;
+    } else if (tile == 'Winery') {
+        angle = 180;
+    } else if (tile == 'Shipyard') {
+        angle = -60;
+    } else if (tile == 'Bathhouse') {
+        angle = -120;
+    } else if (tile == 'Noria') {
+        angle = -60;
+    } else if (tile == 'Pigs') {
+        angle = -60;
     }
 
     const p = new pc.Vec3(-0.9, 1.2, 0.9);

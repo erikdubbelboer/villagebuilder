@@ -44,9 +44,9 @@ Scores.prototype.updatescore = function () {
     const size = this.app.globals.auras[this.app.placingTileName] * 1.1;
     const p = this.app.placingEntity.getPosition();
     let points = this.app.globals.firstpoints[this.app.placingTileName] || 0;
-    let roads = 0;
-    let roadDistance = 99999999;
-    let roadTile = null;
+    //let roads = 0;
+    //let roadDistance = 99999999;
+    //let roadTile = null;
 
     this.app.placingEntity.points = points;
 
@@ -67,7 +67,7 @@ Scores.prototype.updatescore = function () {
                     }
 
                     if (pts) {
-                        if (/*onlyOnceRoadPointsTiles.includes(this.app.placingTileName) && */tile.buildingTile === 'Road') {
+                        /*if (/*onlyOnceRoadPointsTiles.includes(this.app.placingTileName) && * /tile.buildingTile === 'Road') {
                             roads++;
 
                             if (roads > 1) {
@@ -84,7 +84,7 @@ Scores.prototype.updatescore = function () {
                                 roadTile = tile;
                                 roadDistance = d;
                             }
-                        }
+                        }*/
 
                         if (pts) {
                             points += pts;
@@ -299,7 +299,7 @@ Scores.prototype.resetscore = function () {
         this.entity.children[0].destroy();
     }
 
-    this.app.globals.firstpoints = structuredClone(this.app.globals.basepoints);
+    this.app.globals.firstpoints = JSON.parse(JSON.stringify(this.app.globals.basepoints));
 
     setTimeout(() => {
         this.app.fire('game:points');

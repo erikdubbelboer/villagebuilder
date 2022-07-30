@@ -45,7 +45,7 @@ Lostmenu.prototype.initialize = function () {
 
     const lostRestartButton = this.app.root.findByName('LostRestartButton');
     lostRestartButton.button.on('click', () => {
-        this.app.switchToLevel(this.app.state.current, true);
+        this.app.switchToLevel(this.app.state.current, true, false);
 
         this.entity.enabled = false;
 

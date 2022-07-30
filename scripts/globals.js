@@ -103,6 +103,13 @@ Globals.prototype.initialize = function () {
             'Ship',
             'Townhall',
             'Jousting',
+            'Storehouse',
+            'Vineyard',
+            'Winery',
+            'Noria',
+            'Bathhouse',
+            'Shipyard',
+            'Pigs',
         ],
 
         namePrefixes: {
@@ -137,6 +144,13 @@ Globals.prototype.initialize = function () {
             'Ship': 'a',
             'Townhall': 'a',
             'Jousting': '',
+            'Storehouse': 'a',
+            'Vineyard': 'a',
+            'Winery': 'a',
+            'Noria': 'a',
+            'Bathhouse': 'a',
+            'Shipyard': 'a',
+            'Pigs': '',
         },
 
         cantRotate: [
@@ -151,6 +165,7 @@ Globals.prototype.initialize = function () {
             'Stone Rocks',
             'Water Rocks',
             'Field',
+            'Shipyard',
         ],
     };
 
@@ -577,7 +592,7 @@ Globals.prototype.initialize = function () {
         }, 500);
     });
 
-    this.app.switchToLevel = (level, restart) => {
+    this.app.switchToLevel = (level, restart, force) => {
         if (window.PokiSDK) {
             PokiSDK.customEvent('game', 'segment', {
                 segment: 'level-' + level,
@@ -603,7 +618,7 @@ Globals.prototype.initialize = function () {
         if (level === 0) { // The Meadow
             this.app.openLevel('grass', {
                 // Only use a random seed if the user progressed far enough into the level.
-                levelSeed: (restart && (this.app.previousPacks.length > 7)) ? 0 : 78932,
+                levelSeed: (restart && (this.app.previousPacks.length > 7 || force)) ? 0 : 78932,
                 levelSize: 30,
                 waterSize: 3,
                 waterOffset: 7,
@@ -612,7 +627,7 @@ Globals.prototype.initialize = function () {
                 rocks: 0,
                 rocksNew: 3,
                 rocksNear: 20,
-                waterRocks: 18,
+                waterRocks: 14,
                 river: true,
                 island: false,
                 fields: 0.1,
@@ -757,12 +772,12 @@ Globals.prototype.postInitialize = function () {
             const state = JSON.parse(data);
 
             this.app.state = state;
-            this.app.switchToLevel(state.current, false);
+            this.app.switchToLevel(state.current, false, false);
             return;
         }
     } catch (err) {
         console.error(err);
     }
 
-    this.app.switchToLevel(0, false);
+    this.app.switchToLevel(0, false, false);
 };

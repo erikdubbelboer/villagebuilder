@@ -23,10 +23,10 @@ CardButton.prototype.initialize = function () {
         this.app.touch.on(pc.EVENT_TOUCHMOVE, this.onTouchMove, this);
     } else {
         this.entity.button.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
-        this.app.mouse.on(pc.EVENT_MOUSEUP, this.onMouseUp, this);
-        this.app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
         this.entity.button.on('mouseenter', this.onHoverStart, this);
         this.entity.button.on('mouseleave', this.onHoverEnd, this);
+        this.app.mouse.on(pc.EVENT_MOUSEUP, this.onMouseUp, this);
+        this.app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
     }
 
     this.app.on('game:disablecamera', () => {
