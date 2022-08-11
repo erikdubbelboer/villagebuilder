@@ -128,15 +128,15 @@ MouseInput.prototype.update = function (dt) {
         }
     } else if (!this.app.touch && this.edgeMovement) {
         //const height = this.app.graphicsDevice.height;
-        const width = this.app.graphicsDevice.width;
+        //const width = this.app.graphicsDevice.width;
 
-        if (this.mouseX < mouseMoveFromEdge) {
+        /*if (this.mouseX < mouseMoveFromEdge) {
             left = true;
             horizontalSpeed = (mouseMoveFromEdge - this.mouseX) / mouseMoveFromEdge;
         } else if (this.mouseX > width - mouseMoveFromEdge) {
             right = true;
             horizontalSpeed = (mouseMoveFromEdge - (width - this.mouseX)) / mouseMoveFromEdge;
-        }
+        }*/
         /*if (this.mouseY < mouseMoveFromEdge) {
             up = true;
             verticalSpeed = (mouseMoveFromEdge - this.mouseY) / mouseMoveFromEdge;
@@ -179,8 +179,8 @@ MouseInput.prototype.update = function (dt) {
 
             const newPivotPoint = this.orbitCamera.pivotPoint.clone().add(new pc.Quat().setFromEulerAngles(0, this.orbitCamera.yaw, 0).transformVector(d));
             const halfLevelSize = (this.app.levelSize - 2) / 2;
-            const xBounds = (this.app.globals ? this.app.globals.tileXSize : 1000) * halfLevelSize;
-            const yBounds = (this.app.globals ? this.app.globals.tileYSize : 1000) * halfLevelSize;
+            const xBounds = (this.app.globals ? this.app.globals.tileXSize : 1000) * halfLevelSize - 4; // -4 so we can't go all the way to the edge
+            const yBounds = (this.app.globals ? this.app.globals.tileYSize : 1000) * halfLevelSize - 4;
 
             if (newPivotPoint.x < -xBounds) newPivotPoint.x = -xBounds;
             if (newPivotPoint.x > xBounds) newPivotPoint.x = xBounds;

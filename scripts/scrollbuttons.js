@@ -12,9 +12,10 @@ Scrollbuttons.prototype.initialize = function () {
     this.isDisabled = false;
     this.hovering = false;
 
-    this.entity.button.on('mouseenter', this.onHoverStart, this);
-    this.entity.button.on('mouseleave', this.onHoverEnd, this);
-    this.app.mouse.on(pc.EVENT_MOUSEWHEEL, this.onMouseWheel, this);
+    // Disable scrolling on tile buttons.
+    //this.entity.button.on('mouseenter', this.onHoverStart, this);
+    //this.entity.button.on('mouseleave', this.onHoverEnd, this);
+    //this.app.mouse.on(pc.EVENT_MOUSEWHEEL, this.onMouseWheel, this);
 
     this.app.on('game:disablecamera', () => {
         this.isDisabled = true;

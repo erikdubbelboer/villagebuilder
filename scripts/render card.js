@@ -123,7 +123,7 @@ RenderCameraToElement.prototype.next = function () {
     } else if (tile == 'Storehouse') {
         angle = -120;
     } else if (tile == 'Winery') {
-        angle = 180;
+        angle = 240;
     } else if (tile == 'Shipyard') {
         angle = -60;
     } else if (tile == 'Bathhouse') {
@@ -132,6 +132,8 @@ RenderCameraToElement.prototype.next = function () {
         angle = -60;
     } else if (tile == 'Pigs') {
         angle = -60;
+    } else if (tile == 'Chapel') {
+        angle = -120;
     }
 
     const p = new pc.Vec3(-0.9, 1.2, 0.9);

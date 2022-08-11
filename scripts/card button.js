@@ -211,12 +211,12 @@ CardButton.prototype.onTouchStart = function (event) {
 };
 
 CardButton.prototype.onTouchEnd = function () {
-    // Show the tooltip for at least 200 milliseconds.
+    // Show the tooltip for at least X milliseconds.
     // This helps players realize that there are tooltips when pressing down on buttons.
-    if (performance.now() - this.touchStarted < 200) {
+    if (performance.now() - this.touchStarted < 300) {
         setTimeout(() => {
             this.onHoverEnd();
-        }, 200);
+        }, 300);
     } else {
         this.onHoverEnd();
     }
@@ -264,10 +264,6 @@ CardButton.prototype.onHoverStart = function () {
 };
 
 CardButton.prototype.onHoverEnd = function () {
-    if (this.isDisabled) {
-        return;
-    }
-
     this.entity.parent.setLocalScale(1, 1, 1);
 
     // Uncomment to re-animate after hover.
@@ -298,7 +294,7 @@ CardButton.prototype.onMouseDown = function (event) {
     this.isClicking = true;
 };
 
-CardButton.prototype.onMouseUp = function () {
+CardButton.prototype.onMouseUp = function (event) {
     if (this.hovering) {
         this.entity.parent.setLocalScale(1.1, 1.1, 1.1);
     }
@@ -306,7 +302,7 @@ CardButton.prototype.onMouseUp = function () {
     if (this.isClicking) {
         this.app.fire('game:enablecamera');
 
-        this.onSelect(this.dragPlacing ? this.dragCurrentAt : false);
+        this.onSelect(this.dragPlacing ? this.dragCurrentAt : [event.x, event.y]);
 
         this.dragPlacing = false;
         this.isClicking = false;

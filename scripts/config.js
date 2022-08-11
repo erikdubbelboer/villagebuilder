@@ -32,7 +32,7 @@ Config.prototype.initialize = function () {
     'Tower': 4,
     'Road': 1,
     'Statue': 1,
-    'Campfire': 5,
+    'Campfire': 4,
     'Ship': 3,
     'Townhall': 3,
     'Jousting': 3,
@@ -44,6 +44,8 @@ Config.prototype.initialize = function () {
     'Bathhouse': 2,
     'Shipyard': 3,
     'Pigs': 3,
+    //'Papermill': 4,
+    'Chapel': 3,
   };
   this.app.globals.firstpoints = {
     // Should be empty.
@@ -52,6 +54,7 @@ Config.prototype.initialize = function () {
     'House': 2,
     'Mill': 2,
     'Stable': 4,
+    'Winery': 4,
     'Fishing Hut': 10,
     'Statue': 15,
     'Ship': 15,
@@ -63,7 +66,7 @@ Config.prototype.initialize = function () {
         'Market'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Tavern': {
       'or': [
@@ -71,7 +74,7 @@ Config.prototype.initialize = function () {
         'Market'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Market': {
       'or': [
@@ -81,7 +84,7 @@ Config.prototype.initialize = function () {
         'Tower',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Church': {
       'or': [
@@ -89,7 +92,7 @@ Config.prototype.initialize = function () {
         'House'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Mine': {
       'or': [],
@@ -97,33 +100,33 @@ Config.prototype.initialize = function () {
       'on': [
         'Grass Hill',
         'Stone Hill',
-      ]
+      ],
     },
     'Smelter': {
       'or': [
         'Road'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Blacksmith': {
       'or': [
         'Road'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Carpenter': {
       'or': [],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Lumberjack': {
       'or': [
         'Forest'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Hunting Cabin': {
       'or': [],
@@ -131,14 +134,14 @@ Config.prototype.initialize = function () {
       'on': [
         'Stone Hill',
         'Grass Hill',
-      ]
+      ],
     },
     'Mill': {
       'or': [
         'Road'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Water Mill': {
       'or': [
@@ -147,22 +150,30 @@ Config.prototype.initialize = function () {
       'and': [
         'River'
       ],
-      'on': []
+      'on': [],
     },
+    /*'Papermill': {
+      'or': [
+        'River',
+      ],
+      'and': [],
+      'on': [],
+    },*/
     'Fishing Hut': {
       'or': [
         'Water'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Grain': {
       'or': [
         'Grain',
-        'Mill'
+        'Mill',
+        'Water Mill',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Stable': {
       'or': [
@@ -171,7 +182,7 @@ Config.prototype.initialize = function () {
         'Castle'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Horses': {
       'or': [
@@ -182,7 +193,7 @@ Config.prototype.initialize = function () {
         'Tavern'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Sheep': {
       'or': [
@@ -191,19 +202,19 @@ Config.prototype.initialize = function () {
         'Water Mill'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Castle': {
       'or': [
         'Road'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Tower': {
       'or': [],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Road': {
       'or': [
@@ -212,7 +223,7 @@ Config.prototype.initialize = function () {
         'Hunting Cabin'
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Statue': {
       'or': [
@@ -222,7 +233,7 @@ Config.prototype.initialize = function () {
         'Church',
         'House',
       ],
-      'on': []
+      'on': [],
     },
     'Campfire': {
       'or': [
@@ -232,14 +243,14 @@ Config.prototype.initialize = function () {
         'Carpenter',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Ship': {
       'or': [],
       'and': [],
       'on': [
         'Water',
-      ]
+      ],
     },
     'Townhall': {
       'or': [
@@ -247,12 +258,12 @@ Config.prototype.initialize = function () {
         'Market',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Forest': {
       'or': [],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Jousting': {
       'or': [
@@ -261,7 +272,7 @@ Config.prototype.initialize = function () {
         'Tower',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Noria': {
       'or': [
@@ -270,14 +281,14 @@ Config.prototype.initialize = function () {
         'Horses',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Winery': {
       'or': [
         'Road',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Vineyard': {
       'or': [
@@ -285,7 +296,7 @@ Config.prototype.initialize = function () {
         'Vineyard',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Storehouse': {
       'or': [
@@ -293,7 +304,7 @@ Config.prototype.initialize = function () {
         'Vineyard',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Bathhouse': {
       'or': [
@@ -301,7 +312,7 @@ Config.prototype.initialize = function () {
         'Statue',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
     'Shipyard': {
       'or': [
@@ -310,7 +321,14 @@ Config.prototype.initialize = function () {
       'and': [
         'Water',
       ],
-      'on': []
+      'on': [],
+    },
+    'Chapel': {
+      'or': [
+        'Road',
+      ],
+      'and': [],
+      'on': [],
     },
     'Pigs': {
       'or': [
@@ -319,9 +337,8 @@ Config.prototype.initialize = function () {
         'Mill',
       ],
       'and': [],
-      'on': []
+      'on': [],
     },
-
   };
   this.app.globals.packs = [
     {
@@ -330,9 +347,9 @@ Config.prototype.initialize = function () {
       'tiles': [
         [
           'Lumberjack',
-          2
-        ]
-      ]
+          2,
+        ],
+      ],
     },
     {
       'title': 'Village',
@@ -345,8 +362,8 @@ Config.prototype.initialize = function () {
         [
           'Road',
           4
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Town',
@@ -364,7 +381,7 @@ Config.prototype.initialize = function () {
           'Tavern',
           1
         ],
-      ]
+      ],
     },
     {
       'title': 'Forestry',
@@ -373,7 +390,7 @@ Config.prototype.initialize = function () {
       'tiles': [
         [
           'Lumberjack',
-          2
+          2,
         ],
         [
           'Carpenter',
@@ -386,8 +403,8 @@ Config.prototype.initialize = function () {
         [
           'Road',
           3
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Living',
@@ -409,8 +426,8 @@ Config.prototype.initialize = function () {
         [
           'Road',
           4
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Religion',
@@ -419,7 +436,7 @@ Config.prototype.initialize = function () {
       'tiles': [
         [
           'House',
-          1
+          2,
         ],
         [
           'Church',
@@ -427,9 +444,13 @@ Config.prototype.initialize = function () {
         ],
         [
           'Road',
-          2
-        ]
-      ]
+          2,
+        ],
+        [
+          'Chapel',
+          1
+        ],
+      ],
     },
     {
       'title': 'Animals',
@@ -447,8 +468,8 @@ Config.prototype.initialize = function () {
         [
           'Sheep',
           3
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Farming',
@@ -465,9 +486,9 @@ Config.prototype.initialize = function () {
         ],
         [
           'Road',
-          2
-        ]
-      ]
+          2,
+        ],
+      ],
     },
     {
       'title': 'Economy',
@@ -483,7 +504,7 @@ Config.prototype.initialize = function () {
         ],
         [
           'Market',
-          2
+          2,
         ],
         [
           'Carpenter',
@@ -492,8 +513,8 @@ Config.prototype.initialize = function () {
         [
           'Road',
           3
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Hunting',
@@ -502,7 +523,7 @@ Config.prototype.initialize = function () {
       'tiles': [
         [
           'Hunting Cabin',
-          2
+          2,
         ],
         [
           'Horses',
@@ -517,10 +538,10 @@ Config.prototype.initialize = function () {
           1
         ],
         [
-          'Jousting',
+          'Fishing Hut',
           1
         ],
-      ]
+      ],
     },
     {
       'title': 'Fishing',
@@ -546,8 +567,8 @@ Config.prototype.initialize = function () {
         [
           'Road',
           3
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Mining',
@@ -556,7 +577,7 @@ Config.prototype.initialize = function () {
       'tiles': [
         [
           'Mine',
-          2
+          2,
         ],
         [
           'Smelter',
@@ -564,7 +585,7 @@ Config.prototype.initialize = function () {
         ],
         [
           'House',
-          2
+          2,
         ],
         [
           'Stable',
@@ -573,13 +594,13 @@ Config.prototype.initialize = function () {
         [
           'Road',
           3
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Luxury',
       'tier': 4,
-      'unlock': 'Winery, Vineyard, Bathhouse, Noria, Water Mill',
+      'unlock': 'Winery',
       'tiles': [
         [
           'Winery',
@@ -587,7 +608,7 @@ Config.prototype.initialize = function () {
         ],
         [
           'Vineyard',
-          2
+          2,
         ],
         [
           'Bathhouse',
@@ -600,8 +621,8 @@ Config.prototype.initialize = function () {
         [
           'Water Mill',
           1
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Water Mill',
@@ -614,7 +635,7 @@ Config.prototype.initialize = function () {
         ],
         [
           'Grain',
-          2
+          2,
         ],
         [
           'Sheep',
@@ -627,8 +648,8 @@ Config.prototype.initialize = function () {
         [
           'Vineyard',
           1
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Smelter',
@@ -653,9 +674,9 @@ Config.prototype.initialize = function () {
         ],
         [
           'Road',
-          2
-        ]
-      ]
+          2,
+        ],
+      ],
     },
     {
       'title': 'Travel',
@@ -671,13 +692,13 @@ Config.prototype.initialize = function () {
         ],
         [
           'Vineyard',
-          2
+          2,
         ],
         [
           'Road',
           8
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Expansion',
@@ -697,13 +718,13 @@ Config.prototype.initialize = function () {
         ],
         [
           'Noria',
-          2
+          2,
         ],
         [
           'Storehouse',
           1
-        ]
-      ]
+        ],
+      ],
     },
     {
       'title': 'Defense',
@@ -711,8 +732,8 @@ Config.prototype.initialize = function () {
       'unlock': 'Tower',
       'tiles': [
         [
-          'Jousting',
-          1
+          'House',
+          2,
         ],
         [
           'Tower',
@@ -723,10 +744,14 @@ Config.prototype.initialize = function () {
           1
         ],
         [
+          'Chapel',
+          1
+        ],
+        [
           'Road',
-          2
-        ]
-      ]
+          2,
+        ],
+      ],
     },
     {
       'title': 'Castle',
@@ -748,8 +773,8 @@ Config.prototype.initialize = function () {
         [
           'Road',
           4
-        ]
-      ]
+        ],
+      ],
     },
   ];
   this.app.globals.extrapoints = {
@@ -775,10 +800,10 @@ Config.prototype.initialize = function () {
     'Market': {
       'House': 2,
       'Market': -6,
-      'Mill': 4,
-      'Water Mill': 6,
-      'Fishing Hut': 6,
-      'Stable': 4,
+      'Tavern': 4,
+      'Townhall': 4,
+      'Church': 6,
+      'Bathhouse': 4,
       'Storehouse': 2,
     },
     'Church': {
@@ -788,6 +813,7 @@ Config.prototype.initialize = function () {
       'Church': -15,
       'Townhall': 4,
       'Bathhouse': 4,
+      //'Papermill': 6,
     },
     'Mine': {
       'Hunting Cabin': 4,
@@ -795,6 +821,7 @@ Config.prototype.initialize = function () {
       'Carpenter': 2,
       'Storehouse': 4,
       'Smelter': 3,
+      'House': 2,
     },
     'Smelter': {
       'Stable': 4,
@@ -809,6 +836,7 @@ Config.prototype.initialize = function () {
       'Castle': 10,
       'Lumberjack': 10,
       'Pigs': 2,
+      'Campfire': 2,
       'Shipyard': 8,
     },
     'Lumberjack': {
@@ -840,7 +868,7 @@ Config.prototype.initialize = function () {
       'Tower': 10,
       'Water': 2,
       'River': 2,
-      'Lumberjack': 2
+      'Lumberjack': 2,
     },
     'Fishing Hut': {
       'Market': 4,
@@ -848,7 +876,7 @@ Config.prototype.initialize = function () {
       'Fishing Hut': -10,
       'Horses': 2,
       'Tower': 4,
-      'Water Rocks': 2
+      'Water Rocks': 2,
     },
     'Grain': {
       'Mill': 8,
@@ -882,7 +910,7 @@ Config.prototype.initialize = function () {
       'Smelter': -6,
       'Lumberjack': 2,
       'Hunting Cabin': 10,
-      'Water Mill': 10,
+      'Water Mill': 4,
       'Stable': 4,
       'Sheep': 2,
       'Tower': 10,
@@ -896,10 +924,10 @@ Config.prototype.initialize = function () {
       'Stable': 10,
       'Smelter': 10,
       'House': 2,
-      'Storehouse': 20,
+      'Storehouse': 10,
       'Townhall': 20,
       'Church': -16,
-      'Castle': -30
+      'Castle': -30,
     },
     'Tower': {
       'Horses': 2,
@@ -920,7 +948,7 @@ Config.prototype.initialize = function () {
     },
     'Campfire': {
       'Forest': 1,
-      'Pigs': 12
+      'Pigs': 12,
     },
     'Ship': {
       'House': 1,
@@ -929,7 +957,8 @@ Config.prototype.initialize = function () {
     'Townhall': {
       'House': 3,
       'Storehouse': 2,
-      'Market': 4
+      'Market': 4,
+      //'Papermill': 4,
     },
     'Forest': {},
     'Jousting': {
@@ -955,7 +984,7 @@ Config.prototype.initialize = function () {
       'Water Mill': 4,
       'Vineyard': 4,
       'Market': 2,
-      'Tavern': 4,
+      'Tavern': 6,
       'Noria': 2,
       'Storehouse': 6,
       'Carpenter': 6,
@@ -963,9 +992,9 @@ Config.prototype.initialize = function () {
       'Smelter': -6,
     },
     'Vineyard': {
-      'Vineyard': 6,
-      'Winery': 6,
-      'Noria': 2,
+      'Vineyard': 7,
+      'Winery': 7,
+      'Noria': 3,
       'Mine': -4,
       'Smelter': -4,
       'Water': -2,
@@ -1010,6 +1039,24 @@ Config.prototype.initialize = function () {
       'Water Rocks': -4,
       'Campfire': -3,
       'Tower': -3,
+    },
+    /*'Papermill': {
+      'Church': 6,
+      'Townhall': 6,
+      'Forest': 1,
+      'Lumberjack': 4,
+      'Grain': -1,
+      'Campfire': -6,
+      'Sheep': -1,
+    },*/
+    'Chapel': {
+      'House': -8,
+      'Tavern': -8,
+      'Market': -8,
+      'Townhall': -8,
+      'Sheep': 3,
+      'Grass Hill': 2,
+      'Stone Hill': 2,
     },
   };
 };

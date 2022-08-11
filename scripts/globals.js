@@ -110,6 +110,7 @@ Globals.prototype.initialize = function () {
             'Bathhouse',
             'Shipyard',
             'Pigs',
+            'Chapel',
         ],
 
         namePrefixes: {
@@ -151,6 +152,7 @@ Globals.prototype.initialize = function () {
             'Bathhouse': 'a',
             'Shipyard': 'a',
             'Pigs': '',
+            'Chapel': 'a',
         },
 
         cantRotate: [
@@ -299,7 +301,7 @@ Globals.prototype.initialize = function () {
             return a;
         }, 0);
 
-        const scale = Math.max(Math.min(8 / activeButtons, 1), 0.7);
+        const scale = Math.max(Math.min(8 / activeButtons, 1), 0.9);
 
         cardButtons.setLocalScale(scale, scale, scale);
 

@@ -49,6 +49,7 @@ RandomMenu.prototype.initialize = function () {
         randomVideoButton.enabled = false;
 
         const tiles = Object.keys(this.app.buildingsSeen).filter(t => !!this.app.globals.auras[t]);
+        // TODO: filter on what you can actually place.
         const tile = tiles[Math.floor(Math.random() * tiles.length)];
 
         this.entity.children[1].children[1].children[0].script.rewardimage.tile = tile;

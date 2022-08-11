@@ -173,9 +173,10 @@ Plusbutton.prototype.fixDeck = function (deck) {
     if (this.app.buildingsSeen['Stable']) {
         random['Sheep'] = 10;
         random['Horses'] = 5;
+        random['Pigs'] = 5;
     }
     if (this.app.buildingsSeen['Tavern']) {
-        random['Horses'] = 5;
+        random['Vineyard'] = 5;
     }
 
     Object.keys(this.app.state.unlocked).forEach(tile => {

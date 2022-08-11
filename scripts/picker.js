@@ -44,10 +44,11 @@ PickerFramebuffer.prototype.initialize = function () {
 
     this.app.on('game:newselect', this.newSelect, this);
     this.app.on('game:deselect', this.deselect, this);
-    this.app.on('game:resetpicker', () => {
+    this.app.on('game:levelloaded', () => {
         clearTimeout(this.lostCheckTimeout);
-        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 5000);
-
+        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 10000);
+    });
+    this.app.on('game:resetpicker', () => {
         this.app.undoState = false;
     });
 
@@ -132,7 +133,8 @@ PickerFramebuffer.prototype.newSelect = function (xy) {
             x: this.app.graphicsDevice.canvas.clientWidth / 2,
             y: this.app.graphicsDevice.canvas.clientHeight / 2,
         });
-        p = this.freeSpotNextTo(this.app.placingTileName, p);
+        //p = this.freeSpotNextTo(this.app.placingTileName, p);
+        p = this.takenSpotNextTo(this.app.placingTileName, p);
         this.moveTo(p[0], p[1], 0);
     }
 
@@ -634,7 +636,7 @@ PickerFramebuffer.prototype.onSelect = function (event) {
         this.app.root.findByName('sun').light.updateShadow();
 
         clearTimeout(this.lostCheckTimeout);
-        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 1000);
+        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 2000);
     } else {
         this.app.playSound('cancel');
 
@@ -876,24 +878,27 @@ PickerFramebuffer.prototype.lostCheck = function () {
         return;
     }
 
-    if (this.app.buttons[0].count > 0) {
-        return;
-    }
-
     if (this.app.root.findByName('MovingPoint')) {
-        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 1000);
+        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 2000);
         return;
     }
 
-    // 0 = Plus
-    // 1 = Roads
-    // Roads don't give points so ignore them.
-    for (let t = 2; t < this.app.buttons.length; t++) {
+    for (let t = 0; t < this.app.buttons.length; t++) {
+        const placingTileName = this.app.buttons[t].tile;
         const count = this.app.buttons[t].count;
 
-        if (count > 0) {
-            const placingTileName = this.app.buttons[t].tile;
+        if (placingTileName === 'Plus') {
+            if (count > 0) {
+                return;
+            }
+        }
 
+        // Roads don't give points so ignore them.
+        if (['Road', 'Plus', 'Random', 'Undo'].includes(placingTileName)) {
+            continue;
+        }
+
+        if (count > 0) {
             for (let i = 0; i < levelSize; i++) {
                 for (let j = 0; j < levelSize; j++) {
                     const tile = this.app.tiles[i][j];
@@ -1001,6 +1006,46 @@ PickerFramebuffer.prototype.freeSpotNextTo = function (placingTileName, center) 
 
     if (bestDist > 100) {
         return center;
+    } else {
+        return [bestTile.i, bestTile.j];
+    }
+};
+
+PickerFramebuffer.prototype.takenSpotNextTo = function (placingTileName, center) {
+    const levelSize = this.app.levelSize;
+    let bestTile = null;
+    let bestDist = 100001;
+    let secondBestTile = null;
+    let secondBestDist = 100001;
+
+    for (let i = 0; i < levelSize; i++) {
+        for (let j = 0; j < levelSize; j++) {
+            const tile = this.app.tiles[i][j];
+
+            if (!tile.buildingTile) {
+                const can = this.canPlace(tile, placingTileName, false);
+                const dist = (center[0] - i) * (center[0] - i) + (center[1] - j) * (center[1] - j);
+
+                if (can) {
+                    if (dist < secondBestDist) {
+                        secondBestTile = tile;
+                        secondBestDist = dist;
+                    }
+                } else {
+                    if (dist < bestDist) {
+                        bestTile = tile;
+                        bestDist = dist;
+                    }
+                }
+            }
+        }
+    }
+
+    if (bestDist < 100000 && bestDist > 10) {
+        if (secondBestDist < 100000 && secondBestDist > 10) {
+            return center;
+        }
+        return [secondBestTile.i, secondBestTile.j];
     } else {
         return [bestTile.i, bestTile.j];
     }

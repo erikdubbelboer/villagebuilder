@@ -103,6 +103,7 @@ Movingpoint.prototype.update = function (dt) {
                     GameAnalytics("addProgressionEvent", "Start", "world" + ('000' + this.app.state.current).substr(-3), "stage001", "level" + ('000' + this.app.pointsTier).substr(-3));
                 }
 
+                //level requirements per map
                 if (this.app.state.current === 0) {
                     this.app.maxPoints = 4 + (this.app.pointsTier * 6);
                 } else if (this.app.state.current === 1) {
