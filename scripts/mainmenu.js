@@ -69,7 +69,9 @@ MainMenu.prototype.initialize = function () {
             if (event.key === pc.KEY_K) {
                 this.app.switchToLevel(this.app.state.current, true, true);
             } else if (event.key === pc.KEY_J) {
-                this.app.root.findByName('LostMenu').enabled = true;
+                //this.app.root.findByName('LostMenu').enabled = true;
+                localStorage.clear();
+                location.reload();
             }
         }
     });
@@ -79,8 +81,7 @@ MainMenu.prototype.initialize = function () {
         this.app.fire('game:deselect');
 
         if (decks.enabled) {
-            decks.enabled = false;
-            this.app.root.findByName('Plus').script.plusbutton.putBackDeck();
+            return;
         }
 
         setMenuEnabled(!menu.enabled);

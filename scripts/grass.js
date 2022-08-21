@@ -160,6 +160,7 @@ Grass.prototype.initialize = function () {
     this.app.levelStoneHillsLeft = 0;
     this.app.levelGrassHillsLeft = 0;
     this.app.levelFishingHutLeft = 0;
+    this.app.levelShipyardLeft = 0;
     this.app.mountain = this.mountain;
     this.app.hasRiver = this.river;
 
@@ -920,6 +921,7 @@ Grass.prototype.nameToModel = function (name) {
 
 Grass.prototype.updateLevelFishingHutLeft = function () {
     this.app.levelFishingHutLeft = 0;
+    this.app.levelShipyardLeft = 0;
 
     for (let i = 1; i < this.app.levelSize - 1; i++) {
         for (let j = 1; j < this.app.levelSize - 1; j++) {
@@ -946,6 +948,10 @@ Grass.prototype.updateLevelFishingHutLeft = function () {
             }
             if (r > -1 && !this.isNeighbor(i, j, 'River')) {
                 this.app.levelFishingHutLeft++;
+            }
+
+            if (bitmap.indexOf('1') > -1) {
+                this.app.levelShipyardLeft++;
             }
         }
     }

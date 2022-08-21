@@ -8,9 +8,9 @@
 
 const Globals = pc.createScript('globals');
 
-const saveName = 'save5';
-
 Globals.prototype.initialize = function () {
+    this.app.saveName = 'save5';
+
     this.app.isWithEditor = window.location.href.indexOf('launch.playcanvas.com') !== -1;
 
     const el = document.createElement('audio');
@@ -111,6 +111,7 @@ Globals.prototype.initialize = function () {
             'Shipyard',
             'Pigs',
             'Chapel',
+            'Papermill',
         ],
 
         namePrefixes: {
@@ -153,6 +154,7 @@ Globals.prototype.initialize = function () {
             'Shipyard': 'a',
             'Pigs': '',
             'Chapel': 'a',
+            'Papermill': 'a',
         },
 
         cantRotate: [
@@ -178,10 +180,6 @@ Globals.prototype.initialize = function () {
     decks.enabled = false;
 
     this.app.buttons = [
-        {
-            tile: 'Plus',
-            count: 0,
-        },
         {
             tile: 'Random',
             count: 0,
@@ -257,6 +255,8 @@ Globals.prototype.initialize = function () {
 
     this.app.commercialBreak = () => {
         if (window.PokiSDK) {
+            this.app.fire('game:disablecamera');
+
             PokiSDK.commercialBreak(() => {
                 //this.app.systems.sound.volume = 0;
 
@@ -271,6 +271,7 @@ Globals.prototype.initialize = function () {
                     this.app.systems.sound.volume = 1;
                 }*/
 
+                this.app.fire('game:enablecamera');
                 this.app.fire('game:unpausemusic');
             });
         }
@@ -318,7 +319,6 @@ Globals.prototype.initialize = function () {
             this.app.points = this.app.undoState.points;
             this.app.minPoints = this.app.undoState.minPoints;
             this.app.maxPoints = this.app.undoState.maxPoints;
-            this.app.buttons[0].count = this.app.undoState.tileCount;
 
             const lastTile = this.app.undoState.lastTile;
 
@@ -330,10 +330,14 @@ Globals.prototype.initialize = function () {
             }
             if (lastTile.buildingTile === 'Fishing Hut') {
                 this.app.levelFishingHutLeft++;
+
+                this.app.fire('game:updateleft');
+            }
+            if (lastTile.buildingTile === 'Shipyard') {
+                this.app.levelShipyardLeft++;
             }
 
             this.app.addTile(lastTile.buildingTile, 1);
-            this.app.globals.firstpoints[lastTile.buildingTile] = this.app.undoState.firstpoints;
 
             lastTile.buildingTile = '';
 
@@ -357,6 +361,10 @@ Globals.prototype.initialize = function () {
     };
 
     this.app.addTile = (tile, count) => {
+        if (tile === 'Plus') {
+            return;
+        }
+
         for (let j = 0; j < this.app.buttons.length; j++) {
             const button = this.app.buttons[j];
 
@@ -518,9 +526,8 @@ Globals.prototype.initialize = function () {
                 if (tile.buildingTile === 'Fishing Hut') {
                     this.app.levelFishingHutLeft--;
                 }
-
-                if (tile.buildingTile !== 'Ship' && tile.buildingTile !== 'Statue') {
-                    this.app.globals.firstpoints[tile.buildingTile] = 0;
+                if (tile.buildingTile === 'Shipyard') {
+                    this.app.levelShipyardLeft--;
                 }
             });
 
@@ -536,23 +543,22 @@ Globals.prototype.initialize = function () {
                 this.app.buildingsSeen['Stone Hill'] = 1;
             }
 
+            this.app.root.findByName('UndoGroup').enabled = false;
+            this.app.root.findByName('RandomGroup').enabled = true;
+
+            this.app.undoState = false;
+
             this.app.fire('game:fixroads');
             this.app.fire('game:points');
             this.app.fire('game:updatebuttons');
             this.app.fire('game:updatecard');
             this.app.fire('game:updatesave');
-            this.app.fire('game:updateunlock');
-
-            // Uncomment this to show the map name in the start.
-            //this.app.root.findByName('LevelName').enabled = true;
+            this.app.fire('game:nextunlock');
+            this.app.fire('game:levelloaded2');
 
             setTimeout(() => {
                 this.app.root.findByName('sun').light.updateShadow();
             }, 100);
-
-            if (this.app.state.current !== 0 || this.app.pointsTier >= 8) {
-                this.app.root.findByName('RandomGroup').enabled = true;
-            }
 
             if (!this.app.touch && this.app.state.current === 0 && this.app.pointsTier < 8) {
                 let notip = false;
@@ -589,7 +595,7 @@ Globals.prototype.initialize = function () {
             this.app.state.levels[this.app.state.current] = this.app.saveCurrentLevel();
 
             try {
-                localStorage.setItem(saveName, this.app.compress(JSON.stringify(this.app.state)));
+                localStorage.setItem(this.app.saveName, this.app.compress(JSON.stringify(this.app.state)));
             } catch (unused) { }
         }, 500);
     });
@@ -606,8 +612,6 @@ Globals.prototype.initialize = function () {
             }
         }
 
-        this.app.commercialBreak();
-
         this.app.state.current = level;
 
         this.app.fire('game:deselect');
@@ -620,7 +624,7 @@ Globals.prototype.initialize = function () {
         if (level === 0) { // The Meadow
             this.app.openLevel('grass', {
                 // Only use a random seed if the user progressed far enough into the level.
-                levelSeed: (restart && (this.app.previousPacks.length > 7 || force)) ? 0 : 78932,
+                levelSeed: (restart && (this.app.pointsTier > 7 || force)) ? 0 : 78932,
                 levelSize: 30,
                 waterSize: 3,
                 waterOffset: 7,
@@ -704,21 +708,18 @@ Globals.prototype.initialize = function () {
                 this.app.buildingsSeen['Stone Hill'] = 1;
             }
 
-            if (level === 0) {
-                this.app.addTile('House', 2);
-            } else {
-                this.app.addTile('Plus', 1);
-            }
-
             this.app.root.findByName('UndoGroup').enabled = false;
-            this.app.root.findByName('RandomGroup').enabled = false;
+            this.app.root.findByName('RandomGroup').enabled = true;
 
             this.app.undoState = false;
             this.app.previousPacks = [];
 
             this.app.fire('game:updatebuttons');
             this.app.fire('game:updatesave');
-            this.app.fire('game:updateunlock');
+            this.app.fire('game:nextunlock');
+            this.app.fire('game:levelloaded2');
+
+            this.app.root.children[0].script.plusbutton.addDeck();
 
             if (!this.app.touch && level === 0) {
                 let notip = false;
@@ -769,7 +770,7 @@ Globals.prototype.postInitialize = function () {
     };
 
     try {
-        const data = this.app.decompress(localStorage.getItem(saveName));
+        const data = this.app.decompress(localStorage.getItem(this.app.saveName));
         if (data) {
             const state = JSON.parse(data);
 

@@ -17,7 +17,7 @@ Lostmenu.prototype.initialize = function () {
         }
     });
 
-    const lostRewardButton = this.app.root.findByName('LostRewardButton');
+    /*const lostRewardButton = this.app.root.findByName('LostRewardButton');
     lostRewardButton.button.on('click', () => {
         PokiSDK.rewardedBreak(() => {
             this.app.fire('game:disablecamera');
@@ -32,7 +32,7 @@ Lostmenu.prototype.initialize = function () {
                 this.app.root.findByName('Plus').script.plusbutton.addDeck();
             }
         });
-    }, this);
+    }, this);*/
 
     const lostNextLevelButton = this.app.root.findByName('LostNextLevelButton');
     lostNextLevelButton.button.on('click', () => {
@@ -66,11 +66,11 @@ Lostmenu.prototype.initialize = function () {
 
         this.app.gameplayStop();
 
-        if (window.PokiSDK && window.PokiSDK.isAdBlocked && !window.PokiSDK.isAdBlocked()) {
+        /*if (window.PokiSDK && window.PokiSDK.isAdBlocked && !window.PokiSDK.isAdBlocked()) {
             lostRewardButton.enabled = true;
         } else {
             lostRewardButton.enabled = false;
-        }
+        }*/
 
         this.app.fire('tooltip:close');
         this.app.fire('game:disablecamera');

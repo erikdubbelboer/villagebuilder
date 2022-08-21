@@ -44,20 +44,45 @@ Config.prototype.initialize = function () {
     'Bathhouse': 2,
     'Shipyard': 3,
     'Pigs': 3,
-    //'Papermill': 4,
+    'Papermill': 4,
     'Chapel': 3,
-  };
-  this.app.globals.firstpoints = {
-    // Should be empty.
   };
   this.app.globals.basepoints = {
     'House': 2,
-    'Mill': 2,
+    'Tavern': 3,
+    'Market': 2,
+    'Church': 5,
+    'Mine': 5,
+    'Smelter': 5,
+    'Blacksmith': 4,
+    'Carpenter': 4,
+    'Lumberjack': 2,
+    'Hunting Cabin': 6,
+    'Mill': 3,
+    'Water Mill': 6,
+    'Fishing Hut': 4,
+    'Grain': 1,
     'Stable': 4,
-    'Winery': 4,
-    'Fishing Hut': 10,
-    'Statue': 15,
-    'Ship': 15,
+    'Horses': 2,
+    'Sheep': 2,
+    'Castle': 15,
+    'Tower': 10,
+    'Road': 0,
+    'Statue': 30,
+    'Campfire': 10,
+    'Ship': 30,
+    'Townhall': 12,
+    'Jousting': 8,
+    'Forest': 0,
+    'Noria': 2,
+    'Winery': 6,
+    'Vineyard': 2,
+    'Storehouse': 3,
+    'Bathhouse': 6,
+    'Shipyard': 6,
+    'Pigs': 2,
+    'Papermill': 10,
+    'Chapel': 8,
   };
   this.app.globals.needs = {
     'House': {
@@ -152,13 +177,13 @@ Config.prototype.initialize = function () {
       ],
       'on': [],
     },
-    /*'Papermill': {
+    'Papermill': {
       'or': [
         'River',
       ],
       'and': [],
       'on': [],
-    },*/
+    },
     'Fishing Hut': {
       'or': [
         'Water'
@@ -293,6 +318,7 @@ Config.prototype.initialize = function () {
     'Vineyard': {
       'or': [
         'Winery',
+        'Noria',
         'Vineyard',
       ],
       'and': [],
@@ -340,443 +366,681 @@ Config.prototype.initialize = function () {
       'on': [],
     },
   };
+
+
+
+
   this.app.globals.packs = [
     {
-      'title': 'Lumber',
-      'tier': -1,
-      'tiles': [
+      "title": "Housing",
+      "minLevel": 0,
+      "maxLevel": 5,
+      "tiles": [
         [
-          'Lumberjack',
-          2,
-        ],
-      ],
-    },
-    {
-      'title': 'Village',
-      'tier': -1,
-      'tiles': [
-        [
-          'House',
+          "House",
           3
         ],
         [
-          'Road',
+          "Road",
+          1
+        ]
+      ]
+    },
+    {
+      "title": "Town",
+      "minLevel": 0,
+      "maxLevel": 5,
+      "tiles": [
+        [
+          "Tavern",
+          1
+        ],
+        [
+          "Market",
+          1
+        ],
+        [
+          "Road",
+          1
+        ]
+      ]
+    },
+    {
+      "title": "Lumberjack",
+      "minLevel": 0,
+      "maxLevel": 5,
+      "tiles": [
+        [
+          "House",
+          1
+        ],
+        [
+          "Lumberjack",
+          1
+        ]
+      ]
+    },
+    {
+      "title": "Mill",
+      "minLevel": 0,
+      "maxLevel": 5,
+      "tiles": [
+        [
+          "Mill",
+          1
+        ],
+        [
+          "Grain",
+          2
+        ],
+        [
+          "Road",
+          2
+        ]
+      ]
+    },
+    {
+      "title": "Stable",
+      "minLevel": 0,
+      "maxLevel": 5,
+      "tiles": [
+        [
+          "Stable",
+          1
+        ],
+        [
+          "Sheep",
+          2
+        ],
+        [
+          "Road",
+          2
+        ]
+      ]
+    },
+    {
+      "title": "Church",
+      "minLevel": 4,
+      "maxLevel": 8,
+      "tiles": [
+        [
+          "House",
+          2
+        ],
+        [
+          "Church",
+          1
+        ],
+        [
+          "Road",
+          3
+        ]
+      ]
+    },
+    {
+      "title": "Watermill",
+      "minLevel": 4,
+      "maxLevel": 8,
+      "tiles": [
+        [
+          "House",
+          1
+        ],
+        [
+          "Water Mill",
+          1
+        ],
+        [
+          "Grain",
+          1
+        ],
+        [
+          "Sheep",
+          1
+        ],
+        [
+          "Road",
+          3
+        ]
+      ]
+    },
+    {
+      "title": "Mine",
+      "minLevel": 5,
+      "maxLevel": 8,
+      "tiles": [
+        [
+          "House",
+          1
+        ],
+        [
+          "Mine",
+          1
+        ],
+        [
+          "Smelter",
+          1
+        ],
+        [
+          "Road",
+          3
+        ]
+      ]
+    },
+    {
+      "title": "Hunting",
+      "minLevel": 5,
+      "maxLevel": 8,
+      "tiles": [
+        [
+          "Tavern",
+          1
+        ],
+        [
+          "Hunting Cabin",
+          1
+        ],
+        [
+          "Horses",
+          1
+        ],
+        [
+          "Tower",
+          1
+        ]
+      ]
+    },
+    {
+      "title": "Goods",
+      "minLevel": 8,
+      "maxLevel": 12,
+      "tiles": [
+        [
+          "House",
+          2
+        ],
+        [
+          "Storehouse",
+          1
+        ],
+        [
+          "Pigs",
+          1
+        ],
+        [
+          "Road",
+          2
+        ]
+      ]
+    },
+    {
+      "title": "Castle",
+      "minLevel": 8,
+      "maxLevel": 12,
+      "tiles": [
+        [
+          "Market",
+          1
+        ],
+        [
+          "Horses",
+          1
+        ],
+        [
+          "Castle",
+          1
+        ],
+        [
+          "Road",
+          3
+        ]
+      ]
+    },
+    {
+      "title": "Villlage",
+      "minLevel": 5,
+      "maxLevel": 0,
+      "tiles": [
+        [
+          "House",
           4
         ],
-      ],
-    },
-    {
-      'title': 'Town',
-      'tier': -1,
-      'tiles': [
         [
-          'House',
+          "Tavern",
           1
         ],
         [
-          'Market',
+          "Market",
           1
         ],
         [
-          'Tavern',
-          1
-        ],
-      ],
-    },
-    {
-      'title': 'Forestry',
-      'tier': 0,
-      'unlock': 'Lumberjack',
-      'tiles': [
-        [
-          'Lumberjack',
-          2,
-        ],
-        [
-          'Carpenter',
-          1
-        ],
-        [
-          'House',
-          1
-        ],
-        [
-          'Road',
-          3
-        ],
-      ],
-    },
-    {
-      'title': 'Living',
-      'tier': 0,
-      'unlock': 'Tavern',
-      'tiles': [
-        [
-          'House',
+          "Road",
           4
         ],
         [
-          'Market',
+          "Townhall",
           1
-        ],
-        [
-          'Tavern',
-          1
-        ],
-        [
-          'Road',
-          4
-        ],
-      ],
+        ]
+      ]
     },
     {
-      'title': 'Religion',
-      'tier': 1,
-      'unlock': 'Church',
-      'tiles': [
+      "title": "Forestry",
+      "minLevel": 5,
+      "maxLevel": 0,
+      "tiles": [
         [
-          'House',
-          2,
-        ],
-        [
-          'Church',
+          "House",
           1
         ],
         [
-          'Road',
-          2,
-        ],
-        [
-          'Chapel',
+          "Carpenter",
           1
         ],
-      ],
+        [
+          "Lumberjack",
+          2
+        ],
+        [
+          "Fishing Hut",
+          1
+        ],
+        [
+          "Papermill",
+          1
+        ]
+      ]
     },
     {
-      'title': 'Animals',
-      'tier': 2,
-      'unlock': 'Stable',
-      'tiles': [
+      "title": "Farming",
+      "minLevel": 5,
+      "maxLevel": 0,
+      "tiles": [
         [
-          'Stable',
+          "Mill",
           1
         ],
         [
-          'Horses',
-          1
-        ],
-        [
-          'Sheep',
-          3
-        ],
-      ],
-    },
-    {
-      'title': 'Farming',
-      'tier': 3,
-      'unlock': 'Mill',
-      'tiles': [
-        [
-          'Mill',
-          1
-        ],
-        [
-          'Grain',
+          "Grain",
           4
         ],
         [
-          'Road',
-          2,
-        ],
-      ],
-    },
-    {
-      'title': 'Economy',
-      'tier': 3,
-      'tiles': [
-        [
-          'Pigs',
+          "Noria",
           1
         ],
         [
-          'Tavern',
-          1
-        ],
-        [
-          'Market',
-          2,
-        ],
-        [
-          'Carpenter',
-          1
-        ],
-        [
-          'Road',
-          3
-        ],
-      ],
-    },
-    {
-      'title': 'Hunting',
-      'tier': 4,
-      'unlock': 'Hunting Cabin',
-      'tiles': [
-        [
-          'Hunting Cabin',
-          2,
-        ],
-        [
-          'Horses',
-          1
-        ],
-        [
-          'Lumberjack',
-          1
-        ],
-        [
-          'Pigs',
-          1
-        ],
-        [
-          'Fishing Hut',
-          1
-        ],
-      ],
-    },
-    {
-      'title': 'Fishing',
-      'tier': 4,
-      'unlock': 'Fishing Hut',
-      'tiles': [
-        [
-          'Fishing Hut',
-          1
-        ],
-        [
-          'Shipyard',
-          1
-        ],
-        [
-          'Winery',
-          1
-        ],
-        [
-          'Vineyard',
-          1
-        ],
-        [
-          'Road',
-          3
-        ],
-      ],
-    },
-    {
-      'title': 'Mining',
-      'tier': 4,
-      'unlock': 'Mine',
-      'tiles': [
-        [
-          'Mine',
-          2,
-        ],
-        [
-          'Smelter',
-          1
-        ],
-        [
-          'House',
-          2,
-        ],
-        [
-          'Stable',
-          1
-        ],
-        [
-          'Road',
-          3
-        ],
-      ],
-    },
-    {
-      'title': 'Luxury',
-      'tier': 4,
-      'unlock': 'Winery',
-      'tiles': [
-        [
-          'Winery',
-          1
-        ],
-        [
-          'Vineyard',
-          2,
-        ],
-        [
-          'Bathhouse',
-          1
-        ],
-        [
-          'Noria',
-          1
-        ],
-        [
-          'Water Mill',
-          1
-        ],
-      ],
-    },
-    {
-      'title': 'Water Mill',
-      'tier': 5,
-      'unlock': 'Water Mill',
-      'tiles': [
-        [
-          'Water Mill',
-          1
-        ],
-        [
-          'Grain',
-          2,
-        ],
-        [
-          'Sheep',
-          1
-        ],
-        [
-          'Road',
+          "Road",
           3
         ],
         [
-          'Vineyard',
+          "Jousting",
           1
-        ],
-      ],
+        ]
+      ]
     },
     {
-      'title': 'Smelter',
-      'tier': 5,
-      'unlock': 'Smelter',
-      'tiles': [
+      "title": "Animals",
+      "minLevel": 5,
+      "maxLevel": 0,
+      "tiles": [
         [
-          'Smelter',
+          "Hunting Cabin",
           1
         ],
         [
-          'House',
+          "Stable",
           1
         ],
         [
-          'Pigs',
+          "Sheep",
+          3
+        ],
+        [
+          "Pigs",
           1
         ],
         [
-          'Storehouse',
-          1
-        ],
-        [
-          'Road',
-          2,
-        ],
-      ],
+          "Road",
+          3
+        ]
+      ]
     },
     {
-      'title': 'Travel',
-      'tier': 5,
-      'tiles': [
+      "title": "Religion",
+      "minLevel": 8,
+      "maxLevel": 0,
+      "tiles": [
         [
-          'House',
+          "House",
+          2
+        ],
+        [
+          "Church",
           1
         ],
         [
-          'Horses',
+          "Chapel",
           1
         ],
         [
-          'Vineyard',
-          2,
+          "Road",
+          3
         ],
         [
-          'Road',
+          "Statue",
+          1
+        ]
+      ]
+    },
+    {
+      "title": "Mining",
+      "minLevel": 8,
+      "maxLevel": 0,
+      "tiles": [
+        [
+          "House",
+          2
+        ],
+        [
+          "Mine",
+          1
+        ],
+        [
+          "Smelter",
+          1
+        ],
+        [
+          "Horses",
+          1
+        ],
+        [
+          "Road",
+          3
+        ]
+      ]
+    },
+    {
+      "title": "Expansion",
+      "minLevel": 8,
+      "maxLevel": 0,
+      "tiles": [
+        [
+          "Water Mill",
+          1
+        ],
+        [
+          "Grain",
+          2
+        ],
+        [
+          "Sheep",
+          2
+        ],
+        [
+          "Storehouse",
+          1
+        ],
+        [
+          "Road",
+          6
+        ]
+      ]
+    },
+    {
+      "title": "Living",
+      "minLevel": 8,
+      "maxLevel": 0,
+      "tiles": [
+        [
+          "House",
+          3
+        ],
+        [
+          "Tavern",
+          1
+        ],
+        [
+          "Market",
+          1
+        ],
+        [
+          "Bathhouse",
+          1
+        ],
+        [
+          "Campfire",
+          1
+        ]
+      ]
+    },
+    {
+      "title": "Industry",
+      "minLevel": 12,
+      "maxLevel": 0,
+      "tiles": [
+        [
+          "Smelter",
+          1
+        ],
+        [
+          "Carpenter",
+          1
+        ],
+        [
+          "Shipyard",
+          1
+        ],
+        [
+          "Storehouse",
+          1
+        ],
+        [
+          "Road",
+          4
+        ]
+      ]
+    },
+    {
+      "title": "Hunting",
+      "minLevel": 8,
+      "maxLevel": 0,
+      "tiles": [
+        [
+          "House",
+          1
+        ],
+        [
+          "Hunting Cabin",
+          1
+        ],
+        [
+          "Fishing Hut",
+          1
+        ],
+        [
+          "Horses",
+          1
+        ],
+        [
+          "Tower",
+          1
+        ]
+      ]
+    },
+    {
+      "title": "Defense",
+      "minLevel": 12,
+      "maxLevel": 0,
+      "tiles": [
+        [
+          "Stable",
+          1
+        ],
+        [
+          "Horses",
+          1
+        ],
+        [
+          "Castle",
+          1
+        ],
+        [
+          "Tower",
+          1
+        ],
+        [
+          "Road",
+          4
+        ]
+      ]
+    },
+    {
+      "title": "Trading",
+      "minLevel": 12,
+      "maxLevel": 0,
+      "tiles": [
+        [
+          "House",
+          2
+        ],
+        [
+          "Mill",
+          1
+        ],
+        [
+          "Grain",
+          2
+        ],
+        [
+          "Vineyard",
+          2
+        ],
+        [
+          "Pigs",
+          1
+        ]
+      ]
+    },
+    {
+      "title": "Luxury",
+      "minLevel": 12,
+      "maxLevel": 0,
+      "tiles": [
+        [
+          "Mine",
+          1
+        ],
+        [
+          "Winery",
+          1
+        ],
+        [
+          "Vineyard",
+          3
+        ],
+        [
+          "Noria",
+          1
+        ],
+        [
+          "Bathhouse",
+          1
+        ]
+      ]
+    },
+    {
+      "title": "Travel",
+      "minLevel": 12,
+      "maxLevel": 0,
+      "tiles": [
+        [
+          "House",
+          2
+        ],
+        [
+          "Tavern",
+          1
+        ],
+        [
+          "Chapel",
+          1
+        ],
+        [
+          "Road",
           8
         ],
-      ],
+        [
+          "Ship",
+          1
+        ]
+      ]
     },
     {
-      'title': 'Expansion',
-      'tier': 6,
-      'tiles': [
+      "title": "Woodworks",
+      "minLevel": 16,
+      "maxLevel": 0,
+      "tiles": [
         [
-          'Church',
+          "Lumberjack",
+          2
+        ],
+        [
+          "Water Mill",
           1
         ],
         [
-          'Tower',
+          "Shipyard",
           1
         ],
         [
-          'Road',
-          3
-        ],
-        [
-          'Noria',
-          2,
-        ],
-        [
-          'Storehouse',
+          "Winery",
           1
         ],
-      ],
+        [
+          "Vineyard",
+          2
+        ]
+      ]
     },
     {
-      'title': 'Defense',
-      'tier': 6,
-      'unlock': 'Tower',
-      'tiles': [
+      "title": "Capital",
+      "minLevel": 16,
+      "maxLevel": 0,
+      "tiles": [
         [
-          'House',
-          2,
-        ],
-        [
-          'Tower',
-          1
-        ],
-        [
-          'Smelter',
-          1
-        ],
-        [
-          'Chapel',
-          1
-        ],
-        [
-          'Road',
-          2,
-        ],
-      ],
-    },
-    {
-      'title': 'Castle',
-      'tier': 7,
-      'unlock': 'Castle',
-      'tiles': [
-        [
-          'Mine',
-          1
-        ],
-        [
-          'Castle',
-          1
-        ],
-        [
-          'Storehouse',
-          1
-        ],
-        [
-          'Road',
+          "House",
           4
         ],
-      ],
-    },
+        [
+          "Church",
+          1
+        ],
+        [
+          "Castle",
+          1
+        ],
+        [
+          "Bathhouse",
+          1
+        ],
+        [
+          "Road",
+          6
+        ]
+      ]
+    }
   ];
+
+
+
+
+
+
+
+
+
+
+
+
   this.app.globals.extrapoints = {
     'House': {
       'House': 2,
@@ -856,7 +1120,7 @@ Config.prototype.initialize = function () {
       'Lumberjack': -3,
     },
     'Mill': {
-      'Mill': -8,
+      'Mill': -4,
       'Grain': 2,
       'Tower': 4,
       'Forest': -1,
@@ -873,7 +1137,7 @@ Config.prototype.initialize = function () {
     'Fishing Hut': {
       'Market': 4,
       'Water Mill': -4,
-      'Fishing Hut': -10,
+      'Fishing Hut': -8,
       'Horses': 2,
       'Tower': 4,
       'Water Rocks': 2,
@@ -897,10 +1161,11 @@ Config.prototype.initialize = function () {
       'Forest': -1,
     },
     'Horses': {
-      'Market': -3,
+      'Market': -2,
       'Hunting Cabin': 4,
+      'Tavern': 4,
       'Stable': 8,
-      'Horses': -3,
+      'Horses': -6,
       'Castle': 8,
       'Noria': 2,
       'Storehouse': 2,

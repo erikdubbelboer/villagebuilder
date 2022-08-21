@@ -180,7 +180,7 @@ MouseInput.prototype.update = function (dt) {
             const newPivotPoint = this.orbitCamera.pivotPoint.clone().add(new pc.Quat().setFromEulerAngles(0, this.orbitCamera.yaw, 0).transformVector(d));
             const halfLevelSize = (this.app.levelSize - 2) / 2;
             const xBounds = (this.app.globals ? this.app.globals.tileXSize : 1000) * halfLevelSize - 4; // -4 so we can't go all the way to the edge
-            const yBounds = (this.app.globals ? this.app.globals.tileYSize : 1000) * halfLevelSize - 4;
+            const yBounds = (this.app.globals ? this.app.globals.tileYSize : 1000) * halfLevelSize - 1;
 
             if (newPivotPoint.x < -xBounds) newPivotPoint.x = -xBounds;
             if (newPivotPoint.x > xBounds) newPivotPoint.x = xBounds;

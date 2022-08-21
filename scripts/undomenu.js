@@ -74,12 +74,6 @@ UndoMenu.prototype.onEnable = function () {
 
     this.app.fire('game:disablecamera');
 
-    const decks = this.app.root.findByName('Decks');
-    if (decks.enabled) {
-        decks.enabled = false;
-        this.app.root.findByName('Plus').script.plusbutton.putBackDeck();
-    }
-
     if (!this.app.isWithEditor && (!window.PokiSDK || !window.PokiSDK.isAdBlocked || window.PokiSDK.isAdBlocked())) {
         this.entity.children[1].children[1].enabled = false;
         this.entity.children[1].children[0].element.text = 'PLEASE DISABLE YOUR ADBLOCKER';

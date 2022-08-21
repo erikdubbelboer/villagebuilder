@@ -21,13 +21,13 @@ CardButton.prototype.initialize = function () {
         this.entity.button.on(pc.EVENT_TOUCHSTART, this.onTouchStart, this);
         this.app.touch.on(pc.EVENT_TOUCHEND, this.onTouchEnd, this);
         this.app.touch.on(pc.EVENT_TOUCHMOVE, this.onTouchMove, this);
-    } else {
-        this.entity.button.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
-        this.entity.button.on('mouseenter', this.onHoverStart, this);
-        this.entity.button.on('mouseleave', this.onHoverEnd, this);
-        this.app.mouse.on(pc.EVENT_MOUSEUP, this.onMouseUp, this);
-        this.app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
     }
+
+    this.entity.button.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
+    this.entity.button.on('mouseenter', this.onHoverStart, this);
+    this.entity.button.on('mouseleave', this.onHoverEnd, this);
+    this.entity.button.on(pc.EVENT_MOUSEUP, this.onMouseUp, this);
+    //this.app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
 
     this.app.on('game:disablecamera', () => {
         this.isDisabled = true;
@@ -36,15 +36,16 @@ CardButton.prototype.initialize = function () {
         this.isDisabled = false;
     });
 
+    this.on('destroy', () => {
+        throw new Error('CardButton destroy');
+    });
+
     this.app.on('game:updatebuttons', this.updateButtons, this);
 
     this.updateButtons();
 
     this.touchStarted = 0;
     this.wasPlacingTileName = '';
-
-    this.animationLeft = 0.5;
-    this.animate = false;
 
     this.entity.parent.setLocalScale(1, 1, 1);
 
@@ -57,11 +58,11 @@ CardButton.prototype.initialize = function () {
 
     this.isClicking = false;
 
-    this.cardButtonsScroll = this.app.root.findByName('CardButtonsScroll');
+    //this.cardButtonsScroll = this.app.root.findByName('CardButtonsScroll');
 };
 
 CardButton.prototype.onSelect = function (xy) {
-    if (this.app.touch && !this.dragPlacing && this.touchStarted + 500 < performance.now()) {
+    if (this.app.touch && !this.dragPlacing && this.touchStarted !== 0 && this.touchStarted + 500 < performance.now()) {
         return;
     }
 
@@ -138,10 +139,6 @@ CardButton.prototype.onSelect = function (xy) {
     this.app.root.addChild(score);
 
     this.app.fire('game:newselect', xy);
-
-    if (this.app.touch) {
-        this.app.fire('tooltip:show', 'presstwice');
-    }
 };
 
 CardButton.prototype.update = function (dt) {
@@ -150,23 +147,6 @@ CardButton.prototype.update = function (dt) {
         if (t) {
             this.textureAssigned = true;
             this.entity.element.texture = t;
-        }
-    }
-
-    if (this.animate) {
-        const aminationTime = 1;
-        if (this.animationLeft > 0) {
-            this.animationLeft = Math.max(this.animationLeft - dt, 0);
-
-            if (this.animationLeft >= (aminationTime / 2)) {
-                const s = 1 + ((aminationTime - this.animationLeft) / (aminationTime / 2)) / 10;
-                this.entity.parent.setLocalScale(s, s, s);
-            } else {
-                const s = 1 + (this.animationLeft / (aminationTime / 2)) / 10;
-                this.entity.parent.setLocalScale(s, s, s);
-            }
-        } else {
-            this.animationLeft = aminationTime;
         }
     }
 };
@@ -188,14 +168,6 @@ CardButton.prototype.updateButtons = function () {
 
     this.entity.parent.children[1].enabled = true;
     this.entity.parent.children[1].element.text = data.count;
-
-    if (this.app.state.current === 0) {
-        if (this.app.pointsTier === 0) {
-            if (data.tile === 'House') {
-                this.animate = true;
-            }
-        }
-    }
 };
 
 CardButton.prototype.onTouchStart = function (event) {
@@ -210,14 +182,20 @@ CardButton.prototype.onTouchStart = function (event) {
     }
 };
 
-CardButton.prototype.onTouchEnd = function () {
+CardButton.prototype.onTouchEnd = function (event) {
+    if (this.touchStarted === 0) {
+        return;
+    }
+
     // Show the tooltip for at least X milliseconds.
     // This helps players realize that there are tooltips when pressing down on buttons.
-    if (performance.now() - this.touchStarted < 300) {
+    if (this.app.pointsTier < 5 && performance.now() - this.touchStarted < 300) {
         setTimeout(() => {
+            this.touchStarted = 0;
             this.onHoverEnd();
         }, 300);
     } else {
+        this.touchStarted = 0;
         this.onHoverEnd();
     }
 
@@ -242,12 +220,9 @@ CardButton.prototype.onHoverStart = function () {
     if (this.isDisabled) {
         return;
     }
-
     if (this.app.draggingButtons) {
         return;
     }
-
-    this.animate = false;
 
     this.entity.parent.setLocalScale(1.1, 1.1, 1.1);
 
@@ -265,10 +240,6 @@ CardButton.prototype.onHoverStart = function () {
 
 CardButton.prototype.onHoverEnd = function () {
     this.entity.parent.setLocalScale(1, 1, 1);
-
-    // Uncomment to re-animate after hover.
-    //this.animate = this.wasAnimating;
-    //this.animationLeft = 0.5;
 
     this.app.noPickerHover = false;
 
@@ -320,17 +291,20 @@ CardButton.prototype.onTouchMove = function (event) {
     if (this.dragStartedAt === false) {
         return;
     }
+    if (this.touchStarted === 0) {
+        return;
+    }
 
     this.dragTo(event.touches[0].x, event.touches[0].y);
 };
 
-CardButton.prototype.onMouseMove = function (event) {
+/*CardButton.prototype.onMouseMove = function (event) {
     if (this.dragStartedAt === false) {
         return;
     }
 
     this.dragTo(event.x, event.y);
-};
+};*/
 
 CardButton.prototype.dragTo = function (x, y) {
     if (this.dragPlacing) {
@@ -338,7 +312,7 @@ CardButton.prototype.dragTo = function (x, y) {
         return;
     }
 
-    const d = this.dragCurrentAt[0] - x;
+    /*const d = this.dragCurrentAt[0] - x;
 
     if (Math.abs(d) > 30) {
         const pos = this.cardButtons.getLocalPosition();
@@ -351,7 +325,7 @@ CardButton.prototype.dragTo = function (x, y) {
         this.app.draggingButtons = true;
         this.isClicking = false;
         this.dragPlacing = false;
-    }
+    }*/
 
     if (!this.app.draggingButtons && this.dragStartedAt[1] - y > 50) {
         this.onHoverEnd();

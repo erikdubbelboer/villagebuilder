@@ -46,10 +46,9 @@ RandomMenu.prototype.initialize = function () {
     const randomVideoButton = this.app.root.findByName('RandomVideoButton');
 
     const giveReward = () => {
-        randomVideoButton.enabled = false;
+        /*randomVideoButton.enabled = false;
 
         const tiles = Object.keys(this.app.buildingsSeen).filter(t => !!this.app.globals.auras[t]);
-        // TODO: filter on what you can actually place.
         const tile = tiles[Math.floor(Math.random() * tiles.length)];
 
         this.entity.children[1].children[1].children[0].script.rewardimage.tile = tile;
@@ -69,7 +68,17 @@ RandomMenu.prototype.initialize = function () {
         this.app.fire('game:updatebuttons');
         this.app.fire('game:updatesave');
 
-        this.app.root.findByName('RandomGroup').enabled = false;
+        this.app.root.findByName('RandomGroup').enabled = false;*/
+        this.entity.enabled = false;
+
+        /*this.app.buttons.forEach(t => {
+            // Loose everything except for your roads.
+            if (t.tile !== 'Road') {
+                t.count = 0;
+            }
+        });
+        this.app.fire('game:updatebuttons');*/
+        this.app.root.children[0].script.plusbutton.addDeck();
     };
 
     randomVideoButton.button.on('click', () => {
@@ -117,12 +126,6 @@ RandomMenu.prototype.onEnable = function () {
 
     this.app.fire('game:disablecamera');
 
-    const decks = this.app.root.findByName('Decks');
-    if (decks.enabled) {
-        decks.enabled = false;
-        this.app.root.findByName('Plus').script.plusbutton.putBackDeck();
-    }
-
     this.entity.children[1].children[1].children[0].script.rewardimage.tile = 'Empty';
     this.entity.children[1].children[1].children[0].children[0].enabled = true;
     this.entity.children[1].children[3].children[0].element.color = new pc.Color(0.9, 0.9, 0.9, 1);
@@ -133,6 +136,6 @@ RandomMenu.prototype.onEnable = function () {
         this.entity.children[1].children[0].element.text = 'PLEASE DISABLE YOUR ADBLOCKER';
     } else {
         this.entity.children[1].children[2].enabled = true;
-        this.entity.children[1].children[0].element.text = 'WATCH A VIDEO AD FOR A FREE BONUS BUILDING';
+        this.entity.children[1].children[0].element.text = 'WATCH A VIDEO AD TO SKIP TO THE NEXT BUILDINGS';
     }
 };

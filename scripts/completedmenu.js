@@ -64,10 +64,4 @@ CompletedMenu.prototype.onEnable = function () {
     if (this.app.nowUnlocked) {
         this.entity.children[1].children[1].children[0].script.rewardimage.tile = this.app.nowUnlocked;
     }
-
-    const decks = this.app.root.findByName('Decks');
-    if (decks.enabled) {
-        decks.enabled = false;
-        this.app.root.findByName('Plus').script.plusbutton.putBackDeck();
-    }
 };

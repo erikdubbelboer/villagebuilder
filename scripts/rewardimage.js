@@ -55,6 +55,7 @@ Rewardimage.prototype.onHoverStart = function () {
         this.app.hover('rewardimage', true);
 
         this.tooltip.enabled = true;
+        this.app.noPickerHover = true;
 
         this.app.root.findByName('Help').reparent(this.tooltip);
         this.app.fire('game:showhelp', this.tile, this.moveRight, this.moveUp, 0, null, 250);
@@ -66,6 +67,7 @@ Rewardimage.prototype.onHoverEnd = function () {
         this.app.hover('rewardimage', false);
 
         this.tooltip.enabled = false;
+        this.app.noPickerHover = false;
     }
 };
 

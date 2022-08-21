@@ -24,7 +24,7 @@ DeckBackground.prototype.initialize = function () {
 };
 
 DeckBackground.prototype.onSelect = function () {
-    if (this.app.touch && this.touchStarted + 500 < performance.now()) {
+    if (this.app.touch && this.touchStarted !== 0 && this.touchStarted + 500 < performance.now()) {
         return;
     }
 
@@ -47,16 +47,14 @@ DeckBackground.prototype.onSelect = function () {
     this.app.decksOpen = false;
 
     this.app.fire('game:updatebuttons');
-
     this.app.fire('game:updatecard');
-
     this.app.fire('game:clearhelp');
-
     this.app.fire('game:updatesave');
-
+    this.app.fire('game:nextunlock');
     this.app.fire('game:confirmdeck', this.pack);
 
     this.app.root.findByName('Decks').enabled = false;
+    this.app.root.findByName('RandomGroup').enabled = true;
 
     this.app.hover('deckbackground', false);
     this.app.hover('deckbutton', false);

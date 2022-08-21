@@ -50,13 +50,13 @@ Movingpoint.prototype.update = function (dt) {
     r.sub2(end, now);
 
     const currentDist = r.length();
-    let speed = this.app.pointSpeed;
+    let speed = 20; //this.app.pointSpeed;
 
     if (!this.entity.bouncePosition) {
         //r.y += 5 * (Math.max(currentDist - 2, 0) / this.distance);
         r.y -= 1 * (Math.max(currentDist - 2, 0) / this.distance);
     } else {
-        speed = this.app.pointSpeed / 5;
+        speed /= 5; //this.app.pointSpeed / 5;
     }
 
     r.normalize();
@@ -87,8 +87,6 @@ Movingpoint.prototype.update = function (dt) {
             this.app.points++;
 
             if (this.app.points >= this.app.maxPoints) {
-                this.app.root.findByName('Plus').script.plusbutton.addDeck();
-
                 this.app.points -= this.app.maxPoints;
                 this.app.minPoints = 0;
                 this.app.pointsTier++;
@@ -99,28 +97,15 @@ Movingpoint.prototype.update = function (dt) {
                         tilesleft: this.app.buttons.map(t => t.count).reduce((a, b) => a + b, 0),
                     });
                 }
-                if (window.GameAnalytics) {
-                    GameAnalytics("addProgressionEvent", "Start", "world" + ('000' + this.app.state.current).substr(-3), "stage001", "level" + ('000' + this.app.pointsTier).substr(-3));
-                }
+                //if (window.GameAnalytics) {
+                //    GameAnalytics("addProgressionEvent", "Start", "world" + ('000' + this.app.state.current).substr(-3), "stage001", "level" + ('000' + this.app.pointsTier).substr(-3));
+                //}
 
-                //level requirements per map
-                if (this.app.state.current === 0) {
-                    this.app.maxPoints = 4 + (this.app.pointsTier * 6);
-                } else if (this.app.state.current === 1) {
-                    this.app.maxPoints = 15 + (this.app.pointsTier * 4);
-                } else if (this.app.state.current === 2) {
-                    this.app.maxPoints = 15 + (this.app.pointsTier * 5);
-                } else {
-                    this.app.maxPoints = 15 + (this.app.pointsTier * 6);
-                }
+                this.app.maxPoints = 15 + (this.app.pointsTier * 5);
 
                 this.app.fire('game:fireworks');
                 this.app.fire('game:shake', 0.4);
                 this.app.fire('tooltip:close');
-
-                if (this.app.state.current !== 0 || this.app.pointsTier >= 7) {
-                    this.app.root.findByName('RandomGroup').enabled = true;
-                }
 
                 if (this.app.pointsTier === 20) {
                     const rewards = [
@@ -132,10 +117,21 @@ Movingpoint.prototype.update = function (dt) {
                     ];
                     const reward = rewards[this.app.state.current];
                     if (reward) {
-                        this.app.nowUnlocked = reward;
-                        this.app.state.unlocked[reward] = true;
-                        this.app.root.findByName('CompletedMenu').enabled = true;
-                        this.app.fire('game:deselect');
+                        const showReward = () => {
+                            const decks = this.app.root.findByName('Decks');
+                            if (decks.enabled) {
+                                setTimeout(() => {
+                                    showReward();
+                                }, 500);
+                                return;
+                            }
+
+                            this.app.nowUnlocked = reward;
+                            this.app.state.unlocked[reward] = true;
+                            this.app.root.findByName('CompletedMenu').enabled = true;
+                            this.app.fire('game:deselect');
+                        };
+                        showReward();
                     }
                 }
             }

@@ -9,62 +9,58 @@
 const Plusbutton = pc.createScript('plusbutton');
 
 Plusbutton.prototype.initialize = function () {
-    this.entity.button.on('click', () => {
-        if (this.app.touch && this.touchStarted + 500 < performance.now()) {
-            return;
-        }
-        this.onSelect();
-    });
-    if (this.app.touch) {
-        this.entity.button.on('touchstart', this.onTouchStart, this);
-        this.entity.button.on('touchend', this.onTouchEnd, this);
-    } else {
-        this.entity.button.on('mouseenter', this.onHoverStart, this);
-        this.entity.button.on('mouseleave', this.onHoverEnd, this);
-    }
-
-    this.animationLeft = 0.5;
-
-    this.app.on('game:updatebuttons', this.updateButtons, this);
     this.app.on('game:resetscore', this.resetscore, this);
     this.app.on('game:confirmdeck', this.confirmdeck, this);
-    this.app.on('game:updateunlock', () => {
-        if (this.app.state.current === 0) {
-            this.pickNextUnlock(0);
-        } else {
-            this.nextUnlockTile.enabled = false;
-            this.nextUnlock.enabled = false;
-        }
+    this.app.on('game:nextunlock', () => {
+        this.pickNextUnlock();
     });
-
-    this.updateButtons();
-
-    this.touchStarted = 0;
 
     this.app.globals.packs.forEach(p => {
         p.bias = 1;
     });
 
-    if (this.app.previousPacks) {
-        this.app.previousPacks.forEach(prev => {
-            this.app.globals.packs.forEach(p => {
-                if (p.title === prev) {
-                    p.bias /= 3;
-                } else {
-                    p.bias = Math.min(p.bias * 1.1, 1);
-                }
+    this.app.once('game:levelloaded2', () => {
+        this.packsSeen = {};
+        this.buildingsSeenThisRound = {
+            'Road': true,
+            'Forest': true,
+            'Water': true,
+            'Grass': true,
+            'River': true,
+            'Water Rocks': true,
+            'Field': true,
+            'Grass Hill': true,
+            'Stone Hill': true,
+        };
+
+        if (this.app.previousPacks) {
+            this.app.previousPacks.forEach(prev => {
+                this.packsSeen[prev] = true;
+
+                this.app.globals.packs.forEach(p => {
+                    if (p.title === prev) {
+                        p.bias /= 3;
+
+                        p.tiles.forEach(t => {
+                            this.buildingsSeenThisRound[t[0]] = true;
+                        });
+                    } else {
+                        p.bias = Math.min(p.bias * 1.1, 1);
+                    }
+                });
             });
-        });
-    } else {
-        this.app.previousPacks = [];
-    }
+        } else {
+            this.app.previousPacks = [];
+        }
+    });
 
     this.first = -1;
     this.second = -1;
     this.nextPack = -1;
 
     this.nextUnlock = this.app.root.findByName('NextUnlock');
-    this.nextUnlockTile = this.app.root.findByName('NextUnlockTile');
+    this.nextUnlockTile1 = this.app.root.findByName('NextUnlockTile1');
+    this.nextUnlockTile2 = this.app.root.findByName('NextUnlockTile2');
 };
 
 Plusbutton.prototype.enableDeck = function (name) {
@@ -76,49 +72,28 @@ Plusbutton.prototype.enableDeck = function (name) {
     }
 };
 
-Plusbutton.prototype.updateButtons = function () {
-    this.entity.parent.children[1].enabled = true;
-    this.entity.parent.children[1].element.text = this.app.buttons[0].count;
-
-    if (this.app.buttons[0].count > 0) {
-        this.entity.parent.enabled = true;
-    } else {
-        this.entity.parent.enabled = false;
-    }
-};
-
 Plusbutton.prototype.resetscore = function () {
     this.app.globals.packs.forEach(p => {
         p.bias = 1;
     });
 
     this.app.previousPacks = [];
+    this.packsSeen = {};
+    this.buildingsSeenThisRound = {
+        'Road': true,
+        'Forest': true,
+        'Water': true,
+        'Grass': true,
+        'River': true,
+        'Water Rocks': true,
+        'Field': true,
+        'Grass Hill': true,
+        'Stone Hill': true,
+    };
 
     this.first = -1;
     this.second = -1;
     this.nextPack = -1;
-};
-
-Plusbutton.prototype.putBackDeck = function () {
-    this.app.decksOpen = false;
-    this.app.buttons[0].count++;
-
-    this.updateButtons();
-
-    this.entity.parent.enabled = true;
-};
-
-Plusbutton.prototype.addDeck = function () {
-    this.app.buttons[0].count++;
-
-    if (!this.app.decksOpen && this.app.menuOpen === 0) {
-        // Instead of showing a + button we just immediatly show the new deck selection menu.
-        this.onSelect();
-    } else {
-        this.updateButtons();
-
-        this.entity.parent.enabled = true;
-    }
 };
 
 Plusbutton.prototype.weightedRandom = function (a) {
@@ -145,135 +120,42 @@ Plusbutton.prototype.fixDeck = function (deck) {
     const copy = JSON.parse(JSON.stringify(deck));
     const tiles = copy.tiles;
 
-    const add = (tile, count) => {
-        for (let j = 0; j < tiles.length; j++) {
-            if (tiles[j][0] === tile) {
-                tiles[j][1] += count;
-                return true;
-            }
-        }
-        if (tiles.length < 5) {
-            tiles.push([tile, count]);
-            return true;
-        }
-        return false;
-    };
-
-    const random = {
-        'House': 15,
-        'Tavern': 12,
-        'Lumberjack': 2,
-        'Tower': 1,
-        'Church': 1,
-    };
-
-    if (this.app.buildingsSeen['Mill']) {
-        random['Grain'] = 10;
-    }
-    if (this.app.buildingsSeen['Stable']) {
-        random['Sheep'] = 10;
-        random['Horses'] = 5;
-        random['Pigs'] = 5;
-    }
-    if (this.app.buildingsSeen['Tavern']) {
-        random['Vineyard'] = 5;
-    }
-
-    Object.keys(this.app.state.unlocked).forEach(tile => {
-        random[tile] = 2;
-    });
-
-    let toAdd = Math.floor(this.app.pointsTier / 4);
-
-    for (let i = 0; i < 100 && toAdd > 0; i++) {
-        const tile = this.weightedRandom(random);
-
-        let cnt = 1;
-        if (tile === 'Forest') {
-            cnt = 3;
-        }
-
-        if (add(tile, cnt)) {
-            toAdd--;
-        }
-
-        // Only give these random once per pack.
-        if (['Tower', 'Church', 'Horses', 'Statue', 'Campfire', 'Ship', 'Townhall', 'Jousting'].includes(tile)) {
-            delete random[tile];
-        }
-    }
-
     for (let i = 0; i < tiles.length; i++) {
         const tile = tiles[i][0];
-        let count = tiles[i][1];
-        let addTile = '';
-        let addCount = 0;
 
-        if (tile === 'Hunting Cabin' && this.app.levelStoneHillsLeft < count) {
-            addTile = 'House';
-            addCount = count - this.app.levelStoneHillsLeft;
-            count = this.app.levelStoneHillsLeft;
-        } else if (tile === 'Mine' && this.app.levelGrassHillsLeft < count) {
-            addTile = 'Lumberjack';
-            addCount = count - this.app.levelGrassHillsLeft;
-            count = this.app.levelGrassHillsLeft;
-        } else if (tile === 'Fishing Hut' && this.app.levelFishingHutLeft < count) {
-            addTile = 'Sheep';
-            addCount = count - this.app.levelFishingHutLeft;
-            count = this.app.levelFishingHutLeft;
-
-            if (count === 0 && copy.title === 'Fishing') {
-                copy.title = addTile;
+        if (['Townhall', 'Campfire', 'Statue', 'Ship', 'Papermill', 'Jousting'].includes(tile)) {
+            if (!this.app.state.unlocked[tile]) {
+                tiles.splice(i, 1);
+                i--;
             }
-        } else if (tile === 'Water Mill' && !this.app.hasRiver) {
-            addTile = 'Stable';
-            addCount = 1;
-            count = 0;
-        }
-
-        if (addCount === 0) {
-            continue;
-        }
-
-        if (count === 0 && copy.title === tile) {
-            copy.title = addTile;
-        }
-
-        if (count === 0) {
+        } else if (tile === 'Hunting Cabin' && this.app.levelStoneHillsLeft <= 0) {
             tiles.splice(i, 1);
             i--;
-        } else {
-            tiles[i][1] = count;
-        }
-
-        if (addCount > 0) {
-            add(addTile, addCount);
+        } else if (tile === 'Mine' && this.app.levelGrassHillsLeft <= 0) {
+            tiles.splice(i, 1);
+            i--;
+        } else if (tile === 'Fishing Hut' && this.app.levelFishingHutLeft <= 0) {
+            tiles.splice(i, 1);
+            i--;
+        } else if (tile === 'Shipyard' && this.app.levelShipyardLeft <= 0) {
+            tiles.splice(i, 1);
+            i--;
+        } else if (tile === 'Water Mill' && !this.app.hasRiver) {
+            tiles.splice(i, 1);
+            i--;
         }
     }
 
     return copy;
 };
 
-Plusbutton.prototype.getPredefinedPack = function (titles) {
-    const t = [];
-    titles.forEach(title => {
-        if (!this.app.previousPacks.includes(title)) {
-            t.push(this.findPackIndex(title));
-        }
-    });
-
-    return t[Math.floor(Math.random() * t.length)];
-};
-
-Plusbutton.prototype.findPackIndex = function (title) {
-    const packs = this.app.globals.packs;
-    for (let i = 0; i < packs.length; i++) {
-        if (packs[i].title === title) {
-            return i;
+Plusbutton.prototype.seenAllBuildings = function (p) {
+    for (let i = 0; i < p.tiles.length; i++) {
+        if (!this.buildingsSeenThisRound[p.tiles[i][0]]) {
+            return false;
         }
     }
-
-    return -1;
+    return true;
 };
 
 Plusbutton.prototype.randomPack = function (ignore) {
@@ -281,12 +163,85 @@ Plusbutton.prototype.randomPack = function (ignore) {
     let total = 0;
 
     this.app.globals.packs.forEach((p, i) => {
-        if (p.tier === -1) {
+        if (p.minLevel > this.app.pointsTier) {
             return;
-        } else if (p.tier > this.app.previousPacks.length) {
+        } else if (p.maxLevel > 0 && p.maxLevel < this.app.pointsTier) {
             return;
         } else if (i === ignore) {
             return;
+        } else if (this.app.pointsTier > 1 && !this.packsSeen[p.title] && !this.seenAllBuildings(p)) {
+            return;
+        }
+
+        if (this.app.previousPacks > 0) {
+            let can = false;
+            for (let i = 0; i < p.tiles.length; i++) {
+                const need = this.app.globals.needs[p.tiles[i][0]];
+
+                for (let j = 0; j < need.or.length; j++) {
+                    if (this.buildingsSeenThisRound[need.or[j]]) {
+                        can = true;
+                        break;
+                    }
+                }
+                for (let j = 0; j < need.on.length; j++) {
+                    if (this.buildingsSeenThisRound[need.on[j]]) {
+                        can = true;
+                        break;
+                    }
+                }
+
+                if (!can) {
+                    continue;
+                }
+
+                let allAnd = need.and.length === 0;
+                for (let j = 0; j < need.and.length; j++) {
+                    if (!this.buildingsSeenThisRound[need.and[j]]) {
+                        allAnd = false;
+                        break;
+                    }
+                }
+                if (!allAnd) {
+                    can = false;
+                } else if (can) {
+                    break;
+                }
+            }
+
+            if (!can) {
+                return;
+            }
+
+            // Make sure each tile in the pack has at least one positive point.
+            /*let allPositive = true;
+            for (let i = 0; i < p.tiles.length; i++) {
+                const extra = this.app.globals.extrapoints[p.tiles[i][0]];
+                const extraTiles = Object.keys(extra);
+                let positive = false;
+
+                for (let j = 0; j < extraTiles.length; j++) {
+                    const tile = extraTiles[j];
+
+                    if (this.app.globals.basepoints[tile] > 0) {
+                        positive = true;
+                        break;
+                    }
+
+                    if (extra[tile] > 0 && this.buildingsSeenThisRound[tile]) {
+                        positive = true;
+                        break;
+                    }
+                }
+
+                if (!positive) {
+                    allPositive = false;
+                    break;
+                }
+            }
+            if (!allPositive) {
+                return;
+            }*/
         }
 
         packs.push([i, p.bias]);
@@ -305,181 +260,151 @@ Plusbutton.prototype.randomPack = function (ignore) {
     return -1;
 };
 
-Plusbutton.prototype.onSelect = function () {
-    this.entity.parent.setLocalScale(1, 1, 1);
-
+Plusbutton.prototype.addDeck = function () {
     this.app.playSound('pick');
 
     this.app.fire('game:deselect');
     this.app.fire('tooltip:close');
 
-    this.onHoverEnd();
-
     const packs = this.app.globals.packs;
 
-    if (this.first === -1) {
-        if (this.app.state.current === 0) {
-            const predefined = [
-                [['Lumber'], ['Village']],
-                [['Lumber', 'Village'], ['Town']],
-                [['Forestry'], ['Living']],
-                [['Forestry', 'Living'], ['Animals']],
-                [['Forestry', 'Living', 'Animals'], ['Farming']],
-                [['Forestry', 'Living', 'Animals', 'Farming'], ['Religion']],
-                [['Forestry', 'Living', 'Animals', 'Farming', 'Religion'], ['Economy']],
-            ];
+    this.first = this.nextPack;
 
-            const deckTier = this.app.previousPacks.length;
-            if (deckTier < predefined.length) {
-                this.first = this.getPredefinedPack(predefined[deckTier][0]);
-                this.second = this.getPredefinedPack(predefined[deckTier][1]);
-            }
-        }
-
-        if (this.first < 0 || this.second < 0) {
-            this.first = this.nextPack;
-
-            if (this.first < 0) {
-                this.first = this.randomPack(-1);
-            }
-
-            this.second = this.randomPack(this.first);
-        }
-
-        this.app.globals.packs.forEach((p, i) => {
-            if (i === this.first || i === this.second) {
-                p.bias /= 3;
-            } else {
-                p.bias = Math.min(p.bias * 1.1, 1);
-            }
-        });
-
-        if (Math.random() < 0.5) {
-            const t = this.first;
-            this.first = this.second;
-            this.second = t;
-        }
+    if (this.first < 0) {
+        this.first = this.randomPack(-1);
     }
 
-    this.pickNextUnlock(1);
+    this.second = this.randomPack(this.first);
+
+    this.app.globals.packs.forEach((p, i) => {
+        if (i === this.first || i === this.second) {
+            p.bias /= 3;
+        } else {
+            p.bias = Math.min(p.bias * 1.1, 1);
+        }
+    });
+
+    if (Math.random() < 0.5) {
+        const t = this.first;
+        this.first = this.second;
+        this.second = t;
+    }
 
     this.app.decks[0] = this.fixDeck(packs[this.first]);
     this.app.decks[1] = this.fixDeck(packs[this.second]);
+
+    this.packsSeen[packs[this.first].title] = true;
+    this.packsSeen[packs[this.second].title] = true;
 
     this.enableDeck('LeftDeck');
     this.enableDeck('RightDeck');
 
     this.app.root.findByName('Decks').enabled = true;
-    this.app.root.findByName('DecksLevelNumber').element.text = '' + (this.app.previousPacks.length + 1);
+    this.app.root.findByName('DecksLevelNumber').element.text = '' + this.app.pointsTier;
 
     this.app.fire('game:updatedeck');
 
-    this.app.buttons[0].count--;
     this.app.decksOpen = true;
 
-    this.updateButtons();
-
-    this.entity.parent.enabled = false;
-
-    this.entity.parent.children[2].enabled = false;
-
     for (let i = 0; i < this.app.decks[0].tiles.length; i++) {
-        this.app.buildingsSeen[this.app.decks[0].tiles[i][0]] = (this.app.buildingsSeen[this.app.decks[0].tiles[i][0]] || 0) + 1;
+        const tile = this.app.decks[0].tiles[i][0];
+        this.app.buildingsSeen[tile] = (this.app.buildingsSeen[tile] || 0) + 1;
+        this.buildingsSeenThisRound[tile] = true;
     }
     for (let i = 0; i < this.app.decks[1].tiles.length; i++) {
-        this.app.buildingsSeen[this.app.decks[1].tiles[i][0]] = (this.app.buildingsSeen[this.app.decks[1].tiles[i][0]] || 0) + 1;
+        const tile = this.app.decks[1].tiles[i][0];
+        this.app.buildingsSeen[tile] = (this.app.buildingsSeen[tile] || 0) + 1;
+        this.buildingsSeenThisRound[tile] = true;
     }
 };
 
-Plusbutton.prototype.pickNextUnlock = function (add) {
-    const predefinedUnlocks = [
-        'Lumberjack',
-        'Tavern',
-        'Carpenter',
-        'Stable',
-        'Mill',
-        'Church',
-    ];
+Plusbutton.prototype.pickNextUnlock = function () {
+    if (this.app.previousPacks.length === 0) {
+        this.nextUnlockTile1.enabled = false;
+        this.nextUnlockTile2.enabled = false;
+        this.nextUnlock.enabled = false;
+        this.nextPack = -1;
+        return;
+    }
 
-    const nextTier = this.app.previousPacks.length + add;
+    const nextLevel = this.app.pointsTier + 1;
+    const packs = this.app.globals.packs;
+    const possiblePacks = [];
 
-    if (this.app.state.current === 0 && nextTier < predefinedUnlocks.length) {
-        this.nextUnlockTile.script.rewardimage.tile = predefinedUnlocks[nextTier];
-        this.nextUnlockTile.enabled = true;
-        this.nextUnlock.enabled = true;
-    } else {
-        const packs = this.app.globals.packs;
+    packs.forEach((p, i) => {
+        if (p.minLevel > nextLevel) {
+            return;
+        } else if (p.maxLevel > 0 && p.maxLevel < nextLevel) {
+            return;
+        } else if (this.packsSeen[p.title]) {
+            return;
+        }
 
-        const possiblePacks = [];
+        const unlocks = [];
+        for (let i = 0; i < p.tiles.length; i++) {
+            const tile = p.tiles[i][0];
+            let count = p.tiles[i][1];
 
-        packs.forEach((p, i) => {
-            if (p.tier === -1) {
-                return;
-            } else if (p.tier > nextTier) {
-                return;
-            } else if (i === this.first || i === this.second || this.app.previousPacks.indexOf(p.title) > -1) {
-                return;
-            } else if (!p.unlock) {
-                return;
-            } else if (p.title === 'Hunting' && !this.app.levelStoneHillsLeft) {
-                return;
-            } else if (p.title === 'Mining' && !this.app.levelGrassHillsLeft) {
-                return;
-            } else if (p.title === 'Fishing' && !this.app.levelFishingHutLeft) {
-                return;
-            } else if (p.title === 'Water Mill' && !this.app.hasRiver) {
-                return;
+            if (count <= 0) {
+                continue;
             }
 
-            possiblePacks.push(i);
-        });
+            if (['Townhall', 'Campfire', 'Statue', 'Ship', 'Papermill', 'Jousting'].includes(tile)) {
+                continue;
+            }
 
-        if (possiblePacks.length === 0) {
-            this.nextUnlockTile.enabled = false;
-            this.nextUnlock.enabled = false;
-        } else {
-            this.nextPack = possiblePacks[Math.floor(Math.random() * possiblePacks.length)];
+            if (tile === 'Hunting Cabin' && this.app.levelStoneHillsLeft <= 0) {
+                continue;
+            } else if (tile === 'Mine' && this.app.levelGrassHillsLeft <= 0) {
+                continue;
+            } else if (tile === 'Fishing Hut' && this.app.levelFishingHutLeft <= 0) {
+                continue;
+            } else if (tile === 'Shipyard' && this.app.levelShipyardLeft <= 0) {
+                continue;
+            } else if (tile === 'Water Mill' && !this.app.hasRiver) {
+                continue;
+            }
 
-            this.nextUnlockTile.script.rewardimage.tile = packs[this.nextPack].unlock;
-            this.nextUnlockTile.enabled = true;
-            this.nextUnlock.enabled = true;
+            if (this.buildingsSeenThisRound[tile]) {
+                continue;
+            }
+
+            unlocks.push(tile);
         }
-    }
-};
 
-Plusbutton.prototype.onTouchStart = function () {
-    this.touchStarted = performance.now();
-    this.onHoverStart();
-};
-
-Plusbutton.prototype.onTouchEnd = function () {
-    this.onHoverEnd();
-};
-
-Plusbutton.prototype.onHoverStart = function () {
-    this.entity.parent.children[2].enabled = true;
-    this.entity.parent.setLocalScale(1.1, 1.1, 1.1);
-};
-
-Plusbutton.prototype.onHoverEnd = function () {
-    this.entity.parent.children[2].enabled = false;
-    this.entity.parent.setLocalScale(1, 1, 1);
-};
-
-Plusbutton.prototype.update = function (dt) {
-    const aminationTime = 1;
-    if (this.animationLeft > 0) {
-        this.animationLeft = Math.max(this.animationLeft - dt, 0);
-
-        if (this.animationLeft >= (aminationTime / 2)) {
-            const s = 1 + ((aminationTime - this.animationLeft) / (aminationTime / 2)) / 2;
-            this.entity.children[0].setLocalScale(s, s, s);
-        } else {
-            const s = 1 + (this.animationLeft / (aminationTime / 2)) / 2;
-            this.entity.children[0].setLocalScale(s, s, s);
+        if (unlocks.length > 0) {
+            possiblePacks.push([i, unlocks]);
         }
+    });
+
+    if (possiblePacks.length === 0) {
+        this.nextUnlockTile1.enabled = false;
+        this.nextUnlockTile2.enabled = false;
+        this.nextUnlock.enabled = false;
+        this.nextPack = -1;
     } else {
-        this.animationLeft = aminationTime;
+        const tuple = possiblePacks[Math.floor(Math.random() * possiblePacks.length)];
+
+        this.nextPack = tuple[0];
+        const tiles = tuple[1];
+
+        let i = Math.floor(Math.random() * tiles.length);
+
+        this.nextUnlockTile1.script.rewardimage.tile = tiles[i];
+        this.nextUnlockTile1.enabled = true;
+
+        if (tiles.length > 1) {
+            tiles.splice(i, 1);
+
+            i = Math.floor(Math.random() * tiles.length);
+
+            this.nextUnlockTile2.script.rewardimage.tile = tiles[i];
+            this.nextUnlockTile2.enabled = true;
+        } else {
+            this.nextUnlockTile2.enabled = false;
+        }
+
+        this.nextUnlock.enabled = true;
     }
 };
 

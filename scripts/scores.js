@@ -43,12 +43,11 @@ Scores.prototype.updatescore = function () {
     const levelSize = this.app.levelSize;
     const size = this.app.globals.auras[this.app.placingTileName] * 1.1;
     const p = this.app.placingEntity.getPosition();
-    let points = this.app.globals.firstpoints[this.app.placingTileName] || 0;
+    const extra = this.app.globals.basepoints[this.app.placingTileName] || 0;
+    let points = extra;
     //let roads = 0;
     //let roadDistance = 99999999;
     //let roadTile = null;
-
-    this.app.placingEntity.points = points;
 
     for (let i = 0; i < levelSize; i++) {
         for (let j = 0; j < levelSize; j++) {
@@ -132,6 +131,8 @@ Scores.prototype.updatescore = function () {
 
     points = Math.max(points, 0);
 
+    this.app.placingEntity.points = extra;
+
     if (this.app.placingValid) {
         this.app.placingEntity.score.enabled = true;
 
@@ -143,7 +144,7 @@ Scores.prototype.updatescore = function () {
             this.app.placingEntity.score.children[0].element.outlineColor = this.app.globals.white;
             this.app.placingEntity.score.children[0].element.outlineThickness = 0.1;
         } else {
-            this.app.placingEntity.score.children[0].element.text = points;
+            this.app.placingEntity.score.children[0].element.text = '0';
             this.app.placingEntity.score.children[0].element.color = this.app.globals.red;
             this.app.placingEntity.score.children[0].element.outlineColor = this.app.globals.white;
             this.app.placingEntity.score.children[0].element.outlineThickness = 0.3;
@@ -163,18 +164,19 @@ Scores.prototype.lockscore = function () {
     this.app.fire('game:shake', duration);
 
     const position = this.app.placingEntity.getPosition().clone();
+    let actualPointsLeft = this.currentPoints;
+    let actualPoints = Math.min(this.app.placingEntity.points, actualPointsLeft);
+    actualPointsLeft -= actualPoints;
 
-    if (this.app.placingEntity.points > 0) {
+    if (actualPoints > 0) {
         this.pointsToDo.push({
-            points: this.app.placingEntity.points,
-            actualPoints: this.app.placingEntity.points,
+            points: actualPoints,
+            actualPoints,
             position: position.clone(),
             bounce: null,
             dt: 0,
         });
     }
-
-    let actualPointsLeft = this.currentPoints - this.app.placingEntity.points;
 
     for (let i = 0; i < this.app.levelSize; i++) {
         for (let j = 0; j < this.app.levelSize; j++) {
@@ -182,7 +184,7 @@ Scores.prototype.lockscore = function () {
 
             if (tile.scoreEntity) {
                 if (tile.scoreEntity.points > 0) {
-                    const actualPoints = Math.min(tile.scoreEntity.points, actualPointsLeft);
+                    actualPoints = Math.min(tile.scoreEntity.points, actualPointsLeft);
                     actualPointsLeft -= actualPoints;
 
                     this.pointsToDo.push({
@@ -288,7 +290,7 @@ Scores.prototype.isNeighbor = function(i, j, tile) {
 
 Scores.prototype.resetscore = function () {
     this.app.points = 0;
-    this.app.maxPoints = (this.app.state.current === 0) ? 4 : 15;
+    this.app.maxPoints = 15;
     this.app.minPoints = 0;
     this.app.pointsTier = 0;
 

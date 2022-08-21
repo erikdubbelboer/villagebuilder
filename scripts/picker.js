@@ -34,22 +34,28 @@ PickerFramebuffer.prototype.initialize = function () {
                 } catch (ignore) { }
             }
         });*/
-    } else {
-        this.app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMove, this);
-        this.app.mouse.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
-        this.app.mouse.on(pc.EVENT_MOUSEUP, this.onSelect, this);
     }
+
+    this.app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMove, this);
+    this.app.mouse.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
+    this.app.mouse.on(pc.EVENT_MOUSEUP, this.onMouseUp, this);
+    this.app.mouse.on(pc.EVENT_MOUSEUP, this.onRotate, this);
 
     this.lostCheckTimeout = -1;
 
     this.app.on('game:newselect', this.newSelect, this);
     this.app.on('game:deselect', this.deselect, this);
     this.app.on('game:levelloaded', () => {
+        this.updateLeft();
+
         clearTimeout(this.lostCheckTimeout);
-        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 10000);
+        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 2000);
     });
     this.app.on('game:resetpicker', () => {
         this.app.undoState = false;
+    });
+    this.app.on('game:updateleft', () => {
+        this.updateLeft();
     });
 
     this.suggestMaterials = [];
@@ -131,7 +137,7 @@ PickerFramebuffer.prototype.newSelect = function (xy) {
     } else if (this.app.touch) {
         let p = this.getIJ({
             x: this.app.graphicsDevice.canvas.clientWidth / 2,
-            y: this.app.graphicsDevice.canvas.clientHeight / 2,
+            y: (this.app.graphicsDevice.canvas.clientHeight / 5) * 3,
         });
         //p = this.freeSpotNextTo(this.app.placingTileName, p);
         p = this.takenSpotNextTo(this.app.placingTileName, p);
@@ -150,6 +156,12 @@ PickerFramebuffer.prototype.newSelect = function (xy) {
     } else {
         this.makeTransparent(this.app.placingEntity);
     }
+
+    this.app.mouse.off(pc.EVENT_MOUSEUP, this.onRotate, this);
+    // Doing this without the setTimeout will call onSelect right away.
+    setTimeout(() => {
+        this.app.mouse.on(pc.EVENT_MOUSEUP, this.onSelect, this);
+    }, 0);
 };
 
 PickerFramebuffer.prototype.newSuggestion = function () {
@@ -198,10 +210,22 @@ PickerFramebuffer.prototype.onMouseDown = function (event) {
     this.movedWhileDown = false;
 };
 
+PickerFramebuffer.prototype.onMouseUp = function (event) {
+    this.mouseIsDown = false;
+};
 
 PickerFramebuffer.prototype.onTouchStart = function (event) {
+    event.event.preventDefault();
+
+    this.touchActive = false;
+
     if (event.touches.length !== 1) {
-        this.touchActive = false;
+        this.tooltip.enabled = false;
+        this.app.fire('game:clearhelp');
+        return;
+    }
+
+    if (this.app.noPickerHover) {
         return;
     }
 
@@ -213,12 +237,15 @@ PickerFramebuffer.prototype.onTouchStart = function (event) {
     this.moveTo(p[0], p[1], 2);
 };
 
-PickerFramebuffer.prototype.onTouchEnd = function () {
+PickerFramebuffer.prototype.onTouchEnd = function (event) {
+    event.event.preventDefault();
+
     if (!this.touchActive) {
         return;
     }
 
     this.tooltip.enabled = false;
+    this.app.fire('game:clearhelp');
 
     if (this.touchStarted + 500 < performance.now()) {
         return;
@@ -231,6 +258,8 @@ PickerFramebuffer.prototype.onTouchEnd = function () {
 };
 
 PickerFramebuffer.prototype.onTouchMove = function (event) {
+    event.event.preventDefault();
+
     if (event.touches.length !== 1) {
         return;
     }
@@ -241,6 +270,9 @@ PickerFramebuffer.prototype.onTouchMove = function (event) {
 
     if (new pc.Vec2(event.touches[0].x, event.touches[0].y).distance(this.touchStartedAt) > 10) {
         this.touchActive = false;
+
+        this.tooltip.enabled = false;
+        this.app.fire('game:clearhelp');
     }
 };
 
@@ -342,11 +374,11 @@ PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
     this.lastTile = tile;
 
     if (!this.app.placingTileName || !this.app.placingEntity) {
-        /*if (tile && tile.building && !this.app.globals.cantRotate.includes(tile.buildingTile)) {
+        if (tile && tile.building && !this.app.globals.cantRotate.includes(tile.buildingTile)) {
             this.app.hover('picker', true);
         } else {
             this.app.hover('picker', false);
-        }*/
+        }
 
         if (tooltip > 0 && tile && !this.app.decksOpen && this.app.menuOpen == 0 && !this.app.noPickerHover && tile.buildingTile && this.app.globals.needs[tile.buildingTile]) {
             this.tooltip.enabled = true;
@@ -484,9 +516,7 @@ PickerFramebuffer.prototype.makeRed = function (entity) {
     }
 };
 
-PickerFramebuffer.prototype.onSelect = function (event) {
-    this.mouseIsDown = false;
-
+PickerFramebuffer.prototype.onRotate = function (event) {
     if (!this.lastTile) {
         return;
     }
@@ -504,12 +534,12 @@ PickerFramebuffer.prototype.onSelect = function (event) {
                 this.app.root.findByName('sun').light.updateShadow();
             } else {
                 // Uncomment this to allow clicking on a building to rotate it.
-                /*if (!this.app.globals.cantRotate.includes(this.lastTile.buildingTile)) {
+                if (!this.app.globals.cantRotate.includes(this.lastTile.buildingTile)) {
                     this.lastTile.angle += (event.button === pc.MOUSEBUTTON_LEFT || this.app.touch) ? -60 : 60;
                     this.lastTile.building.setRotation(new pc.Quat().setFromEulerAngles(0, this.lastTile.angle, 0));
                     this.app.fire('game:updatesave');
                     this.app.root.findByName('sun').light.updateShadow();
-                }*/
+                }
             }
         } else {
             // Uncomment this to allow clicking on the Grass to move the camera to that location.
@@ -518,18 +548,30 @@ PickerFramebuffer.prototype.onSelect = function (event) {
         }
         return;
     }
+};
 
-    if (event.button === pc.MOUSEBUTTON_LEFT || this.app.touch) {
+PickerFramebuffer.prototype.onSelect = function (event) {
+    if (!this.lastTile) {
+        return;
+    }
+    if (this.movedWhileDown) {
+        return;
+    }
+    if (!this.app.placingTileName) {
+        return;
+    }
+
+    if (event.button === pc.MOUSEBUTTON_RIGHT || event.button === pc.MOUSEBUTTON_MIDDLE) {
+        this.app.playSound('cancel');
+
+        this.deselect();
+    } else {
         if (!this.app.placingValid) {
             this.app.playSound('cantplace');
             return;
         }
 
         this.app.playSound('place');
-
-        if (navigator.vibrate) {
-            navigator.vibrate(100);
-        }
 
         const lastTile = this.lastTile;
         let templateName = this.app.tileNameToModel(this.app.placingTileName);
@@ -567,6 +609,10 @@ PickerFramebuffer.prototype.onSelect = function (event) {
         }
         if (this.app.placingTileName === 'Fishing Hut') {
             this.app.levelFishingHutLeft--;
+            this.updateLeft();
+        }
+        if (this.app.placingTileName === 'Shipyard') {
+            this.app.levelShipyardLeft--;
         }
 
         let button = 0;
@@ -583,8 +629,6 @@ PickerFramebuffer.prototype.onSelect = function (event) {
             points: this.app.points + this.app.root.find('name', 'MovingPoint').length,
             minPoints: this.app.minPoints,
             maxPoints: this.app.maxPoints,
-            plusCount: this.app.buttons[0].count,
-            firstpoints: this.app.globals.firstpoints[this.app.placingTileName],
         };
         this.app.root.findByName('UndoGroup').enabled = true;
 
@@ -636,11 +680,7 @@ PickerFramebuffer.prototype.onSelect = function (event) {
         this.app.root.findByName('sun').light.updateShadow();
 
         clearTimeout(this.lostCheckTimeout);
-        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 2000);
-    } else {
-        this.app.playSound('cancel');
-
-        this.deselect();
+        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 1000);
     }
 
     this.lastTile = null;
@@ -668,6 +708,9 @@ PickerFramebuffer.prototype.deselect = function () {
     }
 
     this.lastTile = null;
+
+    this.app.mouse.off(pc.EVENT_MOUSEUP, this.onSelect, this);
+    this.app.mouse.on(pc.EVENT_MOUSEUP, this.onRotate, this);
 };
 
 PickerFramebuffer.prototype.isTile = function (i, j, tile, orInvalid, y) {
@@ -879,22 +922,17 @@ PickerFramebuffer.prototype.lostCheck = function () {
     }
 
     if (this.app.root.findByName('MovingPoint')) {
-        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 2000);
+        this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 500);
         return;
     }
 
+    //let totalCount = 0;
     for (let t = 0; t < this.app.buttons.length; t++) {
         const placingTileName = this.app.buttons[t].tile;
         const count = this.app.buttons[t].count;
 
-        if (placingTileName === 'Plus') {
-            if (count > 0) {
-                return;
-            }
-        }
-
         // Roads don't give points so ignore them.
-        if (['Road', 'Plus', 'Random', 'Undo'].includes(placingTileName)) {
+        if (['Road', 'Random', 'Undo'].includes(placingTileName)) {
             continue;
         }
 
@@ -905,19 +943,34 @@ PickerFramebuffer.prototype.lostCheck = function () {
                     const can = this.canPlace(tile, placingTileName, false);
 
                     if (can) {
-                        let points = this.getPoints(tile, placingTileName);
+                        /*let points = this.getPoints(tile, placingTileName);
 
                         if (points > 0) {
-                            // return so we don't show the lost menu.
                             return;
-                        }
+                        }*/
+                        return;
                     }
                 }
             }
+
+            //totalCount += count;
         }
     }
 
-    this.app.root.findByName('LostMenu').enabled = true;
+    /*this.app.buttons.forEach(t => {
+        // Loose everything except for your roads.
+        if (t.tile !== 'Road') {
+            t.count = 0;
+        }
+    });
+    this.app.fire('game:updatebuttons');*/
+    this.app.root.children[0].script.plusbutton.addDeck();
+
+    /*if (totalCount < 5) {
+        this.app.root.children[0].script.plusbutton.addDeck();
+    } else {
+        this.app.root.findByName('LostMenu').enabled = true;
+    }*/
 };
 
 PickerFramebuffer.prototype.bestPlace = function (placingTileName) {
@@ -964,7 +1017,7 @@ PickerFramebuffer.prototype.bestPlace = function (placingTileName) {
 PickerFramebuffer.prototype.getPoints = function (position, placingTileName) {
     const levelSize = this.app.levelSize;
     const size = this.app.globals.auras[placingTileName] * 1.1;
-    let points = this.app.globals.firstpoints[placingTileName] || 0;
+    let points = this.app.globals.basepoints[placingTileName] || 0;
 
     for (let i = 1; i < levelSize - 1; i++) {
         for (let j = 1; j < levelSize - 1; j++) {
@@ -1021,32 +1074,64 @@ PickerFramebuffer.prototype.takenSpotNextTo = function (placingTileName, center)
     for (let i = 0; i < levelSize; i++) {
         for (let j = 0; j < levelSize; j++) {
             const tile = this.app.tiles[i][j];
+            const dist = (center[0] - i) * (center[0] - i) + (center[1] - j) * (center[1] - j);
 
-            if (!tile.buildingTile) {
-                const can = this.canPlace(tile, placingTileName, false);
-                const dist = (center[0] - i) * (center[0] - i) + (center[1] - j) * (center[1] - j);
-
-                if (can) {
-                    if (dist < secondBestDist) {
-                        secondBestTile = tile;
-                        secondBestDist = dist;
-                    }
-                } else {
-                    if (dist < bestDist) {
-                        bestTile = tile;
-                        bestDist = dist;
-                    }
+            if (!tile.buildingTile && this.canPlace(tile, placingTileName, false)) {
+                if (dist < secondBestDist) {
+                    secondBestTile = tile;
+                    secondBestDist = dist;
+                }
+            } else {
+                if (dist < bestDist) {
+                    bestTile = tile;
+                    bestDist = dist;
                 }
             }
         }
     }
 
-    if (bestDist < 100000 && bestDist > 10) {
-        if (secondBestDist < 100000 && secondBestDist > 10) {
+    if (bestTile < 100000 && bestDist > 10) {
+        if (secondBestDist > 10) {
             return center;
         }
         return [secondBestTile.i, secondBestTile.j];
     } else {
         return [bestTile.i, bestTile.j];
+    }
+};
+
+PickerFramebuffer.prototype.updateLeft = function () {
+    this.app.levelFishingHutLeft = 0;
+    this.app.levelShipyardLeft = 0;
+
+    for (let i = 1; i < this.app.levelSize - 1; i++) {
+        for (let j = 1; j < this.app.levelSize - 1; j++) {
+            if (this.app.tiles[i][j].buildingTile !== '') {
+                continue;
+            }
+
+            const bitmap = [
+                this.isTile(i - 1, j, 'Water', true, false),
+                this.isTile((i - 1) + (1 - j % 2), j + 1, 'Water', true, false),
+                this.isTile((i + 0) + (1 - j % 2), j + 1, 'Water', true, false),
+                this.isTile(i + 1, j, 'Water', true, false),
+                this.isTile((i + 0) + (1 - j % 2), j - 1, 'Water', true, false),
+                this.isTile((i - 1) + (1 - j % 2), j - 1, 'Water', true, false),
+            ].map(function (x) { return x ? '1' : '0'; }).join('');
+
+            if (this.isTile(i, j, 'Water', false, false)) {
+                let r = (bitmap + bitmap).indexOf('111000');
+                if (r === -1) {
+                    r = (bitmap + bitmap).indexOf('110000');
+                }
+                if (r > -1 && !this.isNeighbor(i, j, 'River')) {
+                    this.app.levelFishingHutLeft++;
+                }
+            } else {
+                if (bitmap.indexOf('1') > -1) {
+                    this.app.levelShipyardLeft++;
+                }
+            }
+        }
     }
 };

@@ -13,10 +13,10 @@ UndoButton.prototype.initialize = function () {
     if (this.app.touch) {
         this.entity.button.on('touchstart', this.onTouchStart, this);
         this.entity.button.on('touchend', this.onTouchEnd, this);
-    } else {
-        this.entity.button.on('mouseenter', this.onHoverStart, this);
-        this.entity.button.on('mouseleave', this.onHoverEnd, this);
     }
+
+    this.entity.button.on('mouseenter', this.onHoverStart, this);
+    this.entity.button.on('mouseleave', this.onHoverEnd, this);
 
     this.touchStarted = 0;
 };
@@ -41,8 +41,9 @@ UndoButton.prototype.onSelect = function () {
         if (this.app.isWithEditor || !window.PokiSDK) {
             this.app.undo();
         } else {
+            this.app.fire('game:disablecamera');
+
             PokiSDK.rewardedBreak(() => {
-                this.app.fire('game:disablecamera');
                 this.app.fire('game:pausemusic');
             }).then(reward => {
                 this.app.fire('game:enablecamera');
@@ -68,9 +69,13 @@ UndoButton.prototype.onTouchEnd = function () {
 UndoButton.prototype.onHoverStart = function () {
     this.entity.parent.children[2].enabled = true;
     this.entity.parent.setLocalScale(1.1, 1.1, 1.1);
+
+    this.app.noPickerHover = true;
 };
 
 UndoButton.prototype.onHoverEnd = function () {
     this.entity.parent.children[2].enabled = false;
     this.entity.parent.setLocalScale(1, 1, 1);
+
+    this.app.noPickerHover = false;
 };

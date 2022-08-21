@@ -134,6 +134,8 @@ RenderCameraToElement.prototype.next = function () {
         angle = -60;
     } else if (tile == 'Chapel') {
         angle = -120;
+    } else if (tile == 'Papermill') {
+        angle = -120;
     }
 
     const p = new pc.Vec3(-0.9, 1.2, 0.9);

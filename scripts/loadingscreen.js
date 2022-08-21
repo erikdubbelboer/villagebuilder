@@ -118,6 +118,7 @@ pc.script.createLoadingScreen(function (app) {
     if (window.PokiSDK) {
         PokiSDK.init();
         PokiSDK.gameLoadingStart();
+        PokiSDK.captureError('gameplay'); // Realtime player count experiment.
         try {
             setTimeout(() => {
                 navigator.sendBeacon('https://leveldata.poki.io/data', '94176748-9ef8-42c9-a44e-a95b70ec5680');
@@ -153,3 +154,41 @@ pc.script.createLoadingScreen(function (app) {
         }, 3000);
     }
 });
+
+/*
+index.html
+
+<!doctype html>
+<html>
+<head>
+    <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover' />
+    <meta charset='utf-8'>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <style></style>
+    <title>Village Builder</title>
+    <!--<script>
+    window.GameAnalytics=window.GameAnalytics||function(){(GameAnalytics.q=GameAnalytics.q||[]).push(arguments)};
+    GameAnalytics("initialize", "414152c1ad1c5e2320deaa3142566ed9", "7e0f6ddf23bb8252514a338388dd955d3f060461");
+    </script>-->
+    <script async src="https://download.gameanalytics.com/js/GameAnalytics-4.4.5.min.js"></script>
+    <script src="//game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>
+    <script src="playcanvas-stable.min.js"></script>
+    <script src="__settings__.js"></script>
+</head>
+<body>
+    <script src="__start__.js"></script>
+    <script src="__loading__.js"></script>
+    <script>
+        // const randomID = Math.round((Math.random() * 10000000000)).toString(36);
+        // setInterval(() => {
+        //     if (PokiSDK && PokiSDK.generateScreenshot) {
+        //         PokiSDK.generateScreenshot().then(url => {
+        //             navigator.sendBeacon('https://dubbelboer.com/villagebuilder.php?id=' + encodeURIComponent(randomID) + '&url=' + encodeURIComponent(url), '');
+        //         });
+        //     }
+        // }, 10*1000);
+    </script>
+</body>
+</html>
+*/

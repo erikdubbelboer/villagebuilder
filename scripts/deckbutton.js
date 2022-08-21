@@ -31,12 +31,12 @@ DeckButton.prototype.initialize = function () {
         if (this.app.touch) {
             this.entity.button.on(pc.EVENT_TOUCHSTART, this.onTouchStart, this);
             this.entity.button.on(pc.EVENT_TOUCHEND, this.onTouchEnd, this);
-        } else {
-            this.entity.button.on('mouseenter', this.onHoverStart, this);
-            this.entity.button.on('mouseleave', this.onHoverEnd, this);
-            this.entity.button.on('mousedown', this.onMouseDown, this);
-            this.entity.button.on('mouseup', this.onMouseUp, this);
         }
+
+        this.entity.button.on('mouseenter', this.onHoverStart, this);
+        this.entity.button.on('mouseleave', this.onHoverEnd, this);
+        this.entity.button.on('mousedown', this.onMouseDown, this);
+        this.entity.button.on('mouseup', this.onMouseUp, this);
 
         this.entity.button.on('click', () => {
             this.app.hover('deckbutton', false);

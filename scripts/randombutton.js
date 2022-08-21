@@ -13,10 +13,10 @@ RandomButton.prototype.initialize = function () {
     if (this.app.touch) {
         this.entity.button.on('touchstart', this.onTouchStart, this);
         this.entity.button.on('touchend', this.onTouchEnd, this);
-    } else {
-        this.entity.button.on('mouseenter', this.onHoverStart, this);
-        this.entity.button.on('mouseleave', this.onHoverEnd, this);
     }
+
+    this.entity.button.on('mouseenter', this.onHoverStart, this);
+    this.entity.button.on('mouseleave', this.onHoverEnd, this);
 
     this.touchStarted = 0;
 };
@@ -50,9 +50,13 @@ RandomButton.prototype.onTouchEnd = function () {
 RandomButton.prototype.onHoverStart = function () {
     this.entity.parent.children[2].enabled = true;
     this.entity.parent.setLocalScale(1.1, 1.1, 1.1);
+
+    this.app.noPickerHover = true;
 };
 
 RandomButton.prototype.onHoverEnd = function () {
     this.entity.parent.children[2].enabled = false;
     this.entity.parent.setLocalScale(1, 1, 1);
+
+    this.app.noPickerHover = false;
 };

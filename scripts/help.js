@@ -49,9 +49,9 @@ Help.prototype.updateHelp = function (tile) {
 
     this.entity.children[0].element.text = tile.toUpperCase();
 
-    const firstPoints = this.app.globals.firstpoints[tile];
-    if (firstPoints) {
-        this.entity.children[2].children[1].element.text = '+' + firstPoints;
+    const basePoints = this.app.globals.basepoints[tile];
+    if (basePoints) {
+        this.entity.children[2].children[1].element.text = '+' + basePoints;
         this.entity.children[2].children[1].element.color = this.app.globals.green;
         this.entity.children[2].enabled = true;
     } else {
@@ -90,7 +90,14 @@ Help.prototype.updateHelp = function (tile) {
 
         children[0].element.text = 'NEXT TO:';
         children[1].enabled = true;
-        children[1].script.fillimage.tile = needs.or[0];
+
+        if (needs.or.length === 0) {
+            children[1].script.fillimage.tile = 'Empty';
+            children[1].children[0].enabled = true;
+        } else {
+            children[1].script.fillimage.tile = needs.or[0];
+            children[1].children[0].enabled = false;
+        }
         children[2].enabled = true;
         children[2].element.text = 'AND';
         children[3].enabled = true;
@@ -120,12 +127,21 @@ Help.prototype.updateHelp = function (tile) {
                 continue;
             }
 
-            if (columnIndex > 0) {
+            if (columnIndex === 0) {
+                children[columnIndex + 1].children[0].enabled = false;
+            } else {
                 children[columnIndex].enabled = true;
                 children[columnIndex].element.text = 'OR';
             }
             children[columnIndex + 1].enabled = true;
             children[columnIndex + 1].script.fillimage.tile = needs.or[i];
+
+            columnIndex += 2;
+        }
+        if (columnIndex === 0) {
+            children[columnIndex + 1].enabled = true;
+            children[columnIndex + 1].script.fillimage.tile = 'Empty';
+            children[columnIndex + 1].children[0].enabled = true;
 
             columnIndex += 2;
         }
