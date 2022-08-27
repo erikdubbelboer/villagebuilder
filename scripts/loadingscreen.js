@@ -118,7 +118,6 @@ pc.script.createLoadingScreen(function (app) {
     if (window.PokiSDK) {
         PokiSDK.init();
         PokiSDK.gameLoadingStart();
-        PokiSDK.captureError('gameplay'); // Realtime player count experiment.
         try {
             setTimeout(() => {
                 navigator.sendBeacon('https://leveldata.poki.io/data', '94176748-9ef8-42c9-a44e-a95b70ec5680');

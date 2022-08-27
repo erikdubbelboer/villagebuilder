@@ -51,19 +51,11 @@ Help.prototype.updateHelp = function (tile) {
 
     const basePoints = this.app.globals.basepoints[tile];
     if (basePoints) {
-        this.entity.children[2].children[1].element.text = '+' + basePoints;
+        this.entity.children[2].children[1].enabled = true;
+        this.entity.children[2].children[1].element.text = basePoints;
         this.entity.children[2].children[1].element.color = this.app.globals.green;
-        this.entity.children[2].enabled = true;
     } else {
-        this.entity.children[2].enabled = false;
-    }
-
-    const hasExtraPoints = Object.keys(this.app.globals.extrapoints[tile] || {}).length > 0;
-
-    if (hasExtraPoints) {
-        this.entity.children[3].enabled = true;
-    } else {
-        this.entity.children[3].enabled = false;
+        this.entity.children[2].children[1].enabled = false;
     }
 
     if (needs.on.length > 0) {
@@ -166,47 +158,45 @@ Help.prototype.updateHelp = function (tile) {
         points[extrapoints[tile]].push(tile);
     });
 
-    let rowIndex = 4;
+    let rowIndex = 3;
 
-    if (hasExtraPoints) {
-        const keys = Object.keys(points);
-        keys.sort(function (a, b) {
-            return parseInt(b, 10) - parseInt(a, 10);
-        });
+    const keys = Object.keys(points);
+    keys.sort(function (a, b) {
+        return parseInt(b, 10) - parseInt(a, 10);
+    });
 
-        keys.forEach(extraStr => {
-            this.entity.children[rowIndex].enabled = true;
+    keys.forEach(extraStr => {
+        this.entity.children[rowIndex].enabled = true;
 
-            const tiles = points[extraStr];
-            const extra = parseInt(extraStr, 10);
-            const children = this.entity.children[rowIndex].children;
+        const tiles = points[extraStr];
+        const extra = parseInt(extraStr, 10);
+        const children = this.entity.children[rowIndex].children;
 
-            if (extra > 0) {
-                children[0].element.text = '+' + extra;
-                children[0].element.color = this.app.globals.green;
-                children[0].element.outlineColor = this.app.globals.green;
-            } else {
-                children[0].element.text = extra;
-                children[0].element.color = this.app.globals.red;
-                children[0].element.outlineColor = this.app.globals.red;
-            }
+        if (extra > 0) {
+            children[0].element.text = '+' + extra;
+            children[0].element.color = this.app.globals.green;
+            children[0].element.outlineColor = this.app.globals.green;
+        } else {
+            children[0].element.text = extra;
+            children[0].element.color = this.app.globals.red;
+            children[0].element.outlineColor = this.app.globals.red;
+        }
 
-            tiles.sort();
+        tiles.sort();
 
-            let columnIndex = 1;
-            for (let i = 0; i < tiles.length; i++) {
-                children[columnIndex].enabled = true;
-                children[columnIndex].script.fillimage.tile = tiles[i];
+        let columnIndex = 1;
+        for (let i = 0; i < tiles.length; i++) {
+            children[columnIndex].enabled = true;
+            children[columnIndex].script.fillimage.tile = tiles[i];
 
-                columnIndex++;
-            }
-            for (let i = columnIndex; i < children.length; i++) {
-                children[i].enabled = false;
-            }
+            columnIndex++;
+        }
+        for (let i = columnIndex; i < children.length; i++) {
+            children[i].enabled = false;
+        }
 
-            rowIndex++;
-        });
-    }
+        rowIndex++;
+    });
 
     while (rowIndex < this.entity.children.length) {
         this.entity.children[rowIndex].enabled = false;

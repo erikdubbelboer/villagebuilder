@@ -9,13 +9,23 @@
 const UndoMenu = pc.createScript('undomenu');
 
 UndoMenu.prototype.initialize = function () {
+    this.isDisabled = false;
+
     this.app.root.findByName('UndoMenuBlur').button.on('click', () => {
+        if (this.isDisabled) {
+            return;
+        }
+
         this.entity.enabled = false;
 
         this.app.playSound('menu');
     }, this);
 
     this.app.keyboard.on(pc.EVENT_KEYUP, event => {
+        if (this.isDisabled) {
+            return;
+        }
+
         if (event.key === pc.KEY_ESCAPE) {
             this.app.playSound('menu');
 
@@ -24,6 +34,10 @@ UndoMenu.prototype.initialize = function () {
     });
 
     this.app.root.findByName('UndoContinueButton').button.on('click', () => {
+        if (this.isDisabled) {
+            return;
+        }
+
         this.entity.enabled = false;
 
         this.app.playSound('menu');
@@ -41,10 +55,14 @@ UndoMenu.prototype.initialize = function () {
         if (this.app.isWithEditor || !window.PokiSDK) {
             giveReward();
         } else {
+            this.isDisabled = true;
+            this.app.fire('game:disablecamera');
+
             PokiSDK.rewardedBreak(() => {
-                this.app.fire('game:disablecamera');
                 this.app.fire('game:pausemusic');
             }).then(reward => {
+                this.isDisabled = false;
+
                 this.app.fire('game:enablecamera');
                 this.app.fire('game:unpausemusic');
 

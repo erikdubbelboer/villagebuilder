@@ -27,15 +27,15 @@ const mouseMoveFromEdge = 40;
 MouseInput.prototype.initialize = function () {
     this.orbitCamera = this.entity.script.orbitCamera;
 
-    this.dontMove = 0;
+    this.dontMove = false;
     this.mouseX = mouseMoveFromEdge + 10;
     this.mouseY = mouseMoveFromEdge + 10;
 
     this.app.on('game:disablecamera', () => {
-        this.dontMove++;
+        this.dontMove = true;
     });
     this.app.on('game:enablecamera', () => {
-        this.dontMove--;
+        this.dontMove = false;
     });
 
     document.addEventListener('visibilitychange', () => {
@@ -101,7 +101,7 @@ MouseInput.prototype.initialize = function () {
 };
 
 MouseInput.prototype.update = function (dt) {
-    if (this.dontMove > 0) {
+    if (this.dontMove) {
         return;
     }
 
@@ -242,7 +242,7 @@ MouseInput.prototype.onMouseUp = function (event) {
 
 
 MouseInput.prototype.onMouseMove = function (event) {
-    if (this.dontMove > 0) {
+    if (this.dontMove) {
         return;
     }
 
@@ -276,7 +276,7 @@ MouseInput.prototype.onMouseMove = function (event) {
 };
 
 MouseInput.prototype.onMouseWheel = function (event) {
-    if (this.dontMove > 0) {
+    if (this.dontMove) {
         return;
     }
 

@@ -85,10 +85,10 @@ RandomMenu.prototype.initialize = function () {
         if (this.app.isWithEditor || !window.PokiSDK) {
             giveReward();
         } else {
-            PokiSDK.rewardedBreak(() => {
-                this.isDisabled = true;
+            this.isDisabled = true;
+            this.app.fire('game:disablecamera');
 
-                this.app.fire('game:disablecamera');
+            PokiSDK.rewardedBreak(() => {
                 this.app.fire('game:pausemusic');
             }).then(reward => {
                 this.isDisabled = false;
@@ -118,10 +118,6 @@ RandomMenu.prototype.initialize = function () {
 };
 
 RandomMenu.prototype.onEnable = function () {
-    if (this.isDisabled) {
-        return;
-    }
-
     this.app.menuOpen++;
 
     this.app.fire('game:disablecamera');
