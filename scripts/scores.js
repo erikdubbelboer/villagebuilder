@@ -102,9 +102,9 @@ Scores.prototype.updatescore = function () {
 
                             if (pts > 0) {
                                 tile.scoreEntity.children[0].element.text = '+' + pts;
-                                tile.scoreEntity.children[0].element.color = this.app.globals.lightgrey;
-                                tile.scoreEntity.children[0].element.outlineColor = this.app.globals.lightgrey;
-                                tile.scoreEntity.children[0].element.outlineThickness = 0.1;
+                                tile.scoreEntity.children[0].element.color = this.app.globals.white;
+                                tile.scoreEntity.children[0].element.outlineColor = this.app.globals.white;
+                                tile.scoreEntity.children[0].element.outlineThickness = 0.3;
                             } else {
                                 tile.scoreEntity.children[0].element.text = pts;
                                 tile.scoreEntity.children[0].element.color = this.app.globals.red;
@@ -139,10 +139,10 @@ Scores.prototype.updatescore = function () {
         let s = Math.max(0.7, 0.07 * cameraDistance);
 
         if (points > 0) {
-            this.app.placingEntity.score.children[0].element.text = points;
+            this.app.placingEntity.score.children[0].element.text = '+' + points;
             this.app.placingEntity.score.children[0].element.color = this.app.globals.white;
             this.app.placingEntity.score.children[0].element.outlineColor = this.app.globals.white;
-            this.app.placingEntity.score.children[0].element.outlineThickness = 0.1;
+            this.app.placingEntity.score.children[0].element.outlineThickness = 0.3;
         } else {
             this.app.placingEntity.score.children[0].element.text = '0';
             this.app.placingEntity.score.children[0].element.color = this.app.globals.red;

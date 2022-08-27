@@ -40,6 +40,8 @@ Globals.prototype.initialize = function () {
         tileYSize: 0.86,
 
         white: pc.Color.WHITE,
+        black: pc.Color.BLACK,
+        darkgrey: new pc.Color(0.2, 0.2, 0.2, 1),
         lightgrey: new pc.Color(0.9, 0.9, 0.9, 1),
         red: pc.Color.RED,
         green: pc.Color.GREEN,
@@ -302,7 +304,7 @@ Globals.prototype.initialize = function () {
             return a;
         }, 0);
 
-        const scale = Math.max(Math.min(8 / activeButtons, 1), 0.9);
+        const scale = Math.max(Math.min(8 / activeButtons, 1), 0.7);
 
         cardButtons.setLocalScale(scale, scale, scale);
 

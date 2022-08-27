@@ -51,11 +51,18 @@ Help.prototype.updateHelp = function (tile) {
 
     const basePoints = this.app.globals.basepoints[tile];
     if (basePoints) {
-        this.entity.children[2].children[1].enabled = true;
+        this.entity.children[2].enabled = true;
         this.entity.children[2].children[1].element.text = basePoints;
         this.entity.children[2].children[1].element.color = this.app.globals.green;
+        this.entity.children[2].children[1].element.outlineColor = this.app.globals.white;
+
+        if (basePoints < 0) {
+            this.entity.children[2].children[1].element.outlineThickness = 0.3;
+        } else {
+            this.entity.children[2].children[1].element.outlineThickness = 0.1;
+        }
     } else {
-        this.entity.children[2].children[1].enabled = false;
+        this.entity.children[2].enabled = false;
     }
 
     if (needs.on.length > 0) {
@@ -176,10 +183,12 @@ Help.prototype.updateHelp = function (tile) {
             children[0].element.text = '+' + extra;
             children[0].element.color = this.app.globals.green;
             children[0].element.outlineColor = this.app.globals.green;
+            children[0].element.outlineThickness = 0.1;
         } else {
             children[0].element.text = extra;
             children[0].element.color = this.app.globals.red;
             children[0].element.outlineColor = this.app.globals.red;
+            children[0].element.outlineThickness = 0.1;
         }
 
         tiles.sort();
@@ -202,6 +211,9 @@ Help.prototype.updateHelp = function (tile) {
         this.entity.children[rowIndex].enabled = false;
         rowIndex++;
     }
+
+    this.lastWidth = -1;
+    this.lastHeight = -1;
 };
 
 Help.prototype.showHelp = function (tile, moveRight, moveUp, maxHeight, maxHeightContainer, opacity) {
@@ -296,13 +308,28 @@ Help.prototype.update = function () {
         this.maxHeightContainer.setLocalPosition(position);
     }
 
-    this.entity.parent.setLocalPosition(new pc.Vec3(-(width - 100) * this.moveRight * this.scale, height * this.moveUp * this.scale, 0));
 
-    if (width === this.lastWidth && height === this.lastHeight) {
+    if (width < this.lastWidth && height === this.lastHeight) {
         return;
     }
     this.lastWidth = width;
     this.lastHeight = height;
+
+    let x = -(width - 100) * this.moveRight * this.scale;
+
+    if (this.moveRight === 0.5) {
+        const overflowRight = (this.entity.parent.parent.element.canvasCorners[0].x + width) - this.app.graphicsDevice.width;
+        if (overflowRight > 5) {
+            x -= overflowRight / 3;
+        }
+
+        const overflowLeft = (this.entity.parent.parent.element.canvasCorners[0].x - width);
+        if (overflowLeft < -5) {
+            x -= overflowRight / 5;
+        }
+    }
+
+    this.entity.parent.setLocalPosition(new pc.Vec3(x, height * this.moveUp * this.scale, 0));
 
     const colorBuffer = new pc.Texture(this.app.graphicsDevice, {
         width: width,
