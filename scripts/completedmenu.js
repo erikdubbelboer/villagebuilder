@@ -60,6 +60,9 @@ CompletedMenu.prototype.onEnable = function () {
     this.app.playSound('completed');
 
     this.app.fire('game:disablecamera');
+    this.app.fire('game:clearhelp');
+
+    this.app.gameplayStop();
 
     if (this.app.nowUnlocked) {
         this.entity.children[1].children[1].children[0].script.rewardimage.tile = this.app.nowUnlocked;

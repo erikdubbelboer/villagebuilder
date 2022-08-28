@@ -31,7 +31,7 @@ Controlstooltip.prototype.initialize = function () {
     });
 
     this.entity.button.on('mouseleave', () => {
-        startTimeout(10 * 1000);
+        startTimeout(2 * 1000);
 
         // If the user hovered for more than 2 seconds they got it.
         if (performance.now() - this.hoverStart > 2000) {
@@ -51,7 +51,7 @@ Controlstooltip.prototype.initialize = function () {
 
 Controlstooltip.prototype.update = function (dt) {
     if (this.fadeOut > 0) {
-        this.fadeOut -= dt / 3;
+        this.fadeOut -= dt;
 
         if (this.fadeOut <= 0) {
             this.entity.enabled = false;

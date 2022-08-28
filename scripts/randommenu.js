@@ -122,6 +122,8 @@ RandomMenu.prototype.onEnable = function () {
 
     this.app.fire('game:disablecamera');
 
+    this.app.gameplayStop();
+
     this.entity.children[1].children[1].children[0].script.rewardimage.tile = 'Empty';
     this.entity.children[1].children[1].children[0].children[0].enabled = true;
     this.entity.children[1].children[3].children[0].element.color = new pc.Color(0.9, 0.9, 0.9, 1);

@@ -198,6 +198,10 @@ Help.prototype.updateHelp = function (tile) {
             children[columnIndex].enabled = true;
             children[columnIndex].script.fillimage.tile = tiles[i];
 
+            if (rowIndex === 3 && columnIndex === 1) {
+                children[columnIndex].children[0].enabled = false;
+            }
+
             columnIndex++;
         }
         for (let i = columnIndex; i < children.length; i++) {
@@ -206,6 +210,28 @@ Help.prototype.updateHelp = function (tile) {
 
         rowIndex++;
     });
+
+    if (rowIndex === 3 && tile !== 'Road') {
+        this.entity.children[rowIndex].enabled = true;
+
+        const children = this.entity.children[rowIndex].children;
+
+        children[0].element.text = '+';
+        children[0].element.color = this.app.globals.green;
+        children[0].element.outlineColor = this.app.globals.green;
+        children[0].element.outlineThickness = 1;
+
+        let columnIndex = 1;
+        children[columnIndex].enabled = true;
+        children[columnIndex].script.fillimage.tile = 'Empty';
+        children[columnIndex].children[0].enabled = true;
+        columnIndex++;
+        for (let i = columnIndex; i < children.length; i++) {
+            children[i].enabled = false;
+        }
+
+        rowIndex++;
+    }
 
     while (rowIndex < this.entity.children.length) {
         this.entity.children[rowIndex].enabled = false;
@@ -289,10 +315,13 @@ Help.prototype.update = function () {
     }
 
     let width = Math.ceil(max.x - min.x);
-    const height = Math.ceil((max.y - min.y) + 20);
+    let height = Math.ceil((max.y - min.y) + 20);
 
     if (width < 250) {
         width = 250;
+    }
+    if (height < 150) {
+        height = 150;
     }
 
     this.entity.parent.children[0].element.width = width;

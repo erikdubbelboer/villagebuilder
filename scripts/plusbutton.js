@@ -61,6 +61,7 @@ Plusbutton.prototype.initialize = function () {
     this.nextUnlock = this.app.root.findByName('NextUnlock');
     this.nextUnlockTile1 = this.app.root.findByName('NextUnlockTile1');
     this.nextUnlockTile2 = this.app.root.findByName('NextUnlockTile2');
+    this.nextLevelMenu = this.app.root.findByName('NextLevelMenu');
 };
 
 Plusbutton.prototype.enableDeck = function (name) {
@@ -261,6 +262,13 @@ Plusbutton.prototype.randomPack = function (ignore) {
 };
 
 Plusbutton.prototype.addDeck = function () {
+    if (this.nextLevelMenu.enabled) {
+        setTimeout(() => {
+            this.addDeck();
+        }, 100);
+        return;
+    }
+
     this.app.playSound('pick');
 
     this.app.fire('game:deselect');
@@ -320,6 +328,8 @@ Plusbutton.prototype.addDeck = function () {
 
 Plusbutton.prototype.pickNextUnlock = function () {
     if (this.app.previousPacks.length === 0) {
+        this.app.nextUnlock1 = '';
+        this.app.nextUnlock2 = '';
         this.nextUnlockTile1.enabled = false;
         this.nextUnlockTile2.enabled = false;
         this.nextUnlock.enabled = false;
@@ -378,6 +388,8 @@ Plusbutton.prototype.pickNextUnlock = function () {
     });
 
     if (possiblePacks.length === 0) {
+        this.app.nextUnlock1 = '';
+        this.app.nextUnlock2 = '';
         this.nextUnlockTile1.enabled = false;
         this.nextUnlockTile2.enabled = false;
         this.nextUnlock.enabled = false;
@@ -390,6 +402,7 @@ Plusbutton.prototype.pickNextUnlock = function () {
 
         let i = Math.floor(Math.random() * tiles.length);
 
+        this.app.nextUnlock1 = tiles[i];
         this.nextUnlockTile1.script.rewardimage.tile = tiles[i];
         this.nextUnlockTile1.enabled = true;
 
@@ -398,9 +411,11 @@ Plusbutton.prototype.pickNextUnlock = function () {
 
             i = Math.floor(Math.random() * tiles.length);
 
+            this.app.nextUnlock2 = tiles[i];
             this.nextUnlockTile2.script.rewardimage.tile = tiles[i];
             this.nextUnlockTile2.enabled = true;
         } else {
+            this.app.nextUnlock2 = '';
             this.nextUnlockTile2.enabled = false;
         }
 

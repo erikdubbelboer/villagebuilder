@@ -107,6 +107,44 @@ Movingpoint.prototype.update = function (dt) {
                 this.app.fire('game:shake', 0.4);
                 this.app.fire('tooltip:close');
 
+                /*const showNextMenu = () => {
+                    if (this.app.decksOpen || this.app.menuOpen > 0) {
+                        setTimeout(showNextMenu, 100);
+                        return;
+                    }
+
+                    this.app.root.findByName('NextLevelMenu').enabled = true;
+                    this.app.fire('game:deselect');
+                };
+
+                setTimeout(showNextMenu, 500);*/
+
+                fetch('https://vb.dubbelboer.com/level', {
+                    mode: 'cors',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        level: this.app.pointsTier,
+                        name: this.app.levelName,
+                        seed: this.app.levelState.levelSeed,
+                    }),
+                }).then(response => response.json()
+                ).then(data => {
+                    const percentage = data.percentage;
+
+                    const nextLevelPercentage = this.app.root.findByName('NextLevelTextPercentage');
+                    const nextLevelTextOnly = this.app.root.findByName('NextLevelTextOnly');
+
+                    nextLevelPercentage.element.text = percentage + '%';
+                    nextLevelTextOnly.enabled = percentage < 10;
+
+                    nextLevelPercentage.parent.enabled = true;
+                }).catch(err => {
+                    console.log(err);
+                });
+
                 if (this.app.pointsTier === 20) {
                     const rewards = [
                         'Townhall',
@@ -117,12 +155,11 @@ Movingpoint.prototype.update = function (dt) {
                     ];
                     const reward = rewards[this.app.state.current];
                     if (reward) {
+                        const decks = this.app.root.findByName('Decks');
+
                         const showReward = () => {
-                            const decks = this.app.root.findByName('Decks');
                             if (decks.enabled) {
-                                setTimeout(() => {
-                                    showReward();
-                                }, 500);
+                                setTimeout(showReward, 500);
                                 return;
                             }
 

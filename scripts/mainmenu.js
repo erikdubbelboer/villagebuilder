@@ -33,6 +33,7 @@ MainMenu.prototype.initialize = function () {
             restartButton.children[1].enabled = false;
 
             this.app.fire('game:disablecamera');
+            this.app.fire('game:clearhelp');
 
             if (window.PokiSDK) {
                 PokiSDK.customEvent('game', 'segment', { segment: 'mainmenu' });
