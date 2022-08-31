@@ -18,8 +18,10 @@ Fadeout.prototype.initialize = function () {
     // Bit hacky, but when we are still visible and we already reach the next level we want to restart the countdown.
     this.app.on('game:fireworks', () => {
         if (this.timeLeft > 0) {
-            e.element.opacity = 1;
-            e.element.outlineColor = new pc.Color(1, 1, 1, 1);
+            this.entity.children.forEach(e => {
+                e.element.opacity = 1;
+                e.element.outlineColor = new pc.Color(1, 1, 1, 1);
+            });
             this.timeLeft = 1;
         }
     });
