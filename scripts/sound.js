@@ -141,20 +141,28 @@ Sound.prototype.playMusic = function () {
         return;
     }
 
-    this.currentMusic.play()
-        .catch(() => {
-            const tryPlay = () => {
-                document.removeEventListener('touchstart', tryPlay, true);
-                document.removeEventListener('touchend', tryPlay, true);
-                document.removeEventListener('click', tryPlay, true);
-                document.removeEventListener('keydown', tryPlay, true);
+    const tryAgain = () => {
+        const tryPlay = () => {
+            document.removeEventListener('touchstart', tryPlay, true);
+            document.removeEventListener('touchend', tryPlay, true);
+            document.removeEventListener('click', tryPlay, true);
+            document.removeEventListener('keydown', tryPlay, true);
 
-                this.playMusic();
-            };
+            this.playMusic();
+        };
 
-            document.addEventListener('touchstart', tryPlay, true);
-            document.addEventListener('touchend', tryPlay, true);
-            document.addEventListener('click', tryPlay, true);
-            document.addEventListener('keydown', tryPlay, true);
-        });
+        document.addEventListener('touchstart', tryPlay, true);
+        document.addEventListener('touchend', tryPlay, true);
+        document.addEventListener('click', tryPlay, true);
+        document.addEventListener('keydown', tryPlay, true);
+    };
+
+    try {
+        this.currentMusic.play()
+            .catch(() => {
+                tryAgain();
+            });
+    } catch (ignore) {
+        tryAgain();
+    }
 };

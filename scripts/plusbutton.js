@@ -159,7 +159,7 @@ Plusbutton.prototype.seenAllBuildings = function (p) {
     return true;
 };
 
-Plusbutton.prototype.randomPack = function (ignore) {
+Plusbutton.prototype.randomPack = function (ignore, lessChecks) {
     const packs = [];
     let total = 0;
 
@@ -170,79 +170,83 @@ Plusbutton.prototype.randomPack = function (ignore) {
             return;
         } else if (i === ignore) {
             return;
-        } else if (this.app.pointsTier > 1 && !this.packsSeen[p.title] && !this.seenAllBuildings(p)) {
-            return;
         }
 
-        if (this.app.previousPacks > 0) {
-            let can = false;
-            for (let i = 0; i < p.tiles.length; i++) {
-                const need = this.app.globals.needs[p.tiles[i][0]];
+        if (!lessChecks) {
+            if (this.app.pointsTier > 1 && !this.packsSeen[p.title] && !this.seenAllBuildings(p)) {
+                return;
+            }
 
-                for (let j = 0; j < need.or.length; j++) {
-                    if (this.buildingsSeenThisRound[need.or[j]]) {
-                        can = true;
-                        break;
+            if (this.app.previousPacks > 0) {
+                let can = false;
+                for (let i = 0; i < p.tiles.length; i++) {
+                    const need = this.app.globals.needs[p.tiles[i][0]];
+
+                    for (let j = 0; j < need.or.length; j++) {
+                        if (this.buildingsSeenThisRound[need.or[j]]) {
+                            can = true;
+                            break;
+                        }
                     }
-                }
-                for (let j = 0; j < need.on.length; j++) {
-                    if (this.buildingsSeenThisRound[need.on[j]]) {
-                        can = true;
+                    for (let j = 0; j < need.on.length; j++) {
+                        if (this.buildingsSeenThisRound[need.on[j]]) {
+                            can = true;
+                            break;
+                        }
+                    }
+
+                    if (!can) {
+                        continue;
+                    }
+
+                    let allAnd = need.and.length === 0;
+                    for (let j = 0; j < need.and.length; j++) {
+                        if (!this.buildingsSeenThisRound[need.and[j]]) {
+                            allAnd = false;
+                            break;
+                        }
+                    }
+                    if (!allAnd) {
+                        can = false;
+                    } else if (can) {
                         break;
                     }
                 }
 
                 if (!can) {
-                    continue;
+                    return;
                 }
 
-                let allAnd = need.and.length === 0;
-                for (let j = 0; j < need.and.length; j++) {
-                    if (!this.buildingsSeenThisRound[need.and[j]]) {
-                        allAnd = false;
+                // Make sure each tile in the pack has at least one positive point.
+                /*let allPositive = true;
+                for (let i = 0; i < p.tiles.length; i++) {
+                    const extra = this.app.globals.extrapoints[p.tiles[i][0]];
+                    const extraTiles = Object.keys(extra);
+                    let positive = false;
+    
+                    for (let j = 0; j < extraTiles.length; j++) {
+                        const tile = extraTiles[j];
+    
+                        if (this.app.globals.basepoints[tile] > 0) {
+                            positive = true;
+                            break;
+                        }
+    
+                        if (extra[tile] > 0 && this.buildingsSeenThisRound[tile]) {
+                            positive = true;
+                            break;
+                        }
+                    }
+    
+                    if (!positive) {
+                        allPositive = false;
                         break;
                     }
                 }
-                if (!allAnd) {
-                    can = false;
-                } else if (can) {
-                    break;
-                }
+                if (!allPositive) {
+                    return;
+                }*/
             }
-
-            if (!can) {
-                return;
-            }
-
-            // Make sure each tile in the pack has at least one positive point.
-            /*let allPositive = true;
-            for (let i = 0; i < p.tiles.length; i++) {
-                const extra = this.app.globals.extrapoints[p.tiles[i][0]];
-                const extraTiles = Object.keys(extra);
-                let positive = false;
-
-                for (let j = 0; j < extraTiles.length; j++) {
-                    const tile = extraTiles[j];
-
-                    if (this.app.globals.basepoints[tile] > 0) {
-                        positive = true;
-                        break;
-                    }
-
-                    if (extra[tile] > 0 && this.buildingsSeenThisRound[tile]) {
-                        positive = true;
-                        break;
-                    }
-                }
-
-                if (!positive) {
-                    allPositive = false;
-                    break;
-                }
-            }
-            if (!allPositive) {
-                return;
-            }*/
         }
 
         packs.push([i, p.bias]);
@@ -279,10 +283,10 @@ Plusbutton.prototype.addDeck = function () {
     this.first = this.nextPack;
 
     if (this.first < 0) {
-        this.first = this.randomPack(-1);
+        this.first = this.randomPack(-1, false);
     }
 
-    this.second = this.randomPack(this.first);
+    this.second = this.randomPack(this.first, false);
 
     this.app.globals.packs.forEach((p, i) => {
         if (i === this.first || i === this.second) {
@@ -296,6 +300,13 @@ Plusbutton.prototype.addDeck = function () {
         const t = this.first;
         this.first = this.second;
         this.second = t;
+    }
+
+    if (this.first < 0) {
+        this.first = this.randomPack(-1, true);
+    }
+    if (this.second < 0) {
+        this.second = this.randomPack(-1, true);
     }
 
     this.app.decks[0] = this.fixDeck(packs[this.first]);
