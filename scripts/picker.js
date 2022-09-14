@@ -63,6 +63,13 @@ PickerFramebuffer.prototype.initialize = function () {
     this.suggestionTimeout = false;
 
     this.tooltip = this.app.root.findByName('WorldTooltip');
+    this.help = this.app.root.findByName('Help');
+    this.sun = this.app.root.findByName('sun');
+    this.undoGroup = this.app.root.findByName('UndoGroup');
+
+    this.app.on('game:levelloaded', () => {
+        this.level = this.app.root.findByName('Level');
+    });
 };
 
 PickerFramebuffer.prototype.makeTransparent = function (thing) {
@@ -382,7 +389,7 @@ PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
 
         if (tooltip > 0 && tile && !this.app.decksOpen && this.app.menuOpen == 0 && !this.app.noPickerHover && tile.buildingTile && this.app.globals.needs[tile.buildingTile]) {
             this.tooltip.enabled = true;
-            this.app.root.findByName('Help').reparent(this.tooltip);
+            this.help.reparent(this.tooltip);
             this.app.fire('game:showhelp', tile.buildingTile, 1, 0, 0, null, 200);
         } else {
             this.tooltip.enabled = false;
@@ -531,14 +538,14 @@ PickerFramebuffer.prototype.onRotate = function (event) {
                 this.lastTile.buildingTile = '';
 
                 this.app.fire('game:fixroads');
-                this.app.root.findByName('sun').light.updateShadow();
+                this.sun.light.updateShadow();
             } else {
                 // Uncomment this to allow clicking on a building to rotate it.
                 if (!this.app.globals.cantRotate.includes(this.lastTile.buildingTile)) {
                     this.lastTile.angle += (event.button === pc.MOUSEBUTTON_LEFT || this.app.touch) ? -60 : 60;
                     this.lastTile.building.setRotation(new pc.Quat().setFromEulerAngles(0, this.lastTile.angle, 0));
                     this.app.fire('game:updatesave');
-                    this.app.root.findByName('sun').light.updateShadow();
+                    this.sun.light.updateShadow();
                 }
             }
         } else {
@@ -595,7 +602,7 @@ PickerFramebuffer.prototype.onSelect = function (event) {
         lastTile.buildingTile = this.app.placingTileName;
         lastTile.angle = this.app.placingAngle;
 
-        this.app.root.findByName('Level').addChild(entity);
+        this.level.addChild(entity);
 
         if (this.app.placingTileName === 'Fishing Hut' && lastTile.baseTile === 'Water') {
             // We don't remove the model as we can render over it, but we have to remove this otherwise you can place Grain next to it.
@@ -626,11 +633,11 @@ PickerFramebuffer.prototype.onSelect = function (event) {
         this.app.undoState = {
             lastTile,
             pointsTier: this.app.pointsTier,
-            points: this.app.points + this.app.root.find('name', 'MovingPoint').length,
+            points: this.app.points + this.app.movingPointCount,
             minPoints: this.app.minPoints,
             maxPoints: this.app.maxPoints,
         };
-        this.app.root.findByName('UndoGroup').enabled = true;
+        this.undoGroup.enabled = true;
 
         this.app.fire('game:lockscore');
 
@@ -677,7 +684,7 @@ PickerFramebuffer.prototype.onSelect = function (event) {
         this.app.fire('game:updatesave');
         this.app.fire('game:shake', 0.2);
 
-        this.app.root.findByName('sun').light.updateShadow();
+        this.sun.light.updateShadow();
 
         clearTimeout(this.lostCheckTimeout);
         this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 1000);
@@ -921,7 +928,7 @@ PickerFramebuffer.prototype.lostCheck = function () {
         return;
     }
 
-    if (this.app.root.findByName('MovingPoint')) {
+    if (this.app.movingPointCount > 0) {
         this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 500);
         return;
     }
@@ -932,7 +939,7 @@ PickerFramebuffer.prototype.lostCheck = function () {
         const count = this.app.buttons[t].count;
 
         // Roads don't give points so ignore them.
-        if (['Road', 'Random', 'Undo'].includes(placingTileName)) {
+        if (['Road', 'NextMap', 'Random', 'Undo'].includes(placingTileName)) {
             continue;
         }
 

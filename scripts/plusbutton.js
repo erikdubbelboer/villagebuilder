@@ -62,10 +62,12 @@ Plusbutton.prototype.initialize = function () {
     this.nextUnlockTile1 = this.app.root.findByName('NextUnlockTile1');
     this.nextUnlockTile2 = this.app.root.findByName('NextUnlockTile2');
     this.nextLevelMenu = this.app.root.findByName('NextLevelMenu');
+    this.decks = this.app.root.findByName('Decks');
+    this.decksLevelNumber = this.app.root.findByName('DecksLevelNumber');
 };
 
 Plusbutton.prototype.enableDeck = function (name) {
-    const entity = this.app.root.findByName(name);
+    const entity = this.decks.findByName(name);
 
     const tiles = entity.children[1].children;
     for (let i = 0; i < tiles.length; i++) {
@@ -318,8 +320,8 @@ Plusbutton.prototype.addDeck = function () {
     this.enableDeck('LeftDeck');
     this.enableDeck('RightDeck');
 
-    this.app.root.findByName('Decks').enabled = true;
-    this.app.root.findByName('DecksLevelNumber').element.text = '' + this.app.pointsTier;
+    this.decks.enabled = true;
+    this.decksLevelNumber.element.text = '' + this.app.pointsTier;
 
     this.app.fire('game:updatedeck');
 

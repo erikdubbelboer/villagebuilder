@@ -37,6 +37,8 @@ Deckimage.prototype.initialize = function () {
     this.entity.button.on('touchend', this.onTouchEnd, this);
 
     this.entity.parent.children[1].enabled = false;
+
+    this.help = this.app.root.findByName('Help');
 };
 
 Deckimage.prototype.updateDeck = function () {
@@ -88,7 +90,7 @@ Deckimage.prototype.onHoverStart = function () {
 
     this.entity.parent.children[1].enabled = true;
 
-    this.app.root.findByName('Help').reparent(this.entity.parent.children[1]);
+    this.help.reparent(this.entity.parent.children[1]);
     this.app.fire('game:showhelp', this.tileName, 0, 0, this.maxHelpHeight, this.entity.parent.children[1], 250);
 };
 

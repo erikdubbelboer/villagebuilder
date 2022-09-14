@@ -21,6 +21,10 @@ DeckBackground.prototype.initialize = function () {
     this.entity.button.on('touchend', this.onTouchEnd, this);
 
     this.touchStarted = 0;
+
+    this.undoGroup = this.app.root.findByName('UndoGroup');
+    this.decks = this.app.root.findByName('Decks');
+    this.randomGroup = this.app.root.findByName('RandomGroup');
 };
 
 DeckBackground.prototype.onSelect = function () {
@@ -42,7 +46,7 @@ DeckBackground.prototype.onSelect = function () {
     }
 
     this.app.undoState = false;
-    this.app.root.findByName('UndoGroup').enabled = false;
+    this.undoGroup.enabled = false;
 
     this.app.decksOpen = false;
 
@@ -53,8 +57,8 @@ DeckBackground.prototype.onSelect = function () {
     this.app.fire('game:nextunlock');
     this.app.fire('game:confirmdeck', this.pack);
 
-    this.app.root.findByName('Decks').enabled = false;
-    this.app.root.findByName('RandomGroup').enabled = true;
+    this.decks.enabled = false;
+    this.randomGroup.enabled = this.app.previousPacks.length > 4;
 
     this.app.hover('deckbackground', false);
     this.app.hover('deckbutton', false);
@@ -64,6 +68,10 @@ DeckBackground.prototype.onSelect = function () {
     //if (this.app.state.current !== 0 || this.app.previousPacks.length > 3) {
     this.app.commercialBreak();
     //}
+
+    if (this.app.previousPacks.length === 1) {
+        this.app.animateCardButtons = true;
+    }
 };
 
 DeckBackground.prototype.onHoverStart = function () {

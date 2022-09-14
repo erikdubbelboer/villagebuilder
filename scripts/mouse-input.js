@@ -31,8 +31,14 @@ MouseInput.prototype.initialize = function () {
     this.mouseX = mouseMoveFromEdge + 10;
     this.mouseY = mouseMoveFromEdge + 10;
 
+    this.lookButtonDown = false;
+    this.moveButtonDown = false;
+
     this.app.on('game:disablecamera', () => {
         this.dontMove = true;
+
+        this.lookButtonDown = false;
+        this.moveButtonDown = false;
     });
     this.app.on('game:enablecamera', () => {
         this.dontMove = false;
@@ -88,9 +94,6 @@ MouseInput.prototype.initialize = function () {
     // Disabling the context menu stops the browser displaying a menu when
     // you right-click the page
     this.app.mouse.disableContextMenu();
-
-    this.lookButtonDown = false;
-    this.moveButtonDown = false;
 
     this.nextRotate = 0;
 
@@ -212,6 +215,10 @@ MouseInput.prototype.update = function (dt) {
 
 
 MouseInput.prototype.onMouseDown = function (event) {
+    if (this.app.menuOpen > 0) {
+        return;
+    }
+
     switch (event.button) {
         case pc.MOUSEBUTTON_LEFT: {
             this.moveButtonDown = true;
@@ -227,6 +234,10 @@ MouseInput.prototype.onMouseDown = function (event) {
 
 
 MouseInput.prototype.onMouseUp = function (event) {
+    if (this.app.menuOpen > 0) {
+        return;
+    }
+
     switch (event.button) {
         case pc.MOUSEBUTTON_LEFT: {
             this.moveButtonDown = false;

@@ -15,6 +15,8 @@ Htmlelement.prototype.initialize = function () {
     this.div.style.backgroundColor = 'white';
     this.div.style.overflow = 'scroll';
     this.div.style.padding = '10px';
+    this.div.style.userSelect = 'text';
+    this.div.style.webkitUserSelect = 'text';
     this.div.innerHTML = this.entity.element.text;
     this.entity.element.text = '';
 

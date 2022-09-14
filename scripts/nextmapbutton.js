@@ -6,9 +6,9 @@
 // You should have received a copy of the license along with this
 // work. If not, see <https://creativecommons.org/licenses/by-nc-sa/4.0/>.
 
-const RandomButton = pc.createScript('randombutton');
+const NextMapButton = pc.createScript('nextmapbutton');
 
-RandomButton.prototype.initialize = function () {
+NextMapButton.prototype.initialize = function () {
     this.entity.button.on('click', this.onSelect, this);
     if (this.app.touch) {
         this.entity.button.on('touchstart', this.onTouchStart, this);
@@ -22,43 +22,43 @@ RandomButton.prototype.initialize = function () {
 
     this.onHoverEnd();
 
-    this.randomMenu = this.app.root.findByName('RandomMenu')
+    this.levelsMenu = this.app.root.findByName('LevelsMenu');
 };
 
-RandomButton.prototype.onSelect = function () {
+NextMapButton.prototype.onSelect = function () {
     if (this.app.touch && this.touchStarted + 500 < performance.now()) {
         return;
     }
 
     this.entity.parent.setLocalScale(1, 1, 1);
 
-    this.app.playSound('pick');
+    this.app.playSound('menu');
 
     this.app.fire('game:deselect');
     this.app.fire('tooltip:close');
 
     this.onHoverEnd();
 
-    this.randomMenu.enabled = true;
+    this.levelsMenu.enabled = true;
 };
 
-RandomButton.prototype.onTouchStart = function () {
+NextMapButton.prototype.onTouchStart = function () {
     this.touchStarted = performance.now();
     this.onHoverStart();
 };
 
-RandomButton.prototype.onTouchEnd = function () {
+NextMapButton.prototype.onTouchEnd = function () {
     this.onHoverEnd();
 };
 
-RandomButton.prototype.onHoverStart = function () {
+NextMapButton.prototype.onHoverStart = function () {
     this.entity.parent.children[2].enabled = true;
     this.entity.parent.setLocalScale(1.1, 1.1, 1.1);
 
     this.app.noPickerHover = true;
 };
 
-RandomButton.prototype.onHoverEnd = function () {
+NextMapButton.prototype.onHoverEnd = function () {
     this.entity.parent.children[2].enabled = false;
     this.entity.parent.setLocalScale(1, 1, 1);
 

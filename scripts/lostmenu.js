@@ -35,8 +35,9 @@ Lostmenu.prototype.initialize = function () {
     }, this);*/
 
     const lostNextLevelButton = this.app.root.findByName('LostNextLevelButton');
+    const levelsMenu = this.app.root.findByName('LevelsMenu');
     lostNextLevelButton.button.on('click', () => {
-        this.app.root.findByName('LevelsMenu').enabled = true;
+        levelsMenu.enabled = true;
 
         this.entity.enabled = false;
 

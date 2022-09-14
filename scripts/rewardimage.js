@@ -38,6 +38,8 @@ Rewardimage.prototype.initialize = function () {
     this.on('attr', () => {
         this.textureAssigned = false;
     });
+
+    this.help = this.app.root.findByName('Help');
 };
 
 Rewardimage.prototype.update = function () {
@@ -57,7 +59,7 @@ Rewardimage.prototype.onHoverStart = function () {
         this.tooltip.enabled = true;
         this.app.noPickerHover = true;
 
-        this.app.root.findByName('Help').reparent(this.tooltip);
+        this.help.reparent(this.tooltip);
         this.app.fire('game:showhelp', this.tile, this.moveRight, this.moveUp, 0, null, 250);
     }
 };

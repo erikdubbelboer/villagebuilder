@@ -16,6 +16,7 @@ MainMenu.prototype.initialize = function () {
     const creditsMenu = this.app.root.findByName('CreditsMenu');
     const restartButton = this.app.root.findByName('RestartButton');
     const lostMenu = this.app.root.findByName('LostMenu');
+    const controlsTooltip = this.app.root.findByName('ControlsTooltip');
 
     const setMenuEnabled = enabled => {
         menu.enabled = enabled;
@@ -40,7 +41,7 @@ MainMenu.prototype.initialize = function () {
             }
 
             if (!this.app.touch) {
-                this.app.root.findByName('ControlsTooltip').enabled = true;
+                controlsTooltip.enabled = true;
             }
         } else {
             this.app.menuOpen--;
@@ -51,7 +52,7 @@ MainMenu.prototype.initialize = function () {
                 this.app.gameplayStart();
             }
 
-            this.app.root.findByName('ControlsTooltip').enabled = false;
+            controlsTooltip.enabled = false;
         }
     };
 

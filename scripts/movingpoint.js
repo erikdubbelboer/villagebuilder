@@ -11,6 +11,11 @@ const Movingpoint = pc.createScript('movingpoint');
 Movingpoint.prototype.initialize = function () {
     this.target = this.app.root.findByName('ScoreBarProgress');
     this.camera = this.app.root.findByName('camera');
+    this.nextLevelPercentage = this.app.root.findByName('NextLevelTextPercentage');
+    this.nextLevelTextOnly = this.app.root.findByName('NextLevelTextOnly');
+    this.nextMapGroup = this.app.root.findByName('NextMapGroup');
+    this.decks = this.app.root.findByName('Decks');
+    this.completedMenu = this.app.root.findByName('CompletedMenu');
 
     if (this.entity.bouncePosition) {
         this.distance = new pc.Vec3().sub2(this.entity.getPosition(), this.entity.bouncePosition).length();
@@ -28,6 +33,12 @@ Movingpoint.prototype.initialize = function () {
 
         this.distance = end.sub(now).length();
     }
+
+    this.app.movingPointCount++;
+
+    this.on('destroy', () => {
+        this.app.movingPointCount--;
+    });
 };
 
 Movingpoint.prototype.update = function (dt) {
@@ -107,18 +118,6 @@ Movingpoint.prototype.update = function (dt) {
                 this.app.fire('game:shake', 0.4);
                 this.app.fire('tooltip:close');
 
-                /*const showNextMenu = () => {
-                    if (this.app.decksOpen || this.app.menuOpen > 0) {
-                        setTimeout(showNextMenu, 100);
-                        return;
-                    }
-
-                    this.app.root.findByName('NextLevelMenu').enabled = true;
-                    this.app.fire('game:deselect');
-                };
-
-                setTimeout(showNextMenu, 500);*/
-
                 fetch('https://vb.dubbelboer.com/level', {
                     mode: 'cors',
                     method: 'POST',
@@ -127,23 +126,22 @@ Movingpoint.prototype.update = function (dt) {
                     },
                     body: JSON.stringify({
                         level: this.app.pointsTier,
-                        name: this.app.levelName,
+                        name: this.app.levelName + '-' + this.app.state.current,
                         seed: this.app.levelState.levelSeed,
                     }),
                 }).then(response => response.json()
                 ).then(data => {
                     const percentage = data.percentage;
 
-                    const nextLevelPercentage = this.app.root.findByName('NextLevelTextPercentage');
-                    const nextLevelTextOnly = this.app.root.findByName('NextLevelTextOnly');
+                    this.nextLevelPercentage.element.text = percentage + '%';
+                    this.nextLevelTextOnly.enabled = percentage < 10;
 
-                    nextLevelPercentage.element.text = percentage + '%';
-                    nextLevelTextOnly.enabled = percentage < 10;
-
-                    nextLevelPercentage.parent.enabled = true;
+                    this.nextLevelPercentage.parent.enabled = true;
                 }).catch(err => {
                     console.log(err);
                 });
+
+                this.nextMapGroup.enabled = this.app.pointsTier >= 10;
 
                 if (this.app.pointsTier === 20) {
                     const rewards = [
@@ -155,17 +153,15 @@ Movingpoint.prototype.update = function (dt) {
                     ];
                     const reward = rewards[this.app.state.current];
                     if (reward) {
-                        const decks = this.app.root.findByName('Decks');
-
                         const showReward = () => {
-                            if (decks.enabled) {
+                            if (this.decks.enabled) {
                                 setTimeout(showReward, 500);
                                 return;
                             }
 
                             this.app.nowUnlocked = reward;
                             this.app.state.unlocked[reward] = true;
-                            this.app.root.findByName('CompletedMenu').enabled = true;
+                            this.completedMenu.enabled = true;
                             this.app.fire('game:deselect');
                         };
                         showReward();

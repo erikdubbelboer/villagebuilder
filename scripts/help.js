@@ -68,6 +68,8 @@ Help.prototype.updateHelp = function (tile) {
     if (needs.on.length > 0) {
         this.entity.children[1].enabled = true;
 
+        children[1].children[0].enabled = false;
+
         children[0].element.text = 'ON TOP OF: ';
 
         let columnIndex = 0;
@@ -191,16 +193,16 @@ Help.prototype.updateHelp = function (tile) {
             children[0].element.outlineThickness = 0.1;
         }
 
+        if (rowIndex === 3) {
+            children[1].children[0].enabled = false;
+        }
+
         tiles.sort();
 
         let columnIndex = 1;
         for (let i = 0; i < tiles.length; i++) {
             children[columnIndex].enabled = true;
             children[columnIndex].script.fillimage.tile = tiles[i];
-
-            if (rowIndex === 3 && columnIndex === 1) {
-                children[columnIndex].children[0].enabled = false;
-            }
 
             columnIndex++;
         }
@@ -226,6 +228,7 @@ Help.prototype.updateHelp = function (tile) {
         children[columnIndex].script.fillimage.tile = 'Empty';
         children[columnIndex].children[0].enabled = true;
         columnIndex++;
+
         for (let i = columnIndex; i < children.length; i++) {
             children[i].enabled = false;
         }

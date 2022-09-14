@@ -19,6 +19,10 @@ UndoButton.prototype.initialize = function () {
     this.entity.button.on('mouseleave', this.onHoverEnd, this);
 
     this.touchStarted = 0;
+
+    this.onHoverEnd();
+
+    this.undoMenu = this.app.root.findByName('UndoMenu');
 };
 
 UndoButton.prototype.onSelect = function () {
@@ -36,7 +40,7 @@ UndoButton.prototype.onSelect = function () {
     this.onHoverEnd();
 
     if (!this.app.undoMenuSeen) {
-        this.app.root.findByName('UndoMenu').enabled = true;
+        this.undoMenu.enabled = true;
     } else {
         if (this.app.isWithEditor || !window.PokiSDK) {
             this.app.undo();

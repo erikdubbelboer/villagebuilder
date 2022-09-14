@@ -26,10 +26,16 @@ Globals.prototype.initialize = function () {
         }
     });
 
+    if (!this.app.touch) {
+        this.app.root.findByName('CardButtonsScroll').enabled = false;
+    }
+
     // dummy function to use until sound system is loaded.
     this.app.playSound = () => { };
 
     this.app.previousPacks = [];
+
+    this.app.movingPointCount = 0;
 
     this.app.menuOpen = 0;
 
@@ -182,6 +188,10 @@ Globals.prototype.initialize = function () {
     decks.enabled = false;
 
     this.app.buttons = [
+        {
+            tile: 'NextMap',
+            count: 0,
+        },
         {
             tile: 'Random',
             count: 0,
@@ -385,7 +395,12 @@ Globals.prototype.initialize = function () {
             count: count,
         });
 
-        const newButton = cardButtons.children[cardButtons.children.length - 1].clone();
+        const oldButton = cardButtons.children[cardButtons.children.length - 1];
+        if (oldButton.children[2].children.length > 0) {
+            this.app.fire('game:clearhelp');
+            oldButton.children[2].children[0].reparent(cardButtons.parent);
+        }
+        const newButton = oldButton.clone();
         newButton.children[0].script.CardButton.index = this.app.buttons.length - 1;
         newButton.enabled = count > 0;
         cardButtons.addChild(newButton);
@@ -431,9 +446,11 @@ Globals.prototype.initialize = function () {
         camera.script.orbitCamera.pivotPoint = new pc.Vec3(0, 0, 5);
         camera.script.orbitCamera.distance = 8;
 
-        setTimeout(() => {
-            this.app.root.findByName('sun').light.updateShadow();
-        }, 10);
+        this.app.once('game:levelloaded', () => {
+            setTimeout(() => {
+                this.app.root.findByName('sun').light.updateShadow();
+            }, 10);
+        });
     };
 
     this.app.saveCurrentLevel = () => {
@@ -452,10 +469,6 @@ Globals.prototype.initialize = function () {
             },
             previousPacks: this.app.previousPacks,
         };
-
-        if (this.app.decksOpen) {
-            state.buttons[0][1]++;
-        }
 
         const include = Object.keys(this.app.globals.extrapoints);
         for (let i = 1; i < this.app.levelSize - 1; i++) {
@@ -546,7 +559,10 @@ Globals.prototype.initialize = function () {
             }
 
             this.app.root.findByName('UndoGroup').enabled = false;
-            this.app.root.findByName('RandomGroup').enabled = true;
+            this.app.root.findByName('RandomGroup').enabled = this.app.previousPacks.length > 4;
+            this.app.root.findByName('NextMapGroup').enabled = this.app.pointsTier >= 10;
+
+            this.app.animateCardButtons = false;
 
             this.app.undoState = false;
 
@@ -562,7 +578,7 @@ Globals.prototype.initialize = function () {
                 this.app.root.findByName('sun').light.updateShadow();
             }, 100);
 
-            if (!this.app.touch && this.app.state.current === 0 && this.app.pointsTier < 8) {
+            /*if (!this.app.touch && this.app.state.current === 0 && this.app.pointsTier < 8) {
                 let notip = false;
                 try {
                     notip = localStorage.getItem('notip') === '1';
@@ -574,7 +590,7 @@ Globals.prototype.initialize = function () {
                         controlsTooltip.enabled = true;
                     }
                 }
-            }
+            }*/
         });
     };
 
@@ -711,7 +727,8 @@ Globals.prototype.initialize = function () {
             }
 
             this.app.root.findByName('UndoGroup').enabled = false;
-            this.app.root.findByName('RandomGroup').enabled = true;
+            this.app.root.findByName('RandomGroup').enabled = false;
+            this.app.root.findByName('NextMapGroup').enabled = false;
 
             this.app.undoState = false;
             this.app.previousPacks = [];
@@ -723,7 +740,7 @@ Globals.prototype.initialize = function () {
 
             this.app.root.children[0].script.plusbutton.addDeck();
 
-            if (!this.app.touch && level === 0) {
+            /*if (!this.app.touch && level === 0) {
                 let notip = false;
                 try {
                     notip = localStorage.getItem('notip') === '1';
@@ -735,7 +752,7 @@ Globals.prototype.initialize = function () {
                         controlsTooltip.enabled = true;
                     }
                 }
-            }
+            }*/
 
             if (window.PokiSDK) {
                 PokiSDK.customEvent('game', 'segment', {

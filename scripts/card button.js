@@ -21,6 +21,8 @@ CardButton.prototype.initialize = function () {
         this.entity.button.on(pc.EVENT_TOUCHSTART, this.onTouchStart, this);
         this.app.touch.on(pc.EVENT_TOUCHEND, this.onTouchEnd, this);
         this.app.touch.on(pc.EVENT_TOUCHMOVE, this.onTouchMove, this);
+
+        this.cardButtonsScroll = this.app.root.findByName('CardButtonsScroll');
     }
 
     this.entity.button.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
@@ -58,7 +60,11 @@ CardButton.prototype.initialize = function () {
 
     this.isClicking = false;
 
-    //this.cardButtonsScroll = this.app.root.findByName('CardButtonsScroll');
+    this.animating = false;
+    this.animationLeft = 0.5;
+
+    this.scoreTemplate = this.app.root.findByName('score-template');
+    this.help = this.app.root.findByName('Help');
 };
 
 CardButton.prototype.onSelect = function (xy) {
@@ -116,7 +122,7 @@ CardButton.prototype.onSelect = function (xy) {
         }
     }
 
-    const score = this.app.root.findByName('score-template').clone();
+    const score = this.scoreTemplate.clone();
     score.children[0].element.text = '';
     score.setLocalScale(0.7, 0.7, 0.7);
 
@@ -147,6 +153,30 @@ CardButton.prototype.update = function (dt) {
         if (t) {
             this.textureAssigned = true;
             this.entity.element.texture = t;
+        }
+    }
+
+    if (this.app.animateCardButtons) {
+        this.animating = true;
+        const aminationTime = 1;
+        if (this.animationLeft > 0) {
+            this.animationLeft = Math.max(this.animationLeft - dt, 0);
+
+            if (this.animationLeft >= (aminationTime / 2)) {
+                const s = 1 + ((aminationTime - this.animationLeft) / (aminationTime / 2)) / 10;
+                this.entity.parent.setLocalScale(s, s, s);
+            } else {
+                const s = 1 + (this.animationLeft / (aminationTime / 2)) / 10;
+                this.entity.parent.setLocalScale(s, s, s);
+            }
+        } else {
+            this.animationLeft = aminationTime;
+        }
+    } else if (this.animating) {
+        this.animating = false;
+
+        if (!this.hovering) {
+            this.entity.parent.setLocalScale(1, 1, 1);
         }
     }
 };
@@ -232,10 +262,12 @@ CardButton.prototype.onHoverStart = function () {
 
     this.entity.parent.children[2].enabled = true;
 
-    this.app.root.findByName('Help').reparent(this.entity.parent.children[2]);
+    this.help.reparent(this.entity.parent.children[2]);
     this.app.fire('game:showhelp', this.tileName, 0.5, 0.5, 0, null, 200);
 
     this.hovering = true;
+
+    this.app.animateCardButtons = false;
 };
 
 CardButton.prototype.onHoverEnd = function () {
@@ -312,9 +344,9 @@ CardButton.prototype.dragTo = function (x, y) {
         return;
     }
 
-    /*const d = this.dragCurrentAt[0] - x;
+    const d = this.dragCurrentAt[0] - x;
 
-    if (Math.abs(d) > 30) {
+    if (this.cardButtonsScroll && Math.abs(d) > 30) {
         const pos = this.cardButtons.getLocalPosition();
         pos.x -= d;
         this.cardButtons.setLocalPosition(pos);
@@ -325,9 +357,7 @@ CardButton.prototype.dragTo = function (x, y) {
         this.app.draggingButtons = true;
         this.isClicking = false;
         this.dragPlacing = false;
-    }*/
-
-    if (!this.app.draggingButtons && this.dragStartedAt[1] - y > 50) {
+    } else if (!this.app.draggingButtons && this.dragStartedAt[1] - y > 50) {
         this.onHoverEnd();
         this.dragCurrentAt = [x, y];
         this.dragPlacing = true;

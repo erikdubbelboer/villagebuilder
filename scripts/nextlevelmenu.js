@@ -1,3 +1,11 @@
+// Village Builder (c) by Erik Dubbelboer and Rens Gehling
+//
+// Village Builder is licensed under a
+// Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+//
+// You should have received a copy of the license along with this
+// work. If not, see <https://creativecommons.org/licenses/by-nc-sa/4.0/>.
+
 const NextLevelMenu = pc.createScript('nextlevelmenu');
 
 NextLevelMenu.prototype.initialize = function () {
@@ -15,6 +23,10 @@ NextLevelMenu.prototype.initialize = function () {
         this.app.playSound('menu');
     }, this);
 
+    this.nextLevelUnlock1 = this.app.root.findByName('NextLevelUnlock1');
+    this.nextLevelUnlock2 = this.app.root.findByName('NextLevelUnlock2');
+    this.nextLevelPercentage = this.app.root.findByName('NextLevelPercentage');
+    this.nextLevelOnly = this.app.root.findByName('NextLevelOnly');
     const nextLevelContinueButton = this.app.root.findByName('NextLevelContinueButton');
 
     nextLevelContinueButton.button.on('click', () => {
@@ -47,28 +59,24 @@ NextLevelMenu.prototype.onEnable = function () {
 
     this.app.gameplayStop();
 
-    const nextLevelUnlock1 = this.app.root.findByName('NextLevelUnlock1');
-    const nextLevelUnlock2 = this.app.root.findByName('NextLevelUnlock2');
-
     if (!this.app.nextUnlock1 && !this.app.nextUnlock1) {
-        nextLevelUnlock1.parent.parent.enabled = false;
+        this.nextLevelUnlock1.parent.parent.enabled = false;
     } else {
-        nextLevelUnlock1.parent.parent.enabled = true;
+        this.nextLevelUnlock1.parent.parent.enabled = true;
 
-        nextLevelUnlock1.script.rewardimage.tile = this.app.nextUnlock1;
+        this.nextLevelUnlock1.script.rewardimage.tile = this.app.nextUnlock1;
 
         if (!this.app.nextUnlock2) {
-            nextLevelUnlock2.enabled = false;
+            this.nextLevelUnlock2.enabled = false;
         } else {
-            nextLevelUnlock2.enabled = true;
-            nextLevelUnlock2.script.rewardimage.tile = this.app.nextUnlock2;
+            this.nextLevelUnlock2.enabled = true;
+            this.nextLevelUnlock2.script.rewardimage.tile = this.app.nextUnlock2;
         }
     }
 
     this.app.root.findByName('NextLevelNumber').element.text = this.app.pointsTier;
 
-    const nextLevelPercentage = this.app.root.findByName('NextLevelPercentage');
-    nextLevelPercentage.parent.enabled = false;
+    this.nextLevelPercentage.parent.enabled = false;
 
     fetch('https://vb.dubbelboer.com/level', {
         mode: 'cors',
@@ -78,7 +86,7 @@ NextLevelMenu.prototype.onEnable = function () {
         },
         body: JSON.stringify({
             level: this.app.pointsTier,
-            name: this.app.levelName,
+            name: this.app.levelName + '-' + this.app.state.current,
             seed: this.app.levelState.levelSeed,
         }),
     }).then(response => response.json()
@@ -89,10 +97,10 @@ NextLevelMenu.prototype.onEnable = function () {
 
         const percentage = data.percentage;
 
-        this.app.root.findByName('NextLevelOnly').enabled = percentage < 50;
-        nextLevelPercentage.element.text = percentage + '%';
+        this.nextLevelPercentage.element.text = percentage + '%';
+        this.nextLevelOnly.enabled = percentage < 10;
 
-        nextLevelPercentage.parent.enabled = true;
+        this.nextLevelPercentage.parent.enabled = true;
     }).catch(err => {
         console.log(err);
     });

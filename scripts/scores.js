@@ -22,6 +22,9 @@ Scores.prototype.initialize = function () {
 
     this.currentPoints = 0;
     this.pointsToDo = [];
+
+    this.camera = this.app.root.findByName('camera');
+    this.scoreTemplate = this.app.root.findByName('score-template');
 };
 
 /*const onlyOnceRoadPointsTiles = [
@@ -39,7 +42,7 @@ Scores.prototype.updatescore = function () {
         return;
     }
 
-    const cameraDistance = this.app.root.findByName('camera').script.orbitCamera.distance;
+    const cameraDistance = this.camera.script.orbitCamera.distance;
     const levelSize = this.app.levelSize;
     const size = this.app.globals.auras[this.app.placingTileName] * 1.1;
     const p = this.app.placingEntity.getPosition();
@@ -89,7 +92,7 @@ Scores.prototype.updatescore = function () {
                             points += pts;
 
                             if (!tile.scoreEntity) {
-                                const score = this.app.root.findByName('score-template').clone();
+                                const score = this.scoreTemplate.clone();
 
                                 score.setPosition(tile.x, tile.y + this.app.globals.scoreHeight, tile.z);
                                 this.entity.addChild(score);
