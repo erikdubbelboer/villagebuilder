@@ -387,7 +387,15 @@ PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
             this.app.hover('picker', false);
         }
 
-        if (tooltip > 0 && tile && !this.app.decksOpen && this.app.menuOpen == 0 && !this.app.noPickerHover && tile.buildingTile && this.app.globals.needs[tile.buildingTile]) {
+        if (tooltip > 0 &&
+            tile &&
+            !this.app.decksOpen &&
+            this.app.menuOpen == 0 &&
+            !this.app.noPickerHover &&
+            tile.buildingTile &&
+            this.app.globals.needs[tile.buildingTile] &&
+            tile.buildingTile !== 'Forest'
+        ) {
             this.tooltip.enabled = true;
             this.help.reparent(this.tooltip);
             this.app.fire('game:showhelp', tile.buildingTile, 1, 0, 0, null, 200);
@@ -898,7 +906,7 @@ PickerFramebuffer.prototype.canPlace = function (tile, placingTileName, modify) 
                 if (needs.on.length > 0) {
                     let isOn = false;
                     for (let n = 0; n < needs.on.length; n++) {
-                        if (tile.buildingTile === needs.on[n]) {
+                        if (tile.buildingTile === needs.on[n] || tile.baseTile === needs.on[n]) {
                             isOn = true;
                             break;
                         }
@@ -950,12 +958,11 @@ PickerFramebuffer.prototype.lostCheck = function () {
                     const can = this.canPlace(tile, placingTileName, false);
 
                     if (can) {
-                        /*let points = this.getPoints(tile, placingTileName);
+                        let points = this.getPoints(tile, placingTileName);
 
                         if (points > 0) {
                             return;
-                        }*/
-                        return;
+                        }
                     }
                 }
             }

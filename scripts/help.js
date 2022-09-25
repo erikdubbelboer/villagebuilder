@@ -68,9 +68,8 @@ Help.prototype.updateHelp = function (tile) {
     if (needs.on.length > 0) {
         this.entity.children[1].enabled = true;
 
+        children[0].element.text = 'ON TOP OF:';
         children[1].children[0].enabled = false;
-
-        children[0].element.text = 'ON TOP OF: ';
 
         let columnIndex = 0;
         for (let i = 0; i < needs.on.length; i++) {
@@ -80,6 +79,14 @@ Help.prototype.updateHelp = function (tile) {
             }
             children[columnIndex + 1].enabled = true;
             children[columnIndex + 1].script.fillimage.tile = needs.on[i];
+
+            columnIndex += 2;
+        }
+        if (needs.and.length > 0) {
+            children[columnIndex].enabled = true;
+            children[columnIndex].element.text = 'NEXT TO';
+            children[columnIndex + 1].enabled = true;
+            children[columnIndex + 1].script.fillimage.tile = needs.and[0];
 
             columnIndex += 2;
         }
@@ -340,13 +347,6 @@ Help.prototype.update = function () {
         this.maxHeightContainer.setLocalPosition(position);
     }
 
-
-    if (width < this.lastWidth && height === this.lastHeight) {
-        return;
-    }
-    this.lastWidth = width;
-    this.lastHeight = height;
-
     let x = -(width - 100) * this.moveRight * this.scale;
 
     if (this.moveRight === 0.5) {
@@ -362,6 +362,12 @@ Help.prototype.update = function () {
     }
 
     this.entity.parent.setLocalPosition(new pc.Vec3(x, height * this.moveUp * this.scale, 0));
+
+    if (width === this.lastWidth && height === this.lastHeight) {
+        return;
+    }
+    this.lastWidth = width;
+    this.lastHeight = height;
 
     const colorBuffer = new pc.Texture(this.app.graphicsDevice, {
         width: width,

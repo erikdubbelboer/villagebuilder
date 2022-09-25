@@ -169,13 +169,13 @@ Config.prototype.initialize = function () {
       'on': [],
     },
     'Water Mill': {
-      'or': [
-        'Road'
-      ],
+      'or': [],
       'and': [
+        'Road',
+      ],
+      'on': [
         'River'
       ],
-      'on': [],
     },
     'Papermill': {
       'or': [

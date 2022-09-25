@@ -27,7 +27,10 @@ Globals.prototype.initialize = function () {
     });
 
     if (!this.app.touch) {
-        this.app.root.findByName('CardButtonsScroll').enabled = false;
+        const cardButtonsScroll = this.app.root.findByName('CardButtonsScroll');
+        if (cardButtonsScroll) {
+            cardButtonsScroll.enabled = false;
+        }
     }
 
     // dummy function to use until sound system is loaded.
@@ -365,6 +368,7 @@ Globals.prototype.initialize = function () {
             this.app.fire('game:updatesave');
             this.app.fire('game:resetpicker');
             this.app.fire('game:points');
+            this.app.fire('game:fixroads');
 
             this.app.root.findByName('sun').light.updateShadow();
 
@@ -479,6 +483,11 @@ Globals.prototype.initialize = function () {
                     continue;
                 }
 
+                // No need to save the Forest, it's part of the level seed.
+                if (tile.buildingTile === 'Forest') {
+                    continue;
+                }
+
                 if (tile.buildingTile && include.includes(tile.buildingTile)) {
                     state.buildings.push([
                         i,
@@ -503,46 +512,122 @@ Globals.prototype.initialize = function () {
             this.app.pointsTier = state.score.pointsTier;
             this.app.previousPacks = state.previousPacks || [];
 
+            let nextBuildingTimeout = 0;
+
+            if (this.app.thumbnailVideo) {
+                const order = [
+                    'Stable',
+                    'Sheep',
+                    'Mill',
+                    'Grain',
+                    'Market',
+                    'House',
+                    'Tavern',
+                    'Church',
+                    'Water Mill',
+                    'Castle',
+                ];
+
+                state.buildings.sort((a, b) => {
+                    const ai = order.indexOf(a[2]);
+                    const bi = order.indexOf(b[2]);
+
+                    if (ai === bi) {
+                        return b[1] - a[1];
+                    }
+
+                    return ai - bi;
+                });
+
+                nextBuildingTimeout = 5000;
+
+                setTimeout(() => {
+                    this.app.thumbnailVideoRotateCamera = true;
+                }, nextBuildingTimeout + 500);
+                setTimeout(() => {
+                    this.app.thumbnailVideoZoomCamera = true;
+                }, nextBuildingTimeout + 2000);
+                setTimeout(() => {
+                    this.app.thumbnailVideoZoomCamera = false;
+                    this.app.thumbnailVideoRotateCamera = false;
+                }, nextBuildingTimeout + 6000);
+
+                const camera = this.app.root.findByName('camera');
+                camera.script.orbitCamera.yaw = 147.6000000000001;
+                camera.script.orbitCamera.pitch = -36.600000000000065;
+                camera.script.orbitCamera.pivotPoint = new pc.Vec3(0.6248876755058734, 0, 3.0812933498276616);
+                camera.script.orbitCamera.distance = 12;
+            }
+
             state.buildings.forEach(t => {
-                const tile = this.app.tiles[t[0]][t[1]];
-
-                if (tile.building) {
-                    tile.building.destroy();
+                // Don't re-build the Forest, they are already placed by the level generator.
+                if (t[2] === 'Forest') {
+                    return;
                 }
 
-                tile.buildingTile = t[2];
-                tile.angle = t[3];
+                let timeout = nextBuildingTimeout;
 
-                this.app.buildingsSeen[tile.buildingTile] = 1;
-
-                const template = this.app.assets.find(this.app.tileNameToModel(tile.buildingTile), "template");
-                const entity = template.resource.instantiate();
-
-                entity.setPosition(tile.x, tile.y, tile.z);
-                entity.setRotation(new pc.Quat().setFromEulerAngles(0, tile.angle, 0));
-
-                tile.building = entity;
-
-                const batchGroupId = this.app.buildingBatchGroups[Math.floor(tile.i / this.app.globals.batchSize)][Math.floor(tile.j / this.app.globals.batchSize)].id;
-                this.app.setBatchGroupId(entity, batchGroupId);
-
-                this.app.root.findByName('Level').addChild(entity);
-
-                if (tile.buildingTile === 'Fishing Hut' && tile.baseTile === 'Water') {
-                    // We don't remove the model as we can render over it, but we have to remove this otherwise you can place Grain next to it.
-                    tile.baseTile = 'Grass';
+                if (t[2] === 'Road' || t[2] === 'Lumberjack') {
+                    timeout = 0;
+                } else {
+                    nextBuildingTimeout += 150;
                 }
-                if (tile.buildingTile === 'Hunting Cabin') {
-                    this.app.levelStoneHillsLeft--;
-                }
-                if (tile.buildingTile === 'Mine') {
-                    this.app.levelGrassHillsLeft--;
-                }
-                if (tile.buildingTile === 'Fishing Hut') {
-                    this.app.levelFishingHutLeft--;
-                }
-                if (tile.buildingTile === 'Shipyard') {
-                    this.app.levelShipyardLeft--;
+
+                const placeBuilding = () => {
+                    const tile = this.app.tiles[t[0]][t[1]];
+
+                    if (tile.building) {
+                        tile.building.destroy();
+                    }
+
+                    tile.buildingTile = t[2];
+                    tile.angle = t[3];
+
+                    this.app.buildingsSeen[tile.buildingTile] = 1;
+
+                    const template = this.app.assets.find(this.app.tileNameToModel(tile.buildingTile), "template");
+                    const entity = template.resource.instantiate();
+
+                    entity.setPosition(tile.x, tile.y, tile.z);
+                    entity.setRotation(new pc.Quat().setFromEulerAngles(0, tile.angle, 0));
+
+                    tile.building = entity;
+
+                    const batchGroupId = this.app.buildingBatchGroups[Math.floor(tile.i / this.app.globals.batchSize)][Math.floor(tile.j / this.app.globals.batchSize)].id;
+                    this.app.setBatchGroupId(entity, batchGroupId);
+
+                    this.app.root.findByName('Level').addChild(entity);
+
+                    if (tile.buildingTile === 'Fishing Hut' && tile.baseTile === 'Water') {
+                        // We don't remove the model as we can render over it, but we have to remove this otherwise you can place Grain next to it.
+                        tile.baseTile = 'Grass';
+                    }
+                    if (tile.buildingTile === 'Hunting Cabin') {
+                        this.app.levelStoneHillsLeft--;
+                    }
+                    if (tile.buildingTile === 'Mine') {
+                        this.app.levelGrassHillsLeft--;
+                    }
+                    if (tile.buildingTile === 'Fishing Hut') {
+                        this.app.levelFishingHutLeft--;
+                    }
+                    if (tile.buildingTile === 'Shipyard') {
+                        this.app.levelShipyardLeft--;
+                    }
+
+                    this.app.fire('game:fixroads');
+                };
+
+                if (this.app.thumbnailVideo && timeout > 0) {
+                    setTimeout(() => {
+                        placeBuilding();
+
+                        setTimeout(() => {
+                            this.app.root.findByName('sun').light.updateShadow();
+                        }, 10);
+                    }, timeout);
+                } else {
+                    placeBuilding();
                 }
             });
 
@@ -789,7 +874,13 @@ Globals.prototype.postInitialize = function () {
     };
 
     try {
-        const data = this.app.decompress(localStorage.getItem(this.app.saveName));
+        let ls = localStorage.getItem(this.app.saveName);
+
+        if (this.app.thumbnailVideo) {
+            ls = 'N4IgxgrgTlCmB2AXEAuADAGhAWwIYA9VMQAbWAN1hIGdUBtUMyk1UeXbWVEAcyl2q0suRIigBLAEYREsWikYUqAZViwAJqgDsADgCcAZgBMWJivEAvLigPEA7iNhRll6wawPZUAPIAzX9SwyChaWL4A9nDUiABysHaoAKxhkXKxsLhQqAbJIFDhYADW8sT5RdRxCTZYZcVxmahG9o5QAEoFxagAjAAsNeKUWShiELBY4tQkuPCaKL64NGMgvuJU6iUAdF0AvttY0qLh8PJ0dCBx+IgAsrgADiAYaAC6GGet0+rh2A/PryAAqjNwj8Xm9wrhNBguqCQABhASIMgPaF/G5QQpBZEwgAS4QggSxLxA0nEJHU4ngPBOdD6XRMIAAYqlosidL8aVC+ozmcgMAA2dnJLrEJlRXkC0FC+mitKswVQ9zcsUPIw9eW9LAyllQpqSqF8zU85G614Grq5LW81Xs0JdUJK2U6m1QnSG5Uu51dPRux22dmurquh3awP+qHe4O89neroGyNy0Ex+2WlVqxMun3a6MYIxxlNO0HCnNc/OhwuYIwWo0e8s5vPV9lFozJ6sS15dLoYRX5v2Fzsl6t0xudqvu3vtztB/PWvsZkDtCEPAC0bboHZzLfdjZMA/dZfbJk3jtXdP1majhZMgawC8hJ5MTSwABkINhJE4AFa4Iqp7cb88ggeOZTg2hbuLujozu27hHtqUFru45oAV2aCNoh9ZbmBUL2i+b6ft+hSAQhc63gm0HhshjZ9KOjpURgsEXu2fQgWOqGFn0Ealmy7GclgADi/AUsadFISAAm4EJNZMWeYmCfAv48XaWC4viXAYCuIlBqR/IiRG8LREiOmFskNHauOa7JAxRFISxtHGbxskSfJjz2aJ4mSUOrlxlcpIsAW7ZCva2nmUh14gCpBJGQFFEgAAKrggzORp9mPuFeKRfBSFGJ2aWqQ8IVmpRhYGhBcFpu2ZpchFameRVUK5O5zmNmaEbVcumUGtlWBohivK1WutrISFoSlVa5UDQ5bVRRNonaf1SmxlgygABZqPc00LfayiILgkiGZltpBita0Ke2oSpfmjbndK1aZQGN2sY2AZcrCy3QGAy3Lj0JprgGuTaXdMnHbA60hQGW2rSDy4GCeAZHZD63Je2AYRrh75QF+P5Sb9OY5aWP3XkYD2Ovua4xv94KQvNSZLQjp1kzm9Jo/hWPUzm3bViF3qqshpNejmpljeyj4aiAADqLQAAQ+SQfnwSLFOLi5ryPpWvPcSrnazZTwmgkT9U3jr01GIheODhrdA8xhJM/Tz67xtjdu2dqq5q6L+au0K1shhbbtWcWwtmmbmEq2agtEbmMnTuNkdhT2bGhzF0fC7awd2SrtrEy7KcKrztu2t74o50pDvF87QtPES1BgKkrAgLc4QUog8g9EGeD4AACo3SDyAKWDYBSXdNyUWAN8PsWrEMeh7PXcDkOI6UdwRJwgMzGMEQ8kZQAAniATzbESEDwCQHQaKwuxAA=';
+        }
+
+        const data = this.app.decompress(ls);
         if (data) {
             const state = JSON.parse(data);
 

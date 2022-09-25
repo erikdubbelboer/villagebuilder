@@ -29,6 +29,8 @@ CardButton.prototype.initialize = function () {
     this.entity.button.on('mouseenter', this.onHoverStart, this);
     this.entity.button.on('mouseleave', this.onHoverEnd, this);
     this.entity.button.on(pc.EVENT_MOUSEUP, this.onMouseUp, this);
+
+    // Enable this to enable dragging the buttons on desktop.
     //this.app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
 
     this.app.on('game:disablecamera', () => {

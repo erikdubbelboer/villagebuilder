@@ -50,6 +50,11 @@ MouseInput.prototype.initialize = function () {
         }
     });
 
+    // Prevent the arrow keys from scrolling the Poki page.
+    window.addEventListener('keydown', e => {
+        e.preventDefault();
+    });
+
     if (this.orbitCamera) {
         const onMouseOut = e => {
             this.onMouseOut(e);
@@ -147,6 +152,15 @@ MouseInput.prototype.update = function (dt) {
             down = true;
             verticalSpeed = (mouseMoveFromEdge - (height - this.mouseY)) / mouseMoveFromEdge;
         }*/
+    }
+
+    if (this.app.thumbnailVideoRotateCamera) {
+        this.orbitCamera.yaw -= 30 * dt;
+    }
+    if (this.app.thumbnailVideoZoomCamera) {
+        if (this.orbitCamera.distance > 2) {
+            this.orbitCamera.distance -= dt * 1.5;
+        }
     }
 
     if (this.app.keyboard.isPressed(pc.KEY_SHIFT)) {
