@@ -31,6 +31,12 @@ Config.prototype.initialize = function () {
     'Castle': 4,
     'Tower': 4,
     'Road': 1,
+    'River': 0,
+    'Water': 0,
+    'Grass Hill': 0,
+    'Stone Hill': 0,
+    'Water Rocks': 0,
+    'Grass': 0,
     'Statue': 1,
     'Campfire': 4,
     'Ship': 3,
@@ -68,6 +74,12 @@ Config.prototype.initialize = function () {
     'Castle': 15,
     'Tower': 10,
     'Road': 0,
+    'River': 0,
+    'Water': 0,
+    'Grass Hill': 0,
+    'Stone Hill': 0,
+    'Water Rocks': 0,
+    'Grass': 0,
     'Statue': 30,
     'Campfire': 10,
     'Ship': 30,
@@ -247,6 +259,36 @@ Config.prototype.initialize = function () {
         'Market',
         'Hunting Cabin'
       ],
+      'and': [],
+      'on': [],
+    },
+    'River': {
+      'or': [],
+      'and': [],
+      'on': [],
+    },
+    'Water': {
+      'or': [],
+      'and': [],
+      'on': [],
+    },
+    'Grass Hill': {
+      'or': [],
+      'and': [],
+      'on': [],
+    },
+    'Stone Hill': {
+      'or': [],
+      'and': [],
+      'on': [],
+    },
+    'Water Rocks': {
+      'or': [],
+      'and': [],
+      'on': [],
+    },
+    'Grass': {
+      'or': [],
       'and': [],
       'on': [],
     },
@@ -1207,6 +1249,18 @@ Config.prototype.initialize = function () {
       'Ship': 10,
     },
     'Road': {
+    },
+    'River': {
+    },
+    'Water': {
+    },
+    'Grass Hill': {
+    },
+    'Stone Hill': {
+    },
+    'Water Rocks': {
+    },
+    'Grass': {
     },
     'Statue': {
       'Bathhouse': 3,

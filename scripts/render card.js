@@ -70,6 +70,7 @@ RenderCameraToElement.prototype.next = function () {
 
     if (tile === 'Grass') {
         base = '';
+        model = 'Grass With Bottom';
     } else if (tile === 'Water') {
         base = '';
     } else if (tile === 'Road') {

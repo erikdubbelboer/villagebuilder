@@ -9,7 +9,9 @@
 const ScoreBar = pc.createScript('scorebar');
 
 ScoreBar.prototype.initialize = function () {
-    this.app.on('game:fireworks', this.fire, this);
+    this.app.on('game:fireworks', () => {
+        this.start = 0;
+    });
 
     this.start = 2;
 
@@ -23,10 +25,6 @@ ScoreBar.prototype.onWindowResize = function () {
     const width = this.app.graphicsDevice.width;
     const m = Math.min(Math.max((width - 600) / 2, 50), 200);
     this.entity.element.margin = new pc.Vec4(m, this.entity.element.margin.y, m, this.entity.element.margin.w);
-};
-
-ScoreBar.prototype.fire = function () {
-    this.start = 0;
 };
 
 ScoreBar.prototype.update = function (dt) {

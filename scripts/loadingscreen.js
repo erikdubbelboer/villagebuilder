@@ -118,12 +118,13 @@ pc.script.createLoadingScreen(function (app) {
     if (window.PokiSDK) {
         PokiSDK.init();
         PokiSDK.gameLoadingStart();
-        try {
-            setTimeout(() => {
-                navigator.sendBeacon('https://leveldata.poki.io/data', '94176748-9ef8-42c9-a44e-a95b70ec5680');
-            }, Math.random() * 2000);
-        } catch (ignore) { }
     }
+
+    setTimeout(() => {
+        try {
+            navigator.sendBeacon('https://leveldata.poki.io/data', '94176748-9ef8-42c9-a44e-a95b70ec5680');
+        } catch (ignore) { }
+    }, Math.random() * 2000);
 
     createCss();
     showSplash();
@@ -169,8 +170,8 @@ index.html
     <!--<script>
     window.GameAnalytics=window.GameAnalytics||function(){(GameAnalytics.q=GameAnalytics.q||[]).push(arguments)};
     GameAnalytics("initialize", "414152c1ad1c5e2320deaa3142566ed9", "7e0f6ddf23bb8252514a338388dd955d3f060461");
-    </script>-->
-    <script async src="https://download.gameanalytics.com/js/GameAnalytics-4.4.5.min.js"></script>
+    </script>
+    <script async src="https://download.gameanalytics.com/js/GameAnalytics-4.4.5.min.js"></script>-->
     <script src="//game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>
     <script src="playcanvas-stable.min.js"></script>
     <script src="__settings__.js"></script>

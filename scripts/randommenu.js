@@ -90,7 +90,7 @@ RandomMenu.prototype.initialize = function () {
 
             PokiSDK.rewardedBreak(() => {
                 this.app.fire('game:pausemusic');
-            }).then(reward => {
+            }, 'level-skip', this.app.pointsTier, 'gameplay').then(reward => {
                 this.isDisabled = false;
 
                 this.app.fire('game:enablecamera');

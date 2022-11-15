@@ -249,6 +249,10 @@ OrbitCamera.prototype.initialize = function () {
     this.shakeInterval = 0.02;
     this.maxShakeDistance = 0.06;
     this.app.on('game:shake', duration => {
+        if (Globals.env !== Globals.EnvMain) {
+            return;
+        }
+
         this.time = 0;
         this.duration = duration;
     });

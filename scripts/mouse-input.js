@@ -270,6 +270,9 @@ MouseInput.prototype.onMouseMove = function (event) {
     if (this.dontMove) {
         return;
     }
+    if (this.app.placingMouseDown) {
+        return;
+    }
 
     this.mouseX = event.x;
     this.mouseY = event.y;

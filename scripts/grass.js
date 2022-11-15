@@ -190,7 +190,6 @@ Grass.prototype.initialize = function () {
             this.app.tiles[i][j] = {
                 baseTile: '',
                 buildingTile: '',
-                bitmap: '000000',
             };
         }
     }
@@ -768,7 +767,7 @@ Grass.prototype.updateInstance = function () {
 Grass.prototype.getRiverModelAndRotation = function (i, j) {
     const riverTiles = [
         { template: 'river_straight', bitmap: '100100' },
-        { template: 'river_start', bitmap: '100000' }, // or river_end
+        { template: 'river_start', bitmap: '100000' },
         { template: 'river_intersectionH', bitmap: '111100' },
         { template: 'river_intersectionG', bitmap: '111110' },
         { template: 'river_intersectionF', bitmap: '101010' },

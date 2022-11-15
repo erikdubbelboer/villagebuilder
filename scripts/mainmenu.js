@@ -11,16 +11,23 @@ const MainMenu = pc.createScript('mainmenu');
 MainMenu.prototype.initialize = function () {
     const menu = this.app.root.findByName('MainMenu');
     const creditsButton = this.app.root.findByName('CreditsButton');
+    const optionsButton = this.app.root.findByName('OptionsButton');
     const decks = this.app.root.findByName('Decks');
     const levelsMenu = this.app.root.findByName('LevelsMenu');
     const creditsMenu = this.app.root.findByName('CreditsMenu');
+    const optionsMenu = this.app.root.findByName('OptionsMenu');
     const restartButton = this.app.root.findByName('RestartButton');
     const lostMenu = this.app.root.findByName('LostMenu');
     const controlsTooltip = this.app.root.findByName('ControlsTooltip');
+    const mainMenuButton = this.app.root.findByName('MainMenuButton');
+    const scoreBar = this.app.root.findByName('ScoreBar');
+    const quitButton = this.app.root.findByName('QuitButton');
 
     const setMenuEnabled = enabled => {
         menu.enabled = enabled;
         creditsButton.enabled = enabled;
+        mainMenuButton.enabled = !enabled;
+        scoreBar.enabled = !enabled;
 
         if (enabled) {
             this.app.menuOpen++;
@@ -56,6 +63,10 @@ MainMenu.prototype.initialize = function () {
         }
     };
 
+    this.app.on('mainmenu', enabled => {
+        setMenuEnabled(enabled);
+    });
+
     this.app.keyboard.on(pc.EVENT_KEYUP, event => {
         if (event.key === pc.KEY_ESCAPE) {
             if (this.app.placingEntity) {
@@ -67,7 +78,7 @@ MainMenu.prototype.initialize = function () {
             }
         }
 
-        if (this.app.isWithEditor) {
+        if (this.app.isWithEditor && Globals.env === Globals.EnvMain) {
             if (event.key === pc.KEY_K) {
                 this.app.switchToLevel(this.app.state.current, true, true);
             } else if (event.key === pc.KEY_J) {
@@ -78,7 +89,6 @@ MainMenu.prototype.initialize = function () {
         }
     });
 
-    const mainMenuButton = this.app.root.findByName('MainMenuButton');
     mainMenuButton.button.on('click', () => {
         this.app.fire('game:deselect');
 
@@ -167,73 +177,19 @@ MainMenu.prototype.initialize = function () {
         this.app.playSound('menu');
     }, this);
 
-    // Sound.
-    let sound = true;
-    try {
-        sound = localStorage.getItem('sound') !== '0';
-    } catch (ignore) { }
-    const soundButton = this.app.root.findByName('SoundButton');
+    optionsButton.button.on('click', () => {
+        optionsMenu.enabled = true;
 
-    const updateSound = () => {
-        if (sound) {
-            this.app.systems.sound.volume = 1;
-            soundButton.children[0].element.text = soundButton.children[0].element.text.replace(' ON', ' OFF');
-        } else {
-            this.app.systems.sound.volume = 0;
-            soundButton.children[0].element.text = soundButton.children[0].element.text.replace(' OFF', ' ON');
-
-            if (window.PokiSDK) {
-                PokiSDK.customEvent('game', 'segment', { segment: 'soundoff' });
-            }
-        }
-    };
-    updateSound();
-
-    soundButton.button.on('click', () => {
-        sound = !sound;
-
-        try {
-            localStorage.setItem('sound', sound ? '1' : '0');
-        } catch (ignore) { }
-
-        updateSound();
+        setMenuEnabled(false);
 
         this.app.playSound('menu');
     }, this);
 
-    // Music.
-    let music = true;
-    try {
-        music = localStorage.getItem('music') !== '0';
-    } catch (ignore) { }
-    const musicButton = this.app.root.findByName('MusicButton');
-
-    const updateMusic = () => {
-        if (music) {
-            musicButton.children[0].element.text = musicButton.children[0].element.text.replace(' ON', ' OFF');
-
-            this.app.fire('game:restartmusic');
-        } else {
-            musicButton.children[0].element.text = musicButton.children[0].element.text.replace(' OFF', ' ON');
-
-            this.app.fire('game:stopmusic');
-
-            if (window.PokiSDK) {
-                PokiSDK.customEvent('game', 'segment', { segment: 'musicoff' });
-            }
-        }
-    };
-    updateMusic();
-
-    musicButton.button.on('click', () => {
-        music = !music;
-
-        try {
-            localStorage.setItem('music', music ? '1' : '0');
-        } catch (ignore) { }
-
-        updateMusic();
-
-        this.app.playSound('menu');
-    }, this);
+    if (!window.electronAPI) {
+        quitButton.enabled = false;
+    } else {
+        quitButton.button.on('click', () => {
+            window.electronAPI.quit();
+        });
+    }
 };

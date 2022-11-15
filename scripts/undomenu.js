@@ -58,9 +58,14 @@ UndoMenu.prototype.initialize = function () {
             this.isDisabled = true;
             this.app.fire('game:disablecamera');
 
+            let buildingTile = '';
+            if (this.app.undoState && this.app.undoState.lastTile) {
+                buildingTile = this.app.undoState.lastTile.buildingTile;
+            }
+
             PokiSDK.rewardedBreak(() => {
                 this.app.fire('game:pausemusic');
-            }).then(reward => {
+            }, 'revive', buildingTile, 'gameplay').then(reward => {
                 this.isDisabled = false;
 
                 this.app.fire('game:enablecamera');

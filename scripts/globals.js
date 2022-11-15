@@ -8,7 +8,22 @@
 
 const Globals = pc.createScript('globals');
 
+Globals.EnvMain = 1;
+Globals.EnvModels = 2;
+Globals.EnvLevelEditor = 3;
+
+Globals.attributes.add('env', {
+    type: 'number',
+    enum: [
+        { 'Main': Globals.EnvMain },
+        { 'Models': Globals.EnvModels },
+        { 'LevelEditor': Globals.EnvLevelEditor }
+    ],
+});
+
 Globals.prototype.initialize = function () {
+    Globals.env = this.env;
+
     this.app.saveName = 'save5';
 
     this.app.isWithEditor = window.location.href.indexOf('launch.playcanvas.com') !== -1;
@@ -176,6 +191,7 @@ Globals.prototype.initialize = function () {
             'Stone Hill',
             'Forest',
             'River',
+            'Water',
             'Mountain',
             'Stone Rocks',
             'Water Rocks',
@@ -217,6 +233,7 @@ Globals.prototype.initialize = function () {
         } else if (name === 'River') {
             return 'river_straight';
         }
+
         return name;
     };
 
@@ -376,7 +393,7 @@ Globals.prototype.initialize = function () {
         }
     };
 
-    this.app.addTile = (tile, count) => {
+    this.app.addTile = (tile, count, replace) => {
         if (tile === 'Plus') {
             return;
         }
@@ -385,7 +402,11 @@ Globals.prototype.initialize = function () {
             const button = this.app.buttons[j];
 
             if (button.tile === tile) {
-                button.count += count;
+                if (replace) {
+                    button.count = count;
+                } else {
+                    button.count += count;
+                }
 
                 if (button.count > 0) {
                     cardButtons.children[j].enabled = true;
@@ -433,6 +454,12 @@ Globals.prototype.initialize = function () {
         this.app.fire('game:clearhelp');
         this.app.fire('game:updatebuttons');
 
+        this.app.once('game:levelloaded', () => {
+            setTimeout(() => {
+                this.app.root.findByName('sun').light.updateShadow();
+            }, 10);
+        });
+
         const level = new pc.Entity('Level');
         level.addComponent('script');
         level.script.create(type, {
@@ -441,7 +468,7 @@ Globals.prototype.initialize = function () {
 
         this.app.root.addChild(level);
 
-        this.app.root.findByName('MainMenu').enabled = false;
+        this.app.fire('mainmenu', false);
         this.app.root.findByName('LevelsMenu').enabled = false;
 
         const camera = this.app.root.findByName('camera');
@@ -449,12 +476,6 @@ Globals.prototype.initialize = function () {
         camera.script.orbitCamera.pitch = -45;
         camera.script.orbitCamera.pivotPoint = new pc.Vec3(0, 0, 5);
         camera.script.orbitCamera.distance = 8;
-
-        this.app.once('game:levelloaded', () => {
-            setTimeout(() => {
-                this.app.root.findByName('sun').light.updateShadow();
-            }, 10);
-        });
     };
 
     this.app.saveCurrentLevel = () => {
@@ -503,8 +524,6 @@ Globals.prototype.initialize = function () {
     };
 
     this.app.loadLevel = state => {
-        this.app.openLevel(state.level.name, state.level.attributes);
-
         this.app.once('game:levelloaded', () => {
             this.app.points = state.score.points;
             this.app.maxPoints = state.score.maxPoints;
@@ -677,6 +696,8 @@ Globals.prototype.initialize = function () {
                 }
             }*/
         });
+
+        this.app.openLevel(state.level.name, state.level.attributes);
     };
 
     this.app.state = {
@@ -688,6 +709,10 @@ Globals.prototype.initialize = function () {
 
     let saveTimeout;
     this.app.on('game:updatesave', () => {
+        if (Globals.env !== Globals.EnvMain) {
+            return;
+        }
+
         if (saveTimeout) {
             return;
         }
@@ -724,8 +749,52 @@ Globals.prototype.initialize = function () {
             return;
         }
 
+        this.app.once('game:levelloaded', () => {
+            if (this.app.levelGrassHillsLeft > 0) {
+                this.app.buildingsSeen['Grass Hill'] = 1;
+            }
+            if (this.app.levelStoneHillsLeft > 0) {
+                this.app.buildingsSeen['Stone Hill'] = 1;
+            }
+
+            this.app.root.findByName('UndoGroup').enabled = false;
+            this.app.root.findByName('RandomGroup').enabled = false;
+            this.app.root.findByName('NextMapGroup').enabled = false;
+
+            this.app.undoState = false;
+            this.app.previousPacks = [];
+
+            this.app.fire('game:updatebuttons');
+            this.app.fire('game:updatesave');
+            this.app.fire('game:nextunlock');
+            this.app.fire('game:levelloaded2');
+
+            this.app.root.children[0].script.plusbutton.addDeck();
+
+            /*if (!this.app.touch && level === 0) {
+                let notip = false;
+                try {
+                    notip = localStorage.getItem('notip') === '1';
+                } catch (ignore) { }
+
+                if (!notip) {
+                    const controlsTooltip = this.app.root.findByName('ControlsTooltip');
+                    if (controlsTooltip) {
+                        controlsTooltip.enabled = true;
+                    }
+                }
+            }*/
+
+            if (window.PokiSDK) {
+                PokiSDK.customEvent('game', 'segment', {
+                    segment: 'pointstier-' + this.app.state.current + '-' + this.app.pointsTier,
+                    tilesleft: this.app.buttons.map(t => t.count).reduce((a, b) => a + b, 0),
+                });
+            }
+        });
+
         if (level === 0) { // The Meadow
-            this.app.openLevel('grass', {
+            /*this.app.openLevel('grass', {
                 // Only use a random seed if the user progressed far enough into the level.
                 levelSeed: (restart && (this.app.pointsTier > 7 || force)) ? 0 : 78932,
                 levelSize: 30,
@@ -740,6 +809,9 @@ Globals.prototype.initialize = function () {
                 river: true,
                 island: false,
                 fields: 0.1,
+            });*/
+            this.app.openLevel('grass2', {
+                name: 'level1',
             });
         } else if (level === 1) { // The Island
             this.app.openLevel('grass', {
@@ -802,56 +874,12 @@ Globals.prototype.initialize = function () {
                 island: false,
             });
         }
-
-        this.app.once('game:levelloaded', () => {
-            if (this.app.levelGrassHillsLeft > 0) {
-                this.app.buildingsSeen['Grass Hill'] = 1;
-            }
-            if (this.app.levelStoneHillsLeft > 0) {
-                this.app.buildingsSeen['Stone Hill'] = 1;
-            }
-
-            this.app.root.findByName('UndoGroup').enabled = false;
-            this.app.root.findByName('RandomGroup').enabled = false;
-            this.app.root.findByName('NextMapGroup').enabled = false;
-
-            this.app.undoState = false;
-            this.app.previousPacks = [];
-
-            this.app.fire('game:updatebuttons');
-            this.app.fire('game:updatesave');
-            this.app.fire('game:nextunlock');
-            this.app.fire('game:levelloaded2');
-
-            this.app.root.children[0].script.plusbutton.addDeck();
-
-            /*if (!this.app.touch && level === 0) {
-                let notip = false;
-                try {
-                    notip = localStorage.getItem('notip') === '1';
-                } catch (ignore) { }
-
-                if (!notip) {
-                    const controlsTooltip = this.app.root.findByName('ControlsTooltip');
-                    if (controlsTooltip) {
-                        controlsTooltip.enabled = true;
-                    }
-                }
-            }*/
-
-            if (window.PokiSDK) {
-                PokiSDK.customEvent('game', 'segment', {
-                    segment: 'pointstier-' + this.app.state.current + '-' + this.app.pointsTier,
-                    tilesleft: this.app.buttons.map(t => t.count).reduce((a, b) => a + b, 0),
-                });
-            }
-        });
     };
 };
 
 Globals.prototype.postInitialize = function () {
     // Skip when not in our main scene.
-    if (!this.app.root.findByName('Decks')) {
+    if (Globals.env !== Globals.EnvMain) {
         return;
     }
 
@@ -859,6 +887,26 @@ Globals.prototype.postInitialize = function () {
         this.app.root.findByName('NotSupportedMenu').enabled = true;
         this.app.root.findByName('ScoreBar').enabled = false;
         return;
+    }
+
+    let sound = true;
+    try {
+        sound = localStorage.getItem('sound') !== '0';
+    } catch (ignore) { }
+    if (sound) {
+        this.app.systems.sound.volume = 1;
+    } else {
+        this.app.systems.sound.volume = 0;
+    }
+
+    let music = true;
+    try {
+        music = localStorage.getItem('music') !== '0';
+    } catch (ignore) { }
+    if (music) {
+        this.app.fire('game:restartmusic');
+    } else {
+        this.app.fire('game:stopmusic');
     }
 
     this.app.gameplayStart();

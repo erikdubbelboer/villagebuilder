@@ -69,6 +69,9 @@ PickerFramebuffer.prototype.initialize = function () {
 
     this.app.on('game:levelloaded', () => {
         this.level = this.app.root.findByName('Level');
+        if (!this.level) {
+            console.error('Could not find Level entity!');
+        }
     });
 };
 
@@ -132,6 +135,7 @@ PickerFramebuffer.prototype.newSelect = function (xy) {
 
     // Hacky way to foce an update.
     this.mouseIsDown = false;
+    this.app.placingMouseDown = false;
     this.touchActive = false;
     this.movedWhileDown = !this.app.touch;
 
@@ -215,10 +219,15 @@ PickerFramebuffer.prototype.onMouseDown = function (event) {
     this.mouseIsDown = true;
     this.mouseDownAt = [event.x, event.y];
     this.movedWhileDown = false;
+
+    if (this.app.placingTileName) {
+        this.app.placingMouseDown = true;
+    }
 };
 
 PickerFramebuffer.prototype.onMouseUp = function (event) {
     this.mouseIsDown = false;
+    this.app.placingMouseDown = false;
 };
 
 PickerFramebuffer.prototype.onTouchStart = function (event) {
@@ -284,15 +293,29 @@ PickerFramebuffer.prototype.onTouchMove = function (event) {
 };
 
 PickerFramebuffer.prototype.onMove = function (event) {
-    if (this.mouseIsDown) {
+    /*if (this.mouseIsDown) {
         if (Math.abs(event.x - this.mouseDownAt[0]) > 2 || Math.abs(event.y - this.mouseDownAt[1]) > 2) {
             this.movedWhileDown = true;
         }
         return;
-    }
+    }*/
 
     const p = this.getIJ(event);
-    this.moveTo(p[0], p[1], 1);
+    if (!this.moveTo(p[0], p[1], 1)) {
+        if (this.mouseIsDown) {
+            this.onSelect({});
+        }
+    }
+
+    if (this.mouseIsDown) {
+        if (Math.abs(event.x - this.mouseDownAt[0]) > 2 || Math.abs(event.y - this.mouseDownAt[1]) > 2) {
+            if (!this.movedWhileDown) {
+                this.movedWhileDown = true;
+
+                this.onSelect({});
+            }
+        }
+    }
 };
 
 PickerFramebuffer.prototype.findVs = function (event) {
@@ -364,8 +387,6 @@ PickerFramebuffer.prototype.getIJ = function (event) {
 
 // tooltip: 0=no, 1=yes, 2=only
 PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
-    this.lastBuildingPlace = [i, j];
-
     const levelSize = this.app.levelSize;
     const levelSizeHalf = levelSize / 2;
     const tileXSize = this.app.globals.tileXSize;
@@ -414,6 +435,9 @@ PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
         if (!tile || tile.i !== lastTile.i || tile.j !== lastTile.j) {
             if (lastTile.building && !lastTile.building.enabled) {
                 lastTile.building.enabled = true;
+            }
+            if (lastTile.base && !lastTile.base.enabled) {
+                lastTile.base.enabled = true;
             }
         }
     }
@@ -470,6 +494,10 @@ PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
 
     if (this.app.placingTileName === 'Road' || this.app.placingTileName === 'Square' || this.app.placingTileName === 'Market') {
         this.app.fire('game:fixroads');
+    } else if (this.app.placingTileName === 'River') {
+        this.app.fire('game:fixrivers');
+    } else if (this.app.placingTileName === 'Water' || this.app.placingTileName === 'Grass') {
+        this.app.fire('game:fixedges');
     }
 
     this.app.fire('game:updatescore');
@@ -546,6 +574,8 @@ PickerFramebuffer.prototype.onRotate = function (event) {
                 this.lastTile.buildingTile = '';
 
                 this.app.fire('game:fixroads');
+                this.app.fire('game:fixrivers');
+                this.app.fire('game:fixedges');
                 this.sun.light.updateShadow();
             } else {
                 // Uncomment this to allow clicking on a building to rotate it.
@@ -566,11 +596,11 @@ PickerFramebuffer.prototype.onRotate = function (event) {
 };
 
 PickerFramebuffer.prototype.onSelect = function (event) {
-    if (!this.lastTile) {
+    if (!this.lastTile || !this.lastTile.baseTile) {
         return;
     }
     if (this.movedWhileDown) {
-        return;
+        //return;
     }
     if (!this.app.placingTileName) {
         return;
@@ -602,13 +632,25 @@ PickerFramebuffer.prototype.onSelect = function (event) {
         const batchGroupId = this.app.buildingBatchGroups[Math.floor(lastTile.i / this.app.globals.batchSize)][Math.floor(lastTile.j / this.app.globals.batchSize)].id;
         this.app.setBatchGroupId(entity, batchGroupId);
 
-        if (lastTile.building) {
-            lastTile.building.destroy();
-        }
+        if (this.app.placingTileName === 'River' || this.app.placingTileName === 'Water' || this.app.placingTileName === 'Grass') {
+            lastTile.base.destroy();
 
-        lastTile.building = entity;
-        lastTile.buildingTile = this.app.placingTileName;
-        lastTile.angle = this.app.placingAngle;
+            lastTile.base = entity;
+            lastTile.baseTile = this.app.placingTileName;
+
+            if (this.app.placingTileName === 'River') {
+                lastTile.riverTemplate = templateName;
+                lastTile.riverAngle = this.app.placingAngle;
+            }
+        } else {
+            if (lastTile.building) {
+                lastTile.building.destroy();
+            }
+
+            lastTile.building = entity;
+            lastTile.buildingTile = this.app.placingTileName;
+            lastTile.angle = this.app.placingAngle;
+        }
 
         this.level.addChild(entity);
 
@@ -638,16 +680,18 @@ PickerFramebuffer.prototype.onSelect = function (event) {
             }
         }
 
-        this.app.undoState = {
-            lastTile,
-            pointsTier: this.app.pointsTier,
-            points: this.app.points + this.app.movingPointCount,
-            minPoints: this.app.minPoints,
-            maxPoints: this.app.maxPoints,
-        };
-        this.undoGroup.enabled = true;
+        if (Globals.env == Globals.EnvMain) {
+            this.app.undoState = {
+                lastTile,
+                pointsTier: this.app.pointsTier,
+                points: this.app.points + this.app.movingPointCount,
+                minPoints: this.app.minPoints,
+                maxPoints: this.app.maxPoints,
+            };
+            this.undoGroup.enabled = true;
 
-        this.app.fire('game:lockscore');
+            this.app.fire('game:lockscore');
+        }
 
         this.app.buttons[button].count--;
 
@@ -666,6 +710,10 @@ PickerFramebuffer.prototype.onSelect = function (event) {
 
             if (this.app.placingTileName === 'Road' || this.app.placingTileName === 'Square' || this.app.placingTileName === 'Market') {
                 this.app.fire('game:fixroads');
+            } else if (this.app.placingTileName === 'River') {
+                this.app.fire('game:fixrivers');
+            } else if (this.app.placingTileName === 'Water' || this.app.placingTileName === 'Grass') {
+                this.app.fire('game:fixedges');
             }
 
             /*this.dropSuggestion();
@@ -712,6 +760,8 @@ PickerFramebuffer.prototype.deselect = function () {
     this.app.placingTileName = '';
 
     this.app.fire('game:fixroads');
+    this.app.fire('game:fixrivers');
+    this.app.fire('game:fixedges');
     this.app.fire('game:clearscore');
     this.app.fire('game:clearhelp');
     this.app.fire('game:hidegrid');
@@ -720,6 +770,9 @@ PickerFramebuffer.prototype.deselect = function () {
 
     if (this.lastTile && this.lastTile.building && !this.lastTile.building.enabled) {
         this.lastTile.building.enabled = true;
+    }
+    if (this.lastTile && this.lastTile.base && !this.lastTile.base.enabled) {
+        this.lastTile.base.enabled = true;
     }
 
     this.lastTile = null;
@@ -839,6 +892,13 @@ PickerFramebuffer.prototype.canPlace = function (tile, placingTileName, modify) 
                 tile.building.enabled = false;
             }
             placingValid = true;
+        } else if (placingTileName === 'River' || placingTileName === 'Water' || placingTileName === 'Grass') {
+            if (modify) {
+                if (tile.base) {
+                    tile.base.enabled = false;
+                }
+            }
+            placingValid = true;
         }
 
         if (!placingValid && placingTileName === 'Road' && tile.baseTile === 'River' && tile.buildingTile === '') {
@@ -926,10 +986,18 @@ PickerFramebuffer.prototype.canPlace = function (tile, placingTileName, modify) 
         }
     }
 
+    if (Globals.env === Globals.EnvLevelEditor) {
+        return true;
+    }
+
     return placingValid;
 };
 
 PickerFramebuffer.prototype.lostCheck = function () {
+    if (Globals.env !== Globals.EnvMain) {
+        return;
+    }
+
     const levelSize = this.app.levelSize;
 
     if (this.app.decksOpen) {

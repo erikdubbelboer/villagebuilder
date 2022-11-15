@@ -114,7 +114,7 @@ Grid.prototype.createGrid = function () {
             entity.render.castShadows = false;
             entity.render.batchGroupId = this.gridBatchGroup;
             entity.render.meshInstances[0].material = this.normal;
-            entity.setPosition(tile.x, tile.y + 0.21, tile.z);
+            entity.setPosition(tile.x, tile.y + 0.22, tile.z);
             entity.setLocalScale(1, 1, 1.12);
 
             this.entity.children[0].addChild(entity);
