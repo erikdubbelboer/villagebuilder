@@ -23,10 +23,15 @@ UndoButton.prototype.initialize = function () {
     this.onHoverEnd();
 
     this.undoMenu = this.app.root.findByName('UndoMenu');
+
+    this.isDisabled = false;
 };
 
 UndoButton.prototype.onSelect = function () {
     if (this.app.touch && this.touchStarted + 500 < performance.now()) {
+        return;
+    }
+    if (this.isDisabled) {
         return;
     }
 
@@ -52,6 +57,7 @@ UndoButton.prototype.onSelect = function () {
                 buildingTile = this.app.undoState.lastTile.buildingTile;
             }
 
+            this.isDisabled = true;
             PokiSDK.rewardedBreak(() => {
                 this.app.fire('game:pausemusic');
             }, 'revive', buildingTile, 'gameplay').then(reward => {
@@ -61,6 +67,8 @@ UndoButton.prototype.onSelect = function () {
                 if (reward) {
                     this.app.undo();
                 }
+
+                this.isDisabled = false;
             });
         }
     }

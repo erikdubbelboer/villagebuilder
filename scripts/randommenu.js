@@ -82,6 +82,10 @@ RandomMenu.prototype.initialize = function () {
     };
 
     randomVideoButton.button.on('click', () => {
+        if (this.isDisabled) {
+            return;
+        }
+
         if (this.app.isWithEditor || !window.PokiSDK) {
             giveReward();
         } else {

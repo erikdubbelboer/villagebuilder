@@ -52,6 +52,10 @@ UndoMenu.prototype.initialize = function () {
     };
 
     this.app.root.findByName('UndoVideoButton').button.on('click', () => {
+        if (this.isDisabled) {
+            return;
+        }
+
         if (this.app.isWithEditor || !window.PokiSDK) {
             giveReward();
         } else {
