@@ -254,22 +254,32 @@ Globals.prototype.initialize = function () {
 
     let playing = false;
     this.app.gameplayStart = () => {
-        if (!playing) {
-            playing = true;
+        setTimeout(() => {
+            if (this.app.menuOpen === 0) {
+                if (!playing) {
+                    playing = true;
 
-            if (window.PokiSDK) {
-                PokiSDK.gameplayStart();
+                    console.log('gameplayStart');
+                    if (window.PokiSDK) {
+                        PokiSDK.gameplayStart();
+                    }
+                }
             }
-        }
+        }, 10);
     };
     this.app.gameplayStop = () => {
-        if (playing) {
-            playing = false;
+        setTimeout(() => {
+            if (this.app.menuOpen > 0) {
+                if (playing) {
+                    playing = false;
 
-            if (window.PokiSDK) {
-                PokiSDK.gameplayStop();
+                    console.log('gameplayStop');
+                    if (window.PokiSDK) {
+                        PokiSDK.gameplayStop();
+                    }
+                }
             }
-        }
+        }, 10);
     };
     /*document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {

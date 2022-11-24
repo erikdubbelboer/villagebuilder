@@ -24,6 +24,10 @@ MainMenu.prototype.initialize = function () {
     const quitButton = this.app.root.findByName('QuitButton');
 
     const setMenuEnabled = enabled => {
+        if (menu.enabled === enabled) {
+            return;
+        }
+
         menu.enabled = enabled;
         creditsButton.enabled = enabled;
         mainMenuButton.enabled = !enabled;
