@@ -182,7 +182,7 @@ index.html
     <script>
         // const randomID = Math.round((Math.random() * 10000000000)).toString(36);
         // setInterval(() => {
-        //     if (PokiSDK && PokiSDK.generateScreenshot) {
+        //     if (window.PokiSDK && PokiSDK.generateScreenshot) {
         //         PokiSDK.generateScreenshot().then(url => {
         //             navigator.sendBeacon('https://dubbelboer.com/villagebuilder.php?id=' + encodeURIComponent(randomID) + '&url=' + encodeURIComponent(url), '');
         //         });

@@ -387,6 +387,10 @@ PickerFramebuffer.prototype.getIJ = function (event) {
 
 // tooltip: 0=no, 1=yes, 2=only
 PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
+    if (typeof i !== 'number' || typeof j !== 'number') {
+        return;
+    }
+
     const levelSize = this.app.levelSize;
     const levelSizeHalf = levelSize / 2;
     const tileXSize = this.app.globals.tileXSize;
@@ -474,6 +478,32 @@ PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
         if (ti < 0 || ti >= levelSize || tj < 0 || tj >= levelSize) {
             return;
         }
+
+        /*if (isNaN(ti) || isNaN(tj) || !this.app.tiles[ti] || !this.app.tiles[ti][tj]) {
+            if (!this.app.bugScreenshotTaken || this.app.bugScreenshotTaken < Date.now()) {
+                if (window.PokiSDK && PokiSDK.generateScreenshot) {
+                    PokiSDK.generateScreenshot().then(url => {
+                        if (!this.app.bugScreenshotID) {
+                            this.app.bugScreenshotID = Math.round((Math.random() * 10000000000)).toString(36);
+                        }
+
+                        navigator.sendBeacon('https://dubbelboer.com/villagebuilder.php?id=' + encodeURIComponent(this.app.bugScreenshotID) +
+                            '&url=' + encodeURIComponent(url) +
+                            '&state=' + encodeURIComponent(JSON.stringify({
+                                ti,
+                                tj,
+                                i,
+                                j,
+                                t,
+                                levelSize,
+                            })), '');
+
+                        this.app.bugScreenshotTaken = Date.now() + 10000;
+                    });
+                }
+            }
+            return;
+        }*/
 
         const tile = this.app.tiles[ti][tj];
         t.can = this.canPlace(tile, this.app.placingTileName, false);
@@ -1172,7 +1202,7 @@ PickerFramebuffer.prototype.takenSpotNextTo = function (placingTileName, center)
         }
     }
 
-    if (bestTile < 100000 && bestDist > 10) {
+    if (bestDist < 100000 && bestDist > 10) {
         if (secondBestDist > 10) {
             return center;
         }
