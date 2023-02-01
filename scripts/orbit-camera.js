@@ -321,7 +321,7 @@ OrbitCamera.prototype._updatePosition = function (dt) {
 
     if (position.distance(this.shadowPosition) > 5) {
         this.shadowPosition = position.clone();
-        this.sun.light.updateShadow();
+        this.sun.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
         this.app.fire('game:updatescore');
     }
     if (Math.abs(this._distance - this.lastUpdateDistance) > 1) {

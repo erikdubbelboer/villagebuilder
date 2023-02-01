@@ -133,6 +133,7 @@ Leveleditor.prototype.postInitialize = function () {
 
     this.app.root.findByName('UndoGroup').enabled = false;
     this.app.root.findByName('RandomGroup').enabled = false;
+    this.app.root.findByName('ExtraGroup').enabled = false;
     this.app.root.findByName('NextMapGroup').enabled = false;
 
     this.app.undoState = false;
@@ -502,6 +503,6 @@ Leveleditor.prototype.load = function (str) {
     this.app.fire('game:levelloaded');
 
     setTimeout(() => {
-        this.app.root.findByName('sun').light.updateShadow();
+        this.app.root.findByName('sun').light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
     }, 10);
 };

@@ -606,14 +606,14 @@ PickerFramebuffer.prototype.onRotate = function (event) {
                 this.app.fire('game:fixroads');
                 this.app.fire('game:fixrivers');
                 this.app.fire('game:fixedges');
-                this.sun.light.updateShadow();
+                this.sun.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
             } else {
                 // Uncomment this to allow clicking on a building to rotate it.
                 if (!this.app.globals.cantRotate.includes(this.lastTile.buildingTile)) {
                     this.lastTile.angle += (event.button === pc.MOUSEBUTTON_LEFT || this.app.touch) ? -60 : 60;
                     this.lastTile.building.setRotation(new pc.Quat().setFromEulerAngles(0, this.lastTile.angle, 0));
                     this.app.fire('game:updatesave');
-                    this.sun.light.updateShadow();
+                    this.sun.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
                 }
             }
         } else {
@@ -770,7 +770,7 @@ PickerFramebuffer.prototype.onSelect = function (event) {
         this.app.fire('game:updatesave');
         this.app.fire('game:shake', 0.2);
 
-        this.sun.light.updateShadow();
+        this.sun.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
 
         clearTimeout(this.lostCheckTimeout);
         this.lostCheckTimeout = setTimeout(() => this.lostCheck(), 1000);
@@ -1045,7 +1045,7 @@ PickerFramebuffer.prototype.lostCheck = function () {
         const count = this.app.buttons[t].count;
 
         // Roads don't give points so ignore them.
-        if (['Road', 'NextMap', 'Random', 'Undo'].includes(placingTileName)) {
+        if (['Road', 'NextMap', 'Random', 'Undo', 'Extra'].includes(placingTileName)) {
             continue;
         }
 

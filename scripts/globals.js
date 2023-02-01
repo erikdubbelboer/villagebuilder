@@ -57,6 +57,8 @@ Globals.prototype.initialize = function () {
 
     this.app.menuOpen = 0;
 
+    this.app.extraBuilding = '';
+
     this.app.globals = {
         // Rendering settings:
         batchSize: 1000,
@@ -220,6 +222,14 @@ Globals.prototype.initialize = function () {
             count: 0,
         },
         {
+            tile: 'Extra',
+            count: 0,
+        },
+        {
+            tile: 'Spacer',
+            count: 0,
+        },
+        {
             tile: 'Road',
             count: 0,
         }
@@ -349,7 +359,9 @@ Globals.prototype.initialize = function () {
         cardButtons.setLocalScale(scale, scale, scale);
 
         cardButtons.children.forEach(child => {
-            child.children[2].setLocalScale(1 / scale, 1 / scale, 1 / scale);
+            if (child.children.length > 0) {
+                child.children[2].setLocalScale(1 / scale, 1 / scale, 1 / scale);
+            }
         });
     });
 
@@ -397,9 +409,28 @@ Globals.prototype.initialize = function () {
             this.app.fire('game:points');
             this.app.fire('game:fixroads');
 
-            this.app.root.findByName('sun').light.updateShadow();
+            this.app.root.findByName('sun').light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
 
             this.app.undoState = false;
+        }
+    };
+
+    this.app.setExtraBuilding = () => {
+        const buildings = Object.keys(this.app.buildingsSeen);
+
+        for (let i = 0; i < 1000; i++) {
+            const building = buildings[Math.floor(Math.random() * buildings.length)];
+
+            if (building === this.app.extraBuilding) {
+                continue;
+            }
+
+            if (!this.app.globals.basepoints[building]) {
+                continue;
+            }
+
+            this.app.extraBuilding = building;
+            return;
         }
     };
 
@@ -466,7 +497,7 @@ Globals.prototype.initialize = function () {
 
         this.app.once('game:levelloaded', () => {
             setTimeout(() => {
-                this.app.root.findByName('sun').light.updateShadow();
+                this.app.root.findByName('sun').light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
             }, 10);
         });
 
@@ -652,7 +683,7 @@ Globals.prototype.initialize = function () {
                         placeBuilding();
 
                         setTimeout(() => {
-                            this.app.root.findByName('sun').light.updateShadow();
+                            this.app.root.findByName('sun').light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
                         }, 10);
                     }, timeout);
                 } else {
@@ -665,6 +696,8 @@ Globals.prototype.initialize = function () {
                 this.app.addTile(b[0], b[1]);
             });
 
+            this.app.setExtraBuilding();
+
             if (this.app.levelGrassHillsLeft > 0) {
                 this.app.buildingsSeen['Grass Hill'] = 1;
             }
@@ -674,6 +707,7 @@ Globals.prototype.initialize = function () {
 
             this.app.root.findByName('UndoGroup').enabled = false;
             this.app.root.findByName('RandomGroup').enabled = this.app.previousPacks.length > 4;
+            this.app.root.findByName('ExtraGroup').enabled = true;
             this.app.root.findByName('NextMapGroup').enabled = this.app.pointsTier >= 10;
 
             this.app.animateCardButtons = false;
@@ -689,7 +723,7 @@ Globals.prototype.initialize = function () {
             this.app.fire('game:levelloaded2');
 
             setTimeout(() => {
-                this.app.root.findByName('sun').light.updateShadow();
+                this.app.root.findByName('sun').light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
             }, 100);
 
             /*if (!this.app.touch && this.app.state.current === 0 && this.app.pointsTier < 8) {
@@ -769,6 +803,7 @@ Globals.prototype.initialize = function () {
 
             this.app.root.findByName('UndoGroup').enabled = false;
             this.app.root.findByName('RandomGroup').enabled = false;
+            this.app.root.findByName('ExtraGroup').enabled = true;
             this.app.root.findByName('NextMapGroup').enabled = false;
 
             this.app.undoState = false;

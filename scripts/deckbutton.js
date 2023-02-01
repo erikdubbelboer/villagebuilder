@@ -25,6 +25,11 @@ DeckButton.attributes.add('texture', {
     assetType: 'texture',
 });
 
+DeckButton.attributes.add('noTexture', {
+    type: 'boolean',
+    default: false,
+});
+
 DeckButton.prototype.initialize = function () {
     if (this.entity.button) {
 
@@ -47,8 +52,10 @@ DeckButton.prototype.initialize = function () {
         });
     }
 
-    this.entity.element.texture = this.getTexture();
-    this.entity.element.opacity = 1;
+    if (!this.noTexture) {
+        this.entity.element.texture = this.getTexture();
+        this.entity.element.opacity = 1;
+    }
 };
 
 DeckButton.prototype.onHoverStart = function () {
