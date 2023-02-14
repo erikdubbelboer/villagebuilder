@@ -110,4 +110,11 @@ UndoMenu.prototype.onEnable = function () {
         this.entity.children[1].children[1].enabled = true;
         this.entity.children[1].children[0].element.text = 'WATCH A VIDEO AD TO UNDO YOUR LAST BUILDING';
     }
+
+    if (window.PokiSDK) {
+        PokiSDK.customEvent('game', 'rewardedButton', 'show', {
+            category: 'revive',
+            placement: 'gameplay',
+        });
+    }
 };

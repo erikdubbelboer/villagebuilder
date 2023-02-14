@@ -25,6 +25,17 @@ UndoButton.prototype.initialize = function () {
     this.undoMenu = this.app.root.findByName('UndoMenu');
 
     this.isDisabled = false;
+
+    this.on('enable', () => {
+        if (this.app.undoMenuSeen) {
+            if (window.PokiSDK) {
+                PokiSDK.customEvent('game', 'rewardedButton', 'show', {
+                    category: 'revive',
+                    placement: 'gameplay',
+                });
+            }
+        }
+    });
 };
 
 UndoButton.prototype.onSelect = function () {

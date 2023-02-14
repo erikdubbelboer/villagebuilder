@@ -140,4 +140,11 @@ RandomMenu.prototype.onEnable = function () {
         this.entity.children[1].children[2].enabled = true;
         this.entity.children[1].children[0].element.text = 'WATCH A VIDEO AD TO SKIP TO THE NEXT BUILDINGS';
     }
+
+    if (window.PokiSDK) {
+        PokiSDK.customEvent('game', 'rewardedButton', 'show', {
+            category: 'level-skip',
+            placement: 'gameplay',
+        });
+    }
 };

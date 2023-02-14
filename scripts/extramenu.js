@@ -109,4 +109,11 @@ ExtraMenu.prototype.onEnable = function () {
     }
 
     this.entity.children[1].children[1].children[0].script.rewardimage.tile = this.app.extraBuilding;
+
+    if (window.PokiSDK) {
+        PokiSDK.customEvent('game', 'rewardedButton', 'show', {
+            category: 'extra-ability',
+            placement: 'gameplay',
+        });
+    }
 };
