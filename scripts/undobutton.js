@@ -29,7 +29,7 @@ UndoButton.prototype.initialize = function () {
     this.on('enable', () => {
         if (this.app.undoMenuSeen) {
             if (window.PokiSDK) {
-                PokiSDK.customEvent('game', 'rewardedButton', 'show', {
+                PokiSDK.customEvent('game', 'showRewardedButton', {
                     category: 'revive',
                     placement: 'gameplay',
                 });

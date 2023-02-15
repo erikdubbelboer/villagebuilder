@@ -142,7 +142,7 @@ RandomMenu.prototype.onEnable = function () {
     }
 
     if (window.PokiSDK) {
-        PokiSDK.customEvent('game', 'rewardedButton', 'show', {
+        PokiSDK.customEvent('game', 'showRewardedButton', {
             category: 'level-skip',
             placement: 'gameplay',
         });
