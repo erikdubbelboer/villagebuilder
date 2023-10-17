@@ -100,6 +100,10 @@ TouchInput.prototype.pan = function (midPoint) {
     const toWorldPoint = TouchInput.toWorldPoint;
     const worldDiff = TouchInput.worldDiff;
 
+    if (!this.entity) {
+        return;
+    }
+
     // For panning to work at any zoom level, we use screen point to world projection
     // to work out how far we need to pan the pivotEntity in world space 
     const camera = this.entity.camera;

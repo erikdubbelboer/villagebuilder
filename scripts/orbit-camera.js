@@ -342,6 +342,10 @@ OrbitCamera.prototype._checkAspectRatio = function () {
     const height = this.app.graphicsDevice.height;
     const width = this.app.graphicsDevice.width;
 
+    if (!this.entity) {
+        return;
+    }
+
     // Match the axis of FOV to match the aspect ratio of the canvas so
     // the focused entities is always in frame
     this.entity.camera.horizontalFov = height > width;

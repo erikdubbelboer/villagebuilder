@@ -79,7 +79,7 @@ Grass2.prototype.initialize = function () {
             this.app.buildingBatchGroups[i] = new Array(batchGroupN);
 
             for (let j = 0; j < batchGroupN; j++) {
-                this.app.buildingBatchGroups[i][j] = this.app.batcher.addGroup('building-' + i + '-' + j, true, 100);
+                this.app.buildingBatchGroups[i][j] = this.app.batcher.addGroup('building-' + i + '-' + j, false, 100);
             }
         }
     }
@@ -180,7 +180,6 @@ Grass2.prototype.initialize = function () {
                 tile.isStraightRiver = isStraightRiver;
             } else {
                 tile.buildingTile = model;
-                tile.angle = angle;
 
                 if (model === 'Road') {
                     tile.specialRoad = true;
@@ -193,6 +192,7 @@ Grass2.prototype.initialize = function () {
             tile.i = i;
             tile.j = j;
             tile.bitmap = '000000';
+            tile.angle = angle;
         }
     }
 

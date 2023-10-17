@@ -176,7 +176,7 @@ Grass.prototype.initialize = function () {
             this.app.buildingBatchGroups[i] = new Array(batchGroupN);
 
             for (let j = 0; j < batchGroupN; j++) {
-                this.app.buildingBatchGroups[i][j] = this.app.batcher.addGroup('building-' + i + '-' + j, true, 100);
+                this.app.buildingBatchGroups[i][j] = this.app.batcher.addGroup('building-' + i + '-' + j, false, 100);
             }
         }
     }

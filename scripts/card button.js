@@ -16,13 +16,12 @@ CardButton.attributes.add('index', {
 CardButton.prototype.initialize = function () {
     this.tileName = '';
     this.isDisabled = false;
+    this.cardButtonsScroll = this.app.root.findByName('CardButtonsScroll');
 
     if (this.app.touch) {
         this.entity.button.on(pc.EVENT_TOUCHSTART, this.onTouchStart, this);
         this.app.touch.on(pc.EVENT_TOUCHEND, this.onTouchEnd, this);
         this.app.touch.on(pc.EVENT_TOUCHMOVE, this.onTouchMove, this);
-
-        this.cardButtonsScroll = this.app.root.findByName('CardButtonsScroll');
     }
 
     this.entity.button.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
@@ -31,7 +30,8 @@ CardButton.prototype.initialize = function () {
     this.entity.button.on(pc.EVENT_MOUSEUP, this.onMouseUp, this);
 
     // Enable this to enable dragging the buttons on desktop.
-    //this.app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
+    this.app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
+    this.app.mouse.on(pc.EVENT_MOUSEWHEEL, this.onMouseWheel, this);
 
     this.app.on('game:disablecamera', () => {
         this.isDisabled = true;
@@ -145,6 +145,9 @@ CardButton.prototype.onSelect = function (xy) {
 
     this.app.root.addChild(entity);
     this.app.root.addChild(score);
+
+    // This seems to have no effect on the number of drawcalls.
+    // this.app.setBatchGroupId(entity, this.app.pickerBratchGroup.id);
 
     this.app.fire('game:newselect', xy);
 };
@@ -332,13 +335,13 @@ CardButton.prototype.onTouchMove = function (event) {
     this.dragTo(event.touches[0].x, event.touches[0].y);
 };
 
-/*CardButton.prototype.onMouseMove = function (event) {
+CardButton.prototype.onMouseMove = function (event) {
     if (this.dragStartedAt === false) {
         return;
     }
 
     this.dragTo(event.x, event.y);
-};*/
+};
 
 CardButton.prototype.dragTo = function (x, y) {
     if (this.dragPlacing) {
@@ -348,7 +351,7 @@ CardButton.prototype.dragTo = function (x, y) {
 
     const d = this.dragCurrentAt[0] - x;
 
-    if (this.cardButtonsScroll && Math.abs(d) > 30) {
+    if (this.app.buttons.length > 10 && Math.abs(d) > 30) {
         const pos = this.cardButtons.getLocalPosition();
         pos.x -= d;
         this.cardButtons.setLocalPosition(pos);
@@ -365,9 +368,17 @@ CardButton.prototype.dragTo = function (x, y) {
         this.dragPlacing = true;
 
         this.app.fire('game:showgrid');
-
-        if (window.PokiSDK) {
-            PokiSDK.customEvent('game', 'segment', { segment: 'dragplace' });
-        }
     }
+};
+
+CardButton.prototype.onMouseWheel = function (event) {
+    if (!this.hovering || this.isDisabled) {
+        return;
+    }
+
+    const pos = this.cardButtons.getLocalPosition();
+    pos.x -= -event.event.deltaX + event.event.deltaY;
+    this.cardButtons.setLocalPosition(pos);
+
+    this.cardButtonsScroll.scrollbar.value = (pos.x + 500) / 1000;
 };

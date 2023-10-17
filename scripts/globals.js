@@ -26,7 +26,7 @@ Globals.prototype.initialize = function () {
 
     this.app.saveName = 'save5';
 
-    this.app.isWithEditor = window.location.href.indexOf('launch.playcanvas.com') !== -1;
+    this.app.isWithEditor = window.location.hostname === 'launch.playcanvas.com' || window.location.hostname === 'dubbelboer.com';
 
     const el = document.createElement('audio');
     this.app.canPlayOpus = (navigator.vendor.indexOf('Apple') === -1) && !!el.canPlayType('audio/ogg; codecs="opus"').replace(/^no$/, '');
@@ -47,6 +47,15 @@ Globals.prototype.initialize = function () {
             cardButtonsScroll.enabled = false;
         }
     }
+
+    /*const waterMat = this.app.assets.find('water', 'material').resource;
+    window.waterMat = waterMat;
+    let erik = 0;
+    setInterval(() => {
+        waterMat.bumpiness = 0.05 + Math.sin(erik) * 0.1;
+        waterMat.update();
+        erik += 0.1;
+    }, 100);*/
 
     // dummy function to use until sound system is loaded.
     this.app.playSound = () => { };
@@ -78,7 +87,7 @@ Globals.prototype.initialize = function () {
             'THE ISLAND',
             'THE MOUNTAIN',
             'THE PLAINS',
-            'THE FOREST',
+            'THE SANDBOX',
         ],
 
         heights: {
@@ -269,9 +278,11 @@ Globals.prototype.initialize = function () {
                 if (!playing) {
                     playing = true;
 
-                    console.log('gameplayStart');
                     if (window.PokiSDK) {
                         PokiSDK.gameplayStart();
+                    }
+                    if (window.CrazyGames) {
+                        window.CrazyGames.SDK.game.gameplayStart();
                     }
                 }
             }
@@ -283,9 +294,11 @@ Globals.prototype.initialize = function () {
                 if (playing) {
                     playing = false;
 
-                    console.log('gameplayStop');
                     if (window.PokiSDK) {
                         PokiSDK.gameplayStop();
+                    }
+                    if (window.CrazyGames) {
+                        window.CrazyGames.SDK.game.gameplayStop();
                     }
                 }
             }
@@ -313,6 +326,10 @@ Globals.prototype.initialize = function () {
                 //this.app.systems.sound.volume = 0;
 
                 this.app.fire('game:pausemusic');
+
+                if (window.GameAnalytics) {
+                    GameAnalytics('addAdEvent', 'Show', 'Interstitial', 'Poki', 'break');
+                }
             }).then(() => {
                 /*let sound = true;
                 try {
@@ -325,6 +342,23 @@ Globals.prototype.initialize = function () {
 
                 this.app.fire('game:enablecamera');
                 this.app.fire('game:unpausemusic');
+            });
+        }
+        if (window.CrazyGames) {
+            this.app.fire('game:disablecamera');
+
+            window.CrazyGames.SDK.ad.requestAd('midgame', {
+                adFinished: () => {
+                    this.app.fire('game:enablecamera');
+                    this.app.fire('game:unpausemusic');
+                },
+                adError: () => {
+                    this.app.fire('game:enablecamera');
+                    this.app.fire('game:unpausemusic');
+                },
+                adStarted: () => {
+                    this.app.fire('game:pausemusic');
+                },
             });
         }
     };
@@ -342,6 +376,8 @@ Globals.prototype.initialize = function () {
         for (let i = 0; i < entity.children.length; i++) {
             this.app.setBatchGroupId(entity.children[i], batchGroupId);
         }
+
+        this.app.batcher.markGroupDirty(batchGroupId);
     };
 
     const cardButtons = this.app.root.findByName('CardButtons');
@@ -451,6 +487,10 @@ Globals.prototype.initialize = function () {
 
                 if (button.count > 0) {
                     cardButtons.children[j].enabled = true;
+
+                    if (button.count > 99) {
+                        button.count = 99;
+                    }
                 }
                 return;
             }
@@ -472,6 +512,10 @@ Globals.prototype.initialize = function () {
         cardButtons.addChild(newButton);
 
         this.app.buildingsSeen[tile] = (this.app.buildingsSeen[tile] || 0) + 1;
+
+        if (this.app.buttons.length > 10) {
+            this.app.root.findByName('CardButtonsScroll').enabled = true;
+        }
     };
 
     this.app.levelName = '';
@@ -691,12 +735,35 @@ Globals.prototype.initialize = function () {
                 }
             });
 
-            state.buttons.forEach(b => {
-                this.app.buildingsSeen[b[0]] = 1;
-                this.app.addTile(b[0], b[1]);
-            });
+            if (this.app.state.current === 4) {
+                const buildings = Object.keys(this.app.globals.basepoints);
+                this.app.addTile('Road', 99, true);
+                for (let i = 0; i < buildings.length; i++) {
+                    const b = buildings[i];
 
-            this.app.setExtraBuilding();
+                    if ([
+                        'Townhall',
+                        'Ship',
+                        'Campfire',
+                        'Statue',
+                    ].includes(b)) {
+                        continue;
+                    }
+
+                    if (this.app.globals.basepoints[b]) {
+                        this.app.addTile(b, 99, true);
+                    }
+                }
+                this.app.addTile('Forest', 99, true);
+            } else {
+                state.buttons.forEach(b => {
+                    this.app.buildingsSeen[b[0]] = 1;
+                    this.app.addTile(b[0], b[1]);
+                });
+            }
+
+            //this.app.setExtraBuilding();
+            this.app.fire('game:setextrabuilding');
 
             if (this.app.levelGrassHillsLeft > 0) {
                 this.app.buildingsSeen['Grass Hill'] = 1;
@@ -706,9 +773,10 @@ Globals.prototype.initialize = function () {
             }
 
             this.app.root.findByName('UndoGroup').enabled = false;
-            this.app.root.findByName('RandomGroup').enabled = this.app.previousPacks.length > 4;
-            this.app.root.findByName('ExtraGroup').enabled = true;
-            this.app.root.findByName('NextMapGroup').enabled = this.app.pointsTier >= 10;
+            this.app.root.findByName('RandomGroup').enabled = this.app.state.current !== 4 && this.app.previousPacks.length > 4;
+            this.app.root.findByName('ExtraGroup').enabled = this.app.state.current !== 4;
+            //this.app.root.findByName('NextMapGroup').enabled = this.app.state.current !== 4 && this.app.pointsTier >= 10;
+            this.app.root.findByName('ScoreBar').enabled = this.app.state.current !== 4;
 
             this.app.animateCardButtons = false;
 
@@ -731,7 +799,7 @@ Globals.prototype.initialize = function () {
                 try {
                     notip = localStorage.getItem('notip') === '1';
                 } catch (ignore) { }
-
+ 
                 if (!notip) {
                     const controlsTooltip = this.app.root.findByName('ControlsTooltip');
                     if (controlsTooltip) {
@@ -773,20 +841,15 @@ Globals.prototype.initialize = function () {
     });
 
     this.app.switchToLevel = (level, restart, force) => {
-        if (window.PokiSDK) {
-            PokiSDK.customEvent('game', 'segment', {
-                segment: 'level-' + level,
-            });
-        }
-        if (restart) {
-            if (window.PokiSDK) {
-                PokiSDK.customEvent('game', 'segment', { segment: 'restart' });
-            }
-        }
-
         this.app.state.current = level;
 
         this.app.fire('game:deselect');
+
+        const cardButtons = this.app.root.findByName('CardButtons');
+        const pos = cardButtons.getLocalPosition();
+        pos.x = 0;
+        cardButtons.setLocalPosition(pos);
+        this.app.root.findByName('CardButtonsScroll').scrollbar.value = (pos.x + 500) / 1000;
 
         if (!restart && this.app.state.levels[level] && this.app.state.levels[level].level) {
             this.app.loadLevel(this.app.state.levels[level]);
@@ -794,6 +857,28 @@ Globals.prototype.initialize = function () {
         }
 
         this.app.once('game:levelloaded', () => {
+            if (this.app.state.current === 4) {
+                const buildings = Object.keys(this.app.globals.basepoints);
+                this.app.addTile('Road', 99, true);
+                for (let i = 0; i < buildings.length; i++) {
+                    const b = buildings[i];
+
+                    if ([
+                        'Townhall',
+                        'Ship',
+                        'Campfire',
+                        'Statue',
+                    ].includes(b)) {
+                        continue;
+                    }
+
+                    if (this.app.globals.basepoints[b]) {
+                        this.app.addTile(b, 99, true);
+                    }
+                }
+                this.app.addTile('Forest', 99, true);
+            }
+
             if (this.app.levelGrassHillsLeft > 0) {
                 this.app.buildingsSeen['Grass Hill'] = 1;
             }
@@ -803,25 +888,29 @@ Globals.prototype.initialize = function () {
 
             this.app.root.findByName('UndoGroup').enabled = false;
             this.app.root.findByName('RandomGroup').enabled = false;
-            this.app.root.findByName('ExtraGroup').enabled = true;
-            this.app.root.findByName('NextMapGroup').enabled = false;
+            this.app.root.findByName('ExtraGroup').enabled = this.app.state.current !== 4;
+            //this.app.root.findByName('NextMapGroup').enabled = false;
+            this.app.root.findByName('ScoreBar').enabled = this.app.state.current !== 4;
 
             this.app.undoState = false;
             this.app.previousPacks = [];
 
             this.app.fire('game:updatebuttons');
+            this.app.fire('game:updatecard');
             this.app.fire('game:updatesave');
             this.app.fire('game:nextunlock');
             this.app.fire('game:levelloaded2');
 
-            this.app.root.children[0].script.plusbutton.addDeck();
+            if (this.app.state.current !== 4) {
+                this.app.root.children[0].script.plusbutton.addDeck();
+            }
 
             /*if (!this.app.touch && level === 0) {
                 let notip = false;
                 try {
                     notip = localStorage.getItem('notip') === '1';
                 } catch (ignore) { }
-
+ 
                 if (!notip) {
                     const controlsTooltip = this.app.root.findByName('ControlsTooltip');
                     if (controlsTooltip) {
@@ -835,6 +924,10 @@ Globals.prototype.initialize = function () {
                     segment: 'pointstier-' + this.app.state.current + '-' + this.app.pointsTier,
                     tilesleft: this.app.buttons.map(t => t.count).reduce((a, b) => a + b, 0),
                 });
+            }
+
+            if (window.GameAnalytics) {
+                GameAnalytics('addProgressionEvent', 'Start', this.app.state.current, 'pointstier', this.app.pointsTier);
             }
         });
 
@@ -903,20 +996,9 @@ Globals.prototype.initialize = function () {
                 river: true,
                 island: false,
             });
-        } else if (level === 4) { // The Forest
-            this.app.openLevel('grass', {
-                levelSeed: 0, // Random
-                levelSize: 45,
-                waterSize: 7,
-                waterOffset: 10,
-                forestNew: 10,
-                forestNear: 50,
-                rocks: 4,
-                rocksNew: 1,
-                rocksNear: 3,
-                waterRocks: 5,
-                river: true,
-                island: false,
+        } else if (level === 4) { // The sandbox
+            this.app.openLevel('grass2', {
+                name: 'level1',
             });
         }
     };

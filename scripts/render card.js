@@ -13,6 +13,11 @@ RenderCameraToElement.attributes.add('renderResolution', {
     description: 'Resolution to render at'
 });
 
+RenderCameraToElement.attributes.add('texture', {
+    type: 'asset',
+    assetType: 'texture',
+});
+
 RenderCameraToElement.prototype.initialize = function () {
     this.on('destroy', function () {
         this.renderTarget.destroy();
@@ -179,6 +184,15 @@ RenderCameraToElement.prototype.update = function () {
         if (this.renderOnceFrameCount > 1) {
             if (this.lastTexture) {
                 this.app.tileTextures[this.lastTile] = this.lastTexture;
+
+                /*if (erik) {
+                    erik = false;
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        console.log(reader.result.length, this.app.compress(reader.result).length, reader.result);
+                    };
+                    reader.readAsDataURL(new Blob([this.lastTexture.getSource()]))
+                }*/
             }
 
             this.next();
@@ -207,14 +221,34 @@ RenderCameraToElement.prototype.createNewRenderTexture = function () {
     });
 
     const pixels = colorBuffer.lock();
-    for (let x = 0; x < this.renderResolution.x; x++) {
-        for (let y = 0; y < this.renderResolution.y; y++) {
-            const border = 4;
-            const isBorder = x < border || y < border || x >= this.renderResolution.x - border || y >= this.renderResolution.y - border;
-            pixels[((y * this.renderResolution.x) + x) * 4 + 0] = isBorder ? 255 : 40;
-            pixels[((y * this.renderResolution.x) + x) * 4 + 1] = isBorder ? 255 : 60;
-            pixels[((y * this.renderResolution.x) + x) * 4 + 2] = isBorder ? 255 : 80;
-            pixels[((y * this.renderResolution.x) + x) * 4 + 3] = isBorder ? 255 : 150;
+
+    if (this.texture) {
+        const width = this.renderResolution.x;
+        const height = this.renderResolution.y;
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(this.texture.resource.getSource(), 0, 0, width, height);
+        const data = canvas.getContext('2d').getImageData(0, 0, width, height).data;
+
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                pixels[((y * width) + x) * 4 + 0] = data[((y * width) + x) * 4 + 0];
+                pixels[((y * width) + x) * 4 + 1] = data[((y * width) + x) * 4 + 1];
+                pixels[((y * width) + x) * 4 + 2] = data[((y * width) + x) * 4 + 2];
+                pixels[((y * width) + x) * 4 + 3] = data[((y * width) + x) * 4 + 3];
+            }
+        }
+    } else {
+        for (let x = 0; x < this.renderResolution.x; x++) {
+            for (let y = 0; y < this.renderResolution.y; y++) {
+                const border = 4;
+                const isBorder = x < border || y < border || x >= this.renderResolution.x - border || y >= this.renderResolution.y - border;
+                pixels[((y * this.renderResolution.x) + x) * 4 + 0] = isBorder ? 255 : 40;
+                pixels[((y * this.renderResolution.x) + x) * 4 + 1] = isBorder ? 255 : 60;
+                pixels[((y * this.renderResolution.x) + x) * 4 + 2] = isBorder ? 255 : 80;
+                pixels[((y * this.renderResolution.x) + x) * 4 + 3] = isBorder ? 255 : 150;
+            }
         }
     }
     colorBuffer.unlock();
@@ -229,7 +263,9 @@ RenderCameraToElement.prototype.createNewRenderTexture = function () {
         samples: 1,
     });
 
-    this.entity.camera.renderTarget = this.renderTarget;
+    if (this.entity) {
+        this.entity.camera.renderTarget = this.renderTarget;
+    }
 
     return colorBuffer;
 };

@@ -130,7 +130,7 @@ MouseInput.prototype.update = function (dt) {
     if (left || right || up || down) {
         if (window.PokiSDK) {
             if (!this.segmentWASD) {
-                PokiSDK.customEvent('game', 'segment', { segment: 'keymove' });
+                //PokiSDK.customEvent('game', 'segment', { segment: 'keymove' });
                 this.segmentWASD = true;
             }
         }
@@ -283,7 +283,7 @@ MouseInput.prototype.onMouseMove = function (event) {
 
         if (window.PokiSDK) {
             if (!this.segmentLookround) {
-                PokiSDK.customEvent('game', 'segment', { segment: 'lookaround' });
+                //PokiSDK.customEvent('game', 'segment', { segment: 'lookaround' });
                 this.segmentLookround = true;
             }
         }
@@ -317,7 +317,7 @@ MouseInput.prototype.onMouseWheel = function (event) {
 
         if (window.PokiSDK) {
             if (!this.segmentZoomed) {
-                PokiSDK.customEvent('game', 'segment', { segment: 'zoomed' });
+                //PokiSDK.customEvent('game', 'segment', { segment: 'zoomed' });
                 this.segmentZoomed = true;
             }
         }

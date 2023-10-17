@@ -25,6 +25,11 @@ DeckButton.attributes.add('texture', {
     assetType: 'texture',
 });
 
+DeckButton.attributes.add('emoji', {
+    type: 'string',
+    default: '',
+});
+
 DeckButton.attributes.add('noTexture', {
     type: 'boolean',
     default: false,
@@ -32,7 +37,6 @@ DeckButton.attributes.add('noTexture', {
 
 DeckButton.prototype.initialize = function () {
     if (this.entity.button) {
-
         if (this.app.touch) {
             this.entity.button.on(pc.EVENT_TOUCHSTART, this.onTouchStart, this);
             this.entity.button.on(pc.EVENT_TOUCHEND, this.onTouchEnd, this);
@@ -83,7 +87,7 @@ DeckButton.prototype.onMouseUp = function () {
 DeckButton.prototype.getTexture = function () {
     const width = Math.round(this.entity.element.calculatedWidth);
     const height = Math.round(this.entity.element.calculatedHeight);
-    const id = width + 'x' + height + ':' + (this.texture ? '1' : '0');
+    const id = width + 'x' + height + ':' + ((this.texture && this.texture.id) || this.emoji || '');
 
     if (width < 10 || height < 10) {
         return;
@@ -113,12 +117,23 @@ DeckButton.prototype.getTexture = function () {
 
     const pixels = colorBuffer.lock();
 
-    if (this.texture) {
+    if (this.texture || this.emoji) {
         const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
         canvas.width = width;
         canvas.height = height;
-        canvas.getContext('2d').drawImage(this.texture.resource.getSource(), 0, 0, width, height);
-        const data = canvas.getContext('2d').getImageData(0, 0, width, height).data;
+
+        if (this.texture) {
+            ctx.drawImage(this.texture.resource.getSource(), 0, 0, width, height);
+        } else if (this.emoji) {
+            ctx.font = (width * 0.75) + 'px serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fillText(this.emoji, width / 2, height / 2);
+        }
+
+        const data = ctx.getImageData(0, 0, width, height).data;
 
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {

@@ -56,7 +56,7 @@ UndoMenu.prototype.initialize = function () {
             return;
         }
 
-        if (this.app.isWithEditor || !window.PokiSDK) {
+        if (this.app.isWithEditor || (!window.PokiSDK && !window.CrazyGames)) {
             giveReward();
         } else {
             this.isDisabled = true;
@@ -67,18 +67,46 @@ UndoMenu.prototype.initialize = function () {
                 buildingTile = this.app.undoState.lastTile.buildingTile;
             }
 
-            PokiSDK.rewardedBreak(() => {
-                this.app.fire('game:pausemusic');
-            }, 'revive', buildingTile, 'gameplay').then(reward => {
-                this.isDisabled = false;
+            if (window.PokiSDK) {
+                PokiSDK.rewardedBreak(() => {
+                    this.app.fire('game:pausemusic');
+                }, 'revive', buildingTile, 'gameplay').then(reward => {
+                    this.isDisabled = false;
 
-                this.app.fire('game:enablecamera');
-                this.app.fire('game:unpausemusic');
+                    this.app.fire('game:enablecamera');
+                    this.app.fire('game:unpausemusic');
 
-                if (reward) {
-                    giveReward();
-                }
-            });
+                    if (window.GameAnalytics) {
+                        GameAnalytics('addAdEvent', 'Show', 'RewardedVideo', 'Poki', 'undomenu');
+                    }
+
+                    if (reward) {
+                        giveReward();
+                    }
+                });
+            } else if (window.CrazyGames) {
+                window.CrazyGames.SDK.ad.requestAd('rewarded', {
+                    adFinished: () => {
+                        this.isDisabled = false;
+
+                        this.app.fire('game:enablecamera');
+                        this.app.fire('game:unpausemusic');
+
+                        if (reward) {
+                            giveReward();
+                        }
+                    },
+                    adError: () => {
+                        this.isDisabled = false;
+
+                        this.app.fire('game:enablecamera');
+                        this.app.fire('game:unpausemusic');
+                    },
+                    adStarted: () => {
+                        this.app.fire('game:pausemusic');
+                    },
+                });
+            }
         }
     }, this);
 
@@ -103,7 +131,7 @@ UndoMenu.prototype.onEnable = function () {
 
     this.app.gameplayStop();
 
-    if (!this.app.isWithEditor && (!window.PokiSDK || !window.PokiSDK.isAdBlocked || window.PokiSDK.isAdBlocked())) {
+    if (!this.app.isWithEditor && !window.PokiSDK && !window.CrazyGames) {
         this.entity.children[1].children[1].enabled = false;
         this.entity.children[1].children[0].element.text = 'PLEASE DISABLE YOUR ADBLOCKER';
     } else {

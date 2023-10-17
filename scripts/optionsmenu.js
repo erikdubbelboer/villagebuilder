@@ -71,10 +71,6 @@ OptionsMenu.prototype.initialize = function () {
         } else {
             this.app.systems.sound.volume = 0;
             soundButton.children[0].element.text = soundButton.children[0].element.text.replace(' OFF', ' ON');
-
-            if (window.PokiSDK) {
-                PokiSDK.customEvent('game', 'segment', { segment: 'soundoff' });
-            }
         }
     };
     updateSound();
@@ -107,10 +103,6 @@ OptionsMenu.prototype.initialize = function () {
             musicButton.children[0].element.text = musicButton.children[0].element.text.replace(' OFF', ' ON');
 
             this.app.fire('game:stopmusic');
-
-            if (window.PokiSDK) {
-                PokiSDK.customEvent('game', 'segment', { segment: 'musicoff' });
-            }
         }
     };
     updateMusic();

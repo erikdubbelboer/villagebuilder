@@ -60,17 +60,18 @@ Config.prototype.initialize = function () {
     'Church': 5,
     'Mine': 5,
     'Smelter': 5,
-    'Blacksmith': 4,
-    'Carpenter': 4,
+    'Blacksmith': 0,
     'Lumberjack': 2,
+    'Carpenter': 4,
     'Hunting Cabin': 6,
-    'Mill': 3,
-    'Water Mill': 6,
     'Fishing Hut': 4,
+    'Water Mill': 6,
+    'Mill': 3,
     'Grain': 1,
     'Stable': 4,
-    'Horses': 2,
     'Sheep': 2,
+    'Pigs': 2,
+    'Horses': 2,
     'Castle': 15,
     'Tower': 10,
     'Road': 0,
@@ -82,7 +83,6 @@ Config.prototype.initialize = function () {
     'Grass': 0,
     'Statue': 30,
     'Campfire': 10,
-    'Ship': 30,
     'Townhall': 12,
     'Jousting': 8,
     'Forest': 0,
@@ -92,8 +92,8 @@ Config.prototype.initialize = function () {
     'Storehouse': 3,
     'Bathhouse': 6,
     'Shipyard': 6,
-    'Pigs': 2,
-    'Papermill': 10,
+    'Ship': 30,
+    'Papermill': 0,
     'Chapel': 8,
   };
   this.app.globals.needs = {
@@ -686,10 +686,6 @@ Config.prototype.initialize = function () {
           "Fishing Hut",
           1
         ],
-        [
-          "Papermill",
-          1
-        ]
       ]
     },
     {

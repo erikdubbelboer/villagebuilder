@@ -12,6 +12,11 @@ PickerFramebuffer.prototype.initialize = function () {
     this.mouseDownAt = [0, 0];
     this.lastTile = [-1000000, -100000];
 
+    // This seems to have no effect on the number of drawcalls.
+    // if (!this.app.pickerBratchGroup) {
+    //    this.app.pickerBratchGroup = this.app.batcher.addGroup('picker', true, 1000);
+    // }
+
     if (this.app.touch) {
         this.touchStartedAt = new pc.Vec2(0, 0);
         this.touchStarted = 0;
@@ -27,7 +32,7 @@ PickerFramebuffer.prototype.initialize = function () {
             if (this.app.isWithEditor) {
                 return;
             }
-
+ 
             if (document.fullscreenElement === null) {
                 try {
                     document.body.requestFullscreen({ navigationUI: 'hide' }).catch(() => { });
@@ -72,6 +77,10 @@ PickerFramebuffer.prototype.initialize = function () {
         if (!this.level) {
             console.error('Could not find Level entity!');
         }
+    });
+
+    this.app.on('game:setextrabuilding', () => {
+        this.updateExtraBuilding();
     });
 };
 
@@ -319,6 +328,10 @@ PickerFramebuffer.prototype.onMove = function (event) {
 };
 
 PickerFramebuffer.prototype.findVs = function (event) {
+    if (!this.entity) {
+        return;
+    }
+
     const wc = new pc.Vec3();
     this.entity.camera.screenToWorld(event.x, event.y, 100.0, wc);
     const camera = this.entity.camera.entity.getPosition();
@@ -486,7 +499,7 @@ PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
                         if (!this.app.bugScreenshotID) {
                             this.app.bugScreenshotID = Math.round((Math.random() * 10000000000)).toString(36);
                         }
-
+ 
                         navigator.sendBeacon('https://dubbelboer.com/villagebuilder.php?id=' + encodeURIComponent(this.app.bugScreenshotID) +
                             '&url=' + encodeURIComponent(url) +
                             '&state=' + encodeURIComponent(JSON.stringify({
@@ -497,7 +510,7 @@ PickerFramebuffer.prototype.moveTo = function (i, j, tooltip) {
                                 t,
                                 levelSize,
                             })), '');
-
+ 
                         this.app.bugScreenshotTaken = Date.now() + 10000;
                     });
                 }
@@ -720,10 +733,14 @@ PickerFramebuffer.prototype.onSelect = function (event) {
             };
             this.undoGroup.enabled = true;
 
-            this.app.fire('game:lockscore');
+            if (this.app.state.current !== 4) {
+                this.app.fire('game:lockscore');
+            }
         }
 
-        this.app.buttons[button].count--;
+        if (this.app.state.current !== 4) {
+            this.app.buttons[button].count--;
+        }
 
         if (this.app.buttons[button].count === 0) {
             this.deselect();
@@ -910,6 +927,10 @@ PickerFramebuffer.prototype.canPlace = function (tile, placingTileName, modify) 
     placingValid = false;
 
     if (tile) {
+        if (tile.baseTile === '') {
+            return false;
+        }
+
         placingValid = tile.buildingTile === '' && tile.baseTile !== '' && tile.baseTile !== 'River';
 
         if (placingTileName === 'Mine' && (tile.buildingTile === 'Grass Hill' || tile.buildingTile === 'Stone Hill')) {
@@ -959,6 +980,9 @@ PickerFramebuffer.prototype.canPlace = function (tile, placingTileName, modify) 
                             entity.children[i].reparent(this.app.placingEntity, i);
                         }
                         entity.destroy();
+
+                        // This seems to have no effect on the number of drawcalls.
+                        // this.app.setBatchGroupId(entity, this.app.pickerBratchGroup.id);
                     }
 
                     this.app.placingAngle = tile.angle;
@@ -1123,6 +1147,135 @@ PickerFramebuffer.prototype.bestPlace = function (placingTileName) {
     }
 
     return [bestTile, bestPoints];
+};
+
+PickerFramebuffer.prototype.mostPoints = function (placingTileName) {
+    let bestPoints = this.app.globals.basepoints[placingTileName];
+    let canOnce = false;
+    const levelSize = this.app.levelSize;
+
+    for (let i = 0; i < levelSize; i++) {
+        for (let j = 0; j < levelSize; j++) {
+            const tile = this.app.tiles[i][j];
+            const can = this.canPlace(tile, placingTileName, false);
+
+            if (can) {
+                canOnce = true;
+
+                let points = this.getPoints(tile, placingTileName);
+
+                if (points > bestPoints) {
+                    bestPoints = points;
+                }
+            }
+        }
+    }
+
+    if (!canOnce) {
+        return -1;
+    }
+
+    return bestPoints;
+};
+
+PickerFramebuffer.prototype.updateExtraBuilding = function () {
+    const buildings = [
+        'Tavern',
+        'Market',
+        'Church',
+        'Smelter',
+        'Carpenter',
+        'Lumberjack',
+        'Mill',
+        'Grain',
+        'Stable',
+        'Horses',
+        'Sheep',
+        'Castle',
+        'Jousting',
+        'Noria',
+        'Winery',
+        'Vineyard',
+        'Storehouse',
+        'Bathhouse',
+        'Pigs',
+        'Chapel',
+        'Tower',
+    ];
+
+    if (this.app.pointsTier > 5) {
+        buildings.push('Shipyard');
+    }
+    if (this.app.pointsTier > 5 && (this.app.state.unlocked['Ship'] || Math.random() < 0.05)) {
+        buildings.push('Ship');
+    }
+
+    const special = [
+        'Townhall',
+        'Campfire',
+        'Statue',
+    ];
+    for (let i = 0; i < special.length; i++) {
+        const b = special[i];
+        if (this.app.state.unlocked[b] || Math.random() < 0.05) {
+            buildings.push(b);
+        }
+    }
+
+    const points = [];
+
+    for (let i = 0; i < buildings.length; i++) {
+        const b = buildings[i];
+
+        if (!this.app.globals.basepoints[b]) {
+            continue;
+        }
+
+        const p = this.mostPoints(b);
+
+        if (p > 0) {
+            points.push({ p: p, b: b });
+        }
+    }
+
+    if (points.length === 0) {
+        return;
+    }
+
+    points.sort((a, b) => {
+        if (a.p < b.p) {
+            return 1;
+        } else if (a.p > b.p) {
+            return -1;
+        }
+
+        const pa = this.app.globals.basepoints[a.b];
+        const pb = this.app.globals.basepoints[b.b];
+
+        if (pa < pb) {
+            return 1;
+        } else if (pa > pb) {
+            return -1;
+        }
+
+        return 0;
+    });
+
+    if (points.length > 0) {
+        if (points.length > 5) {
+            points.length = 5;
+        }
+
+        let p = points[Math.floor(Math.random() * points.length)].b;
+        for (let i = 0; i < 10; i++) {
+            if (p !== this.app.extraBuilding) {
+                break;
+            }
+
+            p = points[Math.floor(Math.random() * points.length)].b;
+        }
+        this.app.extraBuilding = p;
+    }
 };
 
 // See Scores.prototype.updatescore.

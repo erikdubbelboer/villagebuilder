@@ -119,6 +119,13 @@ pc.script.createLoadingScreen(function (app) {
         PokiSDK.init();
         PokiSDK.gameLoadingStart();
     }
+    if (window.CrazyGames) {
+        window.CrazyGames.SDK.game.sdkGameLoadingStart();
+    }
+
+    (function (w, d, a, m) { var s = 'script'; var g = 'GameAnalytics'; w[g] = w[g] || function () { (w[g].q = w[g].q || []).push(arguments) }, a = d.createElement(s), m = d.getElementsByTagName(s)[0]; a.async = 1; a.src = 'https://download.gameanalytics.com/js/GameAnalytics-4.4.5.min.js'; m.parentNode.insertBefore(a, m) })(window, document);
+    //GameAnalytics("setEnabledInfoLog", true);
+    GameAnalytics("initialize", "414152c1ad1c5e2320deaa3142566ed9", "7e0f6ddf23bb8252514a338388dd955d3f060461");
 
     setTimeout(() => {
         try {
@@ -132,6 +139,9 @@ pc.script.createLoadingScreen(function (app) {
     app.on('preload:end', function () {
         if (window.PokiSDK) {
             PokiSDK.gameLoadingFinished();
+        }
+        if (window.CrazyGames) {
+            window.CrazyGames.SDK.game.sdkGameLoadingStop();
         }
         app.off('preload:progress');
     });
@@ -173,6 +183,7 @@ index.html
     </script>
     <script async src="https://download.gameanalytics.com/js/GameAnalytics-4.4.5.min.js"></script>-->
     <script src="//game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>
+    <!--<script src="https://sdk.crazygames.com/crazygames-sdk-v2.js"></script>-->
     <script src="playcanvas-stable.min.js"></script>
     <script src="__settings__.js"></script>
 </head>

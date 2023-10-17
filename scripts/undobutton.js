@@ -58,7 +58,7 @@ UndoButton.prototype.onSelect = function () {
     if (!this.app.undoMenuSeen) {
         this.undoMenu.enabled = true;
     } else {
-        if (this.app.isWithEditor || !window.PokiSDK) {
+        if (this.app.isWithEditor || (!window.PokiSDK && !window.CrazyGames)) {
             this.app.undo();
         } else {
             this.app.fire('game:disablecamera');
@@ -69,18 +69,47 @@ UndoButton.prototype.onSelect = function () {
             }
 
             this.isDisabled = true;
-            PokiSDK.rewardedBreak(() => {
-                this.app.fire('game:pausemusic');
-            }, 'revive', buildingTile, 'gameplay').then(reward => {
-                this.app.fire('game:enablecamera');
-                this.app.fire('game:unpausemusic');
 
-                if (reward) {
-                    this.app.undo();
-                }
+            if (window.PokiSDK) {
+                PokiSDK.rewardedBreak(() => {
+                    this.app.fire('game:pausemusic');
+                }, 'revive', buildingTile, 'gameplay').then(reward => {
+                    this.isDisabled = false;
 
-                this.isDisabled = false;
-            });
+                    this.app.fire('game:enablecamera');
+                    this.app.fire('game:unpausemusic');
+
+                    if (window.GameAnalytics) {
+                        GameAnalytics('addAdEvent', 'Show', 'RewardedVideo', 'Poki', 'undobutton');
+                    }
+
+                    if (reward) {
+                        this.app.undo();
+                    }
+                });
+            } else if (window.CrazyGames) {
+                window.CrazyGames.SDK.ad.requestAd('rewarded', {
+                    adFinished: () => {
+                        this.isDisabled = false;
+
+                        this.app.fire('game:enablecamera');
+                        this.app.fire('game:unpausemusic');
+
+                        if (reward) {
+                            this.app.undo();
+                        }
+                    },
+                    adError: () => {
+                        this.isDisabled = false;
+
+                        this.app.fire('game:enablecamera');
+                        this.app.fire('game:unpausemusic');
+                    },
+                    adStarted: () => {
+                        this.app.fire('game:pausemusic');
+                    },
+                });
+            }
         }
     }
 };

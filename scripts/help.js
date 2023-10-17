@@ -33,8 +33,8 @@ Help.prototype.initialize = function () {
 Help.prototype.onWindowResize = function () {
     const width = this.app.graphicsDevice.width;
     const height = this.app.graphicsDevice.height;
-    const w = Math.min(1000 / width, 1);
-    const h = Math.min(100 / height, 1);
+    const w = Math.min(1000 / width, 0.9);
+    const h = Math.min(100 / height, 0.9);
 
     const s = Math.max(Math.max(w, h), 0.6);
 
@@ -220,7 +220,7 @@ Help.prototype.updateHelp = function (tile) {
         rowIndex++;
     });
 
-    if (rowIndex === 3 && tile !== 'Road') {
+    if (rowIndex === 3 && tile !== 'Road' && tile !== 'Forest') {
         this.entity.children[rowIndex].enabled = true;
 
         const children = this.entity.children[rowIndex].children;

@@ -58,7 +58,7 @@ DeckBackground.prototype.onSelect = function () {
     this.app.fire('game:confirmdeck', this.pack);
 
     this.decks.enabled = false;
-    this.randomGroup.enabled = this.app.previousPacks.length > 4;
+    this.randomGroup.enabled = this.app.state.current !== 4 && this.app.previousPacks.length > 4;
 
     this.app.hover('deckbackground', false);
     this.app.hover('deckbutton', false);

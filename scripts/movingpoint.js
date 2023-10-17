@@ -13,13 +13,13 @@ Movingpoint.prototype.initialize = function () {
     this.camera = this.app.root.findByName('camera');
     this.nextLevelPercentage = this.app.root.findByName('NextLevelTextPercentage');
     this.nextLevelTextOnly = this.app.root.findByName('NextLevelTextOnly');
-    this.nextMapGroup = this.app.root.findByName('NextMapGroup');
+    //this.nextMapGroup = this.app.root.findByName('NextMapGroup');
     this.decks = this.app.root.findByName('Decks');
     this.completedMenu = this.app.root.findByName('CompletedMenu');
 
     if (this.entity.bouncePosition) {
         this.distance = new pc.Vec3().sub2(this.entity.getPosition(), this.entity.bouncePosition).length();
-    } else {
+    } else if (this.camera) {
         const now = this.entity.getPosition();
         const end = new pc.Vec3();
 
@@ -47,7 +47,7 @@ Movingpoint.prototype.update = function (dt) {
 
     if (this.entity.bouncePosition) {
         end = new pc.Vec3(this.entity.bouncePosition.x, now.y, this.entity.bouncePosition.z);
-    } else {
+    } else if (this.camera) {
         this.camera.camera.screenToWorld(
             this.target.element.canvasCorners[2].x,
             this.target.element.canvasCorners[2].y + (this.target.element.canvasCorners[0].y - this.target.element.canvasCorners[2].y) / 2,
@@ -75,7 +75,7 @@ Movingpoint.prototype.update = function (dt) {
 
     // Are we going to overshoot the target?
     if (r.length() > currentDist || currentDist < 0.1) {
-        if (this.entity.bouncePosition) {
+        if (this.entity.bouncePosition && this.camera) {
             if (!this.entity.isPoint) {
                 this.entity.destroy();
                 return;
@@ -108,9 +108,9 @@ Movingpoint.prototype.update = function (dt) {
                         tilesleft: this.app.buttons.map(t => t.count).reduce((a, b) => a + b, 0),
                     });
                 }
-                //if (window.GameAnalytics) {
-                //    GameAnalytics("addProgressionEvent", "Start", "world" + ('000' + this.app.state.current).substr(-3), "stage001", "level" + ('000' + this.app.pointsTier).substr(-3));
-                //}
+                if (window.GameAnalytics) {
+                    GameAnalytics('addProgressionEvent', 'Start', this.app.state.current, 'pointstier', this.app.pointsTier);
+                }
 
                 this.app.maxPoints = 15 + (this.app.pointsTier * 5);
 
@@ -141,7 +141,10 @@ Movingpoint.prototype.update = function (dt) {
                     console.log(err);
                 });
 
-                this.nextMapGroup.enabled = this.app.pointsTier >= 10;
+                //this.nextMapGroup.enabled = this.app.state.current !== 4 && this.app.pointsTier >= 10;
+                if (this.app.state.current === 0 && this.app.pointsTier === 10) {
+                    this.app.fire('menu:bounce');
+                }
 
                 if (this.app.pointsTier === 20) {
                     const rewards = [
@@ -149,7 +152,7 @@ Movingpoint.prototype.update = function (dt) {
                         'Ship',
                         'Campfire',
                         'Statue',
-                        'Forest',
+                        //'Forest',
                     ];
                     const reward = rewards[this.app.state.current];
                     if (reward) {

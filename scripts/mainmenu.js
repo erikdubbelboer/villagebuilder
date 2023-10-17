@@ -19,9 +19,13 @@ MainMenu.prototype.initialize = function () {
     const restartButton = this.app.root.findByName('RestartButton');
     const lostMenu = this.app.root.findByName('LostMenu');
     const controlsTooltip = this.app.root.findByName('ControlsTooltip');
-    const mainMenuButton = this.app.root.findByName('MainMenuButton');
     const scoreBar = this.app.root.findByName('ScoreBar');
     const quitButton = this.app.root.findByName('QuitButton');
+
+    this.mainMenuButton = this.app.root.findByName('MainMenuButton');
+    this.bounce = false;
+    this.animating = false;
+    this.animationLeft = 0.5;
 
     const setMenuEnabled = enabled => {
         if (menu.enabled === enabled) {
@@ -30,10 +34,11 @@ MainMenu.prototype.initialize = function () {
 
         menu.enabled = enabled;
         creditsButton.enabled = enabled;
-        mainMenuButton.enabled = !enabled;
+        this.mainMenuButton.enabled = !enabled;
         scoreBar.enabled = !enabled;
 
         if (enabled) {
+            this.bounce = false;
             this.app.menuOpen++;
 
             this.app.gameplayStop();
@@ -46,10 +51,6 @@ MainMenu.prototype.initialize = function () {
 
             this.app.fire('game:disablecamera');
             this.app.fire('game:clearhelp');
-
-            if (window.PokiSDK) {
-                PokiSDK.customEvent('game', 'segment', { segment: 'mainmenu' });
-            }
 
             if (!this.app.touch) {
                 controlsTooltip.enabled = true;
@@ -69,6 +70,10 @@ MainMenu.prototype.initialize = function () {
 
     this.app.on('mainmenu', enabled => {
         setMenuEnabled(enabled);
+    });
+
+    this.app.on('menu:bounce', () => {
+        this.bounce = true;
     });
 
     this.app.keyboard.on(pc.EVENT_KEYUP, event => {
@@ -93,7 +98,7 @@ MainMenu.prototype.initialize = function () {
         }
     });
 
-    mainMenuButton.button.on('click', () => {
+    this.mainMenuButton.button.on('click', () => {
         this.app.fire('game:deselect');
 
         if (decks.enabled) {
@@ -104,10 +109,10 @@ MainMenu.prototype.initialize = function () {
 
         this.app.playSound('menu');
     }, this);
-    mainMenuButton.button.on('mouseenter', () => {
+    this.mainMenuButton.button.on('mouseenter', () => {
         this.app.fire('game:disablecamera');
     });
-    mainMenuButton.button.on('mouseleave', () => {
+    this.mainMenuButton.button.on('mouseleave', () => {
         this.app.fire('game:enablecamera');
     });
 
@@ -115,9 +120,9 @@ MainMenu.prototype.initialize = function () {
         const style = window.getComputedStyle(document.documentElement);
         const hasNotch = parseInt(style.getPropertyValue('--notch-left') || '-1', 10) > 0;
 
-        const position = mainMenuButton.getLocalPosition();
+        const position = this.mainMenuButton.getLocalPosition();
         position.x = hasNotch ? 60 : 10;
-        mainMenuButton.setLocalPosition(position);
+        this.mainMenuButton.setLocalPosition(position);
 
         // const mobile = /(?:phone|windows\s+phone|ipod|blackberry|(?:android|bb\d+|meego|silk|googlebot) .+? mobile|palm|windows\s+ce|opera\smini|avantgo|mobilesafari|docomo)/i;
         //const tablet = /(?:ipad|playbook|(?:android|bb\d+|meego|silk)(?! .+? mobile))/i;
@@ -159,7 +164,9 @@ MainMenu.prototype.initialize = function () {
         this.app.playSound('menu');
     }, this);
     restartButton.button.on('mouseenter', () => {
-        restartButton.children[1].enabled = true;
+        if (this.app.state.current !== 0 && this.app.state.current !== 4) {
+            restartButton.children[1].enabled = true;
+        }
     });
     restartButton.button.on('mouseleave', () => {
         restartButton.children[1].enabled = false;
@@ -195,5 +202,28 @@ MainMenu.prototype.initialize = function () {
         quitButton.button.on('click', () => {
             window.electronAPI.quit();
         });
+    }
+};
+
+MainMenu.prototype.update = function (dt) {
+    if (this.bounce) {
+        this.animating = true;
+        const aminationTime = 1;
+        if (this.animationLeft > 0) {
+            this.animationLeft = Math.max(this.animationLeft - dt, 0);
+
+            if (this.animationLeft >= (aminationTime / 2)) {
+                const s = 1 + ((aminationTime - this.animationLeft) / (aminationTime / 2)) / 6;
+                this.mainMenuButton.setLocalScale(s, s, s);
+            } else {
+                const s = 1 + (this.animationLeft / (aminationTime / 2)) / 6;
+                this.mainMenuButton.setLocalScale(s, s, s);
+            }
+        } else {
+            this.animationLeft = aminationTime;
+        }
+    } else if (this.animating) {
+        this.animating = false;
+        this.mainMenuButton.setLocalScale(1, 1, 1);
     }
 };

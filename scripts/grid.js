@@ -18,12 +18,12 @@ Grid.prototype.initialize = function () {
 
     this.gridBatchGroup = this.app.batcher.addGroup('Grid', true, 1000).id;
 
-    this.normal = this.createMaterial('#00000066', false);
-    this.red = this.createMaterial('#00000066', '#ff0000aa');
-    this.green = this.createMaterial('#00000066', '#0000aaaa');
+    this.normal = this.createMaterial('#00000066', false, false);
+    this.red = this.createMaterial('#00000066', '#ff0000aa', 'cross');
+    this.green = this.createMaterial('#00000066', '#0000aaaa', false);
 };
 
-Grid.prototype.createMaterial = function (color, fill) {
+Grid.prototype.createMaterial = function (color, fill, sign) {
     const w = 28;
     const h = 32;
     const a = 2 * Math.PI / 6;
@@ -61,9 +61,24 @@ Grid.prototype.createMaterial = function (color, fill) {
     ctx.closePath();
     ctx.strokeStyle = color;
     ctx.stroke();
+
     if (fill) {
         ctx.fillStyle = fill;
         ctx.fill();
+    }
+
+    if (sign === 'cross') {
+        const w2 = w / 1.5;
+        const h2 = h / 1.5;
+
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = '#ff000077';
+        ctx.beginPath();
+        ctx.moveTo(w2, h2);
+        ctx.lineTo(canvas.width - w2, canvas.height - h2);
+        ctx.moveTo(canvas.width - w2, h2);
+        ctx.lineTo(w2, canvas.height - h2);
+        ctx.stroke();
     }
 
     texture.setSource(canvas);
@@ -77,6 +92,7 @@ Grid.prototype.createMaterial = function (color, fill) {
     material.opacityMapUv = 0;
     material.opacityMapChannel = 'a';
     material.depthWrite = false;
+    material.useLighting = false;
     material.update();
 
     return material;

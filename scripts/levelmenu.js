@@ -41,14 +41,16 @@ LevelMenu.prototype.initialize = function () {
             this.app.switchToLevel(i, false, false);
         }, this);
 
-        button.button.on('mouseenter', () => {
-            if (button.children[3].enabled) {
-                button.children[4].enabled = true;
-            }
-        });
-        button.button.on('mouseleave', () => {
-            button.children[4].enabled = false;
-        });
+        if (i < 4) {
+            button.button.on('mouseenter', () => {
+                if (button.children[3].enabled) {
+                    button.children[4].enabled = true;
+                }
+            });
+            button.button.on('mouseleave', () => {
+                button.children[4].enabled = false;
+            });
+        }
     }
 
     this.on('enable', this.onEnable, this);
@@ -75,13 +77,13 @@ LevelMenu.prototype.onEnable = function () {
         'Ship',
         'Campfire',
         'Statue',
-        'Forest',
     ];
 
     for (let i = 0; i < 5; i++) {
         const button = this.app.root.findByName('Level' + (i + 1) + 'Button');
 
-        button.element.text = this.app.globals.levelNames[i];
+        // TODO: This does nothing?
+        //button.element.text = this.app.globals.levelNames[i];
 
         if (rewards[i]) {
             button.children[3].enabled = true;
@@ -91,6 +93,8 @@ LevelMenu.prototype.onEnable = function () {
                 button.children[3].element.color = this.tintUnlocked;
                 button.children[4].element.text = 'REWARD UNLOCKED!';
             } else {
+                button.children[3].script.fillimage.tile = rewards[i];
+                button.children[3].children[0].enabled = false;
                 button.children[3].element.color = this.tintLocked;
                 button.children[4].element.text = 'REWARD LOCKED';
             }
@@ -108,9 +112,16 @@ LevelMenu.prototype.onEnable = function () {
             }
         }
 
-        button.children[2].element.text = '      ' + t;
-        button.children[1].element.text = 'LEVEL ' + ' '.repeat(t.length);
-        button.children[1].enabled = true;
-        button.children[2].enabled = true;
+        if (i === 4) {
+            button.children[2].element.text = '';
+            button.children[1].element.text = 'BUILD ANYTHING YOU WANT!';
+            button.children[1].enabled = true;
+            button.children[2].enabled = true;
+        } else {
+            button.children[2].element.text = '      ' + t;
+            button.children[1].element.text = 'LEVEL ' + ' '.repeat(t.length);
+            button.children[1].enabled = true;
+            button.children[2].enabled = true;
+        }
     }
 };

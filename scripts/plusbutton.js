@@ -338,7 +338,8 @@ Plusbutton.prototype.addDeck = function () {
         this.buildingsSeenThisRound[tile] = true;
     }
 
-    this.app.setExtraBuilding();
+    //this.app.setExtraBuilding();
+    this.app.fire('game:setextrabuilding');
 };
 
 Plusbutton.prototype.pickNextUnlock = function () {
