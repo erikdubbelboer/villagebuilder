@@ -624,9 +624,16 @@ PickerFramebuffer.prototype.onRotate = function (event) {
                 // Uncomment this to allow clicking on a building to rotate it.
                 if (!this.app.globals.cantRotate.includes(this.lastTile.buildingTile)) {
                     this.lastTile.angle += (event.button === pc.MOUSEBUTTON_LEFT || this.app.touch) ? -60 : 60;
+                    this.lastTile.angle %= 360;
+                    if (this.lastTile.angle < 0) {
+                        this.lastTile.angle += 360;
+                    }
                     this.lastTile.building.setRotation(new pc.Quat().setFromEulerAngles(0, this.lastTile.angle, 0));
                     this.app.fire('game:updatesave');
                     this.sun.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
+
+                    const batchGroupId = this.app.buildingBatchGroups[Math.floor(this.lastTile.i / this.app.globals.batchSize)][Math.floor(this.lastTile.j / this.app.globals.batchSize)].id;
+                    this.app.batcher.markGroupDirty(batchGroupId);
                 }
             }
         } else {

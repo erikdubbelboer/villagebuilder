@@ -1,3 +1,4 @@
+///<reference path="/Users/erik/.vscode/extensions/playcanvas.playcanvas-0.1.5/node_modules/playcanvas/build/playcanvas.d.ts" />;
 // Village Builder (c) by Erik Dubbelboer and Rens Gehling
 // 
 // Village Builder is licensed under a
@@ -39,6 +40,13 @@ pc.script.createLoadingScreen(function (app) {
         const splash = document.getElementById('application-splash-wrapper');
         if (splash) {
             splash.remove();
+        }
+
+        if (window.PokiSDK) {
+            PokiSDK.gameLoadingFinished();
+        }
+        if (window.CrazyGames) {
+            window.CrazyGames.SDK.game.sdkGameLoadingStop();
         }
     };
 
@@ -123,9 +131,10 @@ pc.script.createLoadingScreen(function (app) {
         window.CrazyGames.SDK.game.sdkGameLoadingStart();
     }
 
-    (function (w, d, a, m) { var s = 'script'; var g = 'GameAnalytics'; w[g] = w[g] || function () { (w[g].q = w[g].q || []).push(arguments) }, a = d.createElement(s), m = d.getElementsByTagName(s)[0]; a.async = 1; a.src = 'https://download.gameanalytics.com/js/GameAnalytics-4.4.5.min.js'; m.parentNode.insertBefore(a, m) })(window, document);
+    //(function (w, d, a, m) { var s = 'script'; var g = 'GameAnalytics'; w[g] = w[g] || function () { (w[g].q = w[g].q || []).push(arguments) }, a = d.createElement(s), m = d.getElementsByTagName(s)[0]; a.async = 1; a.src = 'https://download.gameanalytics.com/js/GameAnalytics-4.4.5.min.js'; m.parentNode.insertBefore(a, m) })(window, document);
     //GameAnalytics("setEnabledInfoLog", true);
-    GameAnalytics("initialize", "414152c1ad1c5e2320deaa3142566ed9", "7e0f6ddf23bb8252514a338388dd955d3f060461");
+    //GameAnalytics("initialize", "414152c1ad1c5e2320deaa3142566ed9", "7e0f6ddf23bb8252514a338388dd955d3f060461");
+    //GameAnalytics("initialize", "9312e3a54c68981e2273362ba1a224cc", "d11ffed4be633ae9cb8139029d82a9661c3d2b53");
 
     setTimeout(() => {
         try {
@@ -137,12 +146,6 @@ pc.script.createLoadingScreen(function (app) {
     showSplash();
 
     app.on('preload:end', function () {
-        if (window.PokiSDK) {
-            PokiSDK.gameLoadingFinished();
-        }
-        if (window.CrazyGames) {
-            window.CrazyGames.SDK.game.sdkGameLoadingStop();
-        }
         app.off('preload:progress');
     });
     app.on('preload:progress', setProgress);
@@ -177,11 +180,6 @@ index.html
     <link rel="manifest" href="manifest.json">
     <style></style>
     <title>Village Builder</title>
-    <!--<script>
-    window.GameAnalytics=window.GameAnalytics||function(){(GameAnalytics.q=GameAnalytics.q||[]).push(arguments)};
-    GameAnalytics("initialize", "414152c1ad1c5e2320deaa3142566ed9", "7e0f6ddf23bb8252514a338388dd955d3f060461");
-    </script>
-    <script async src="https://download.gameanalytics.com/js/GameAnalytics-4.4.5.min.js"></script>-->
     <script src="//game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>
     <!--<script src="https://sdk.crazygames.com/crazygames-sdk-v2.js"></script>-->
     <script src="playcanvas-stable.min.js"></script>
