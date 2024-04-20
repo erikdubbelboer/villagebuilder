@@ -372,12 +372,14 @@ Grass2.prototype.updateInstance = function () {
                     continue;
                 }
 
+                const vbFormat = pc.VertexFormat.getDefaultInstancingFormat(this.app.graphicsDevice);
+                const data = this.childMatrices[baseModel][name][j].slice(0, indexes);
                 const vertexBuffer = new pc.VertexBuffer(
                     this.app.graphicsDevice,
-                    pc.VertexFormat.defaultInstancingFormat,
+                    vbFormat,
                     indexes / 16,
                     pc.BUFFER_STATIC,
-                    this.childMatrices[baseModel][name][j].slice(0, indexes)
+                    data,
                 );
 
                 this.vertexBuffers.push(vertexBuffer);
