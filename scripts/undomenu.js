@@ -70,11 +70,13 @@ UndoMenu.prototype.initialize = function () {
             if (window.PokiSDK) {
                 PokiSDK.rewardedBreak(() => {
                     this.app.fire('game:pausemusic');
+                    this.app.playingVideo = true;
                 }, 'revive', buildingTile, 'gameplay').then(reward => {
                     this.isDisabled = false;
 
                     this.app.fire('game:enablecamera');
                     this.app.fire('game:unpausemusic');
+                    this.app.playingVideo = false;
 
                     if (window.GameAnalytics) {
                         GameAnalytics('addAdEvent', 'Show', 'RewardedVideo', 'Poki', 'undomenu');

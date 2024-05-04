@@ -326,6 +326,7 @@ Globals.prototype.initialize = function () {
                 //this.app.systems.sound.volume = 0;
 
                 this.app.fire('game:pausemusic');
+                this.app.playingVideo = true;
 
                 if (window.GameAnalytics) {
                     GameAnalytics('addAdEvent', 'Show', 'Interstitial', 'Poki', 'break');
@@ -342,6 +343,7 @@ Globals.prototype.initialize = function () {
 
                 this.app.fire('game:enablecamera');
                 this.app.fire('game:unpausemusic');
+                this.app.playingVideo = false;
             });
         }
         if (window.CrazyGames) {

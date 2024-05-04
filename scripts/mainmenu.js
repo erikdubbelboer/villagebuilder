@@ -77,6 +77,10 @@ MainMenu.prototype.initialize = function () {
     });
 
     this.app.keyboard.on(pc.EVENT_KEYUP, event => {
+        if (this.app.playingVideo) {
+            return;
+        }
+
         if (event.key === pc.KEY_ESCAPE) {
             if (this.app.placingEntity) {
                 this.app.playSound('cancel');

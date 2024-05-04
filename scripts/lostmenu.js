@@ -22,11 +22,13 @@ Lostmenu.prototype.initialize = function () {
         PokiSDK.rewardedBreak(() => {
             this.app.fire('game:disablecamera');
             this.app.fire('game:pausemusic');
+            this.app.playingVideo = true;
         }).then(reward => {
             this.entity.enabled = false;
 
             this.app.fire('game:enablecamera');
             this.app.fire('game:unpausemusic');
+            this.app.playingVideo = false;
 
             if (reward) {
                 this.app.root.findByName('Plus').script.plusbutton.addDeck();
